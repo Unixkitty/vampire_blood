@@ -22,6 +22,11 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
     protected final RandomSource random = RandomSource.create();
 
+    public int regenBloodWave = 0;
+    private boolean tickZeroClamped = false;
+
+    private int lastGuiTick = 0;
+
     private static final ResourceLocation BLOODBAR_TEXTURES = new ResourceLocation(VampireBlood.MODID, "textures/gui/icons.png");
 
     private BloodBarOverlay()
@@ -36,56 +41,84 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 && VampirePlayerData.isVampire(Minecraft.getInstance().player)
                 && gui.shouldDrawSurvivalElements()
                 && Minecraft.getInstance().player.isAlive()
-                && !(gui.getMinecraft().player.getVehicle() instanceof LivingEntity) && !gui.getMinecraft().options.hideGui
+                && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity) && !Minecraft.getInstance().options.hideGui
         )
         {
-            VampirePlayerData vampirePlayer = Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).orElse(null);
-
             RenderSystem.enableBlend();
             RenderSystem.setShaderTexture(0, BLOODBAR_TEXTURES);
 
             int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
-            int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - ((ForgeGui) Minecraft.getInstance().gui).rightHeight;
-            ((ForgeGui) Minecraft.getInstance().gui).rightHeight += 10;
-            int blood = vampirePlayer.getThirstLevel();
+            int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
+            gui.rightHeight += 10;
+            int blood = Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(VampirePlayerData::getThirstLevel).orElse(0);
             int maxBlood = VampirePlayerData.Blood.MAX_THIRST;
+
+            if (lastGuiTick != gui.getGuiTicks())
+            {
+                lastGuiTick = gui.getGuiTicks();
+
+                if (!tickZeroClamped)
+                {
+                    if (Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(VampirePlayerData::isFeeding).orElse(false) && regenBloodWave <= 0)
+                    {
+                        regenBloodWave = 20;
+                    }
+                    else if (regenBloodWave > 0)
+                    {
+                        regenBloodWave--;
+                    }
+
+                    tickZeroClamped = true;
+                }
+            }
+            else
+            {
+                tickZeroClamped = false;
+            }
 
             for (int i = 0; i < 10; ++i)
             {
                 int x = startX - i * 8 - 9;
                 int idx = i * 2 + 1;
-                int idx2 = i * 2 + ((maxBlood / 2) + 1); // Duuur
+                int idx2 = i * 2 + ((maxBlood / 2) + 1);
+                int offsetY = 0;
 
                 //TODO add more minor animations with different blood levels
-                //Bar jitter that gets faster the lower the blood when below 1/6
-                if (blood < maxBlood / 6 && Minecraft.getInstance().gui.getGuiTicks() % (blood * 9 + 1) == 0)
+                //If feeding, don't need to jitter at low blood
+                //We check over 10 instead of 0 to treat 0~10 as a 'rest' period and 11~20 as active
+                //Calculate which icon to offset
+                if (regenBloodWave > 0 && regenBloodWave > 10 && (20 - regenBloodWave) == i)
                 {
-                    startY = startY + (random.nextInt(3) - 1);
+                    offsetY -= 2;
+                }
+                //Bar jitter that gets faster the lower the blood when below 1/6
+                else if (blood < maxBlood / 6 && gui.getGuiTicks() % (blood * 9 + 1) == 0)
+                {
+                    offsetY -= random.nextInt(3) - 1;
                 }
 
                 //Background
-                blit(poseStack, x, startY, 0, 0, 9, 9);
+                blit(poseStack, x, startY + offsetY, 0, 0, 9, 9);
 
                 //Power of Canada
                 if (idx2 < blood)
                 {
-                    blit(poseStack, x, startY, 36, 0, 9, 9); //Double full
+                    blit(poseStack, x, startY + offsetY, 36, 0, 9, 9); //Double full
                 }
                 else if (idx2 == blood)
                 {
-                    blit(poseStack, x, startY, 27, 0, 9, 9); //Double half full
+                    blit(poseStack, x, startY + offsetY, 27, 0, 9, 9); //Double half full
                 }
                 else if (idx < blood)
                 {
-                    blit(poseStack, x, startY, 18, 0, 9, 9); //Full
+                    blit(poseStack, x, startY + offsetY, 18, 0, 9, 9); //Full
                 }
                 else if (idx == blood)
                 {
-                    blit(poseStack, x, startY, 9, 0, 9, 9); //Half
+                    blit(poseStack, x, startY + offsetY, 9, 0, 9, 9); //Half
                 }
             }
 
-            //Is this needed?
             RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
             RenderSystem.disableBlend();
         }

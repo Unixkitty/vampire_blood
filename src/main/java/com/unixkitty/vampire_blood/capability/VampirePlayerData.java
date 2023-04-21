@@ -17,8 +17,6 @@ import net.minecraft.world.level.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public class VampirePlayerData
 {
     private static final String LEVEL_NBT_NAME = "vampireLevel";
@@ -99,10 +97,7 @@ public class VampirePlayerData
         {
             handleFeeding(player);
 
-            if (Config.isDebug)
-            {
-                syncDebugData(player);
-            }
+            if (Config.isDebug) syncDebugData(player);
 
             syncData(player);
 
@@ -123,10 +118,7 @@ public class VampirePlayerData
 
                 this.ticksFeeding = 0;
 
-                if (Config.isDebug)
-                {
-                    player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + Blood.MAX_THIRST));
-                }
+                if (Config.isDebug) player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + Blood.MAX_THIRST));
             }
         }
     }
@@ -217,12 +209,7 @@ public class VampirePlayerData
 
     public static boolean isVampire(Player player)
     {
-        AtomicBoolean result = new AtomicBoolean(false);
-
-        player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                result.set(vampirePlayerData.getVampireLevel() != Stage.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != Stage.IN_TRANSITION));
-
-        return result.get();
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != Stage.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != Stage.IN_TRANSITION).orElse(false);
     }
 
     public static boolean isTransitioning(Player player)
@@ -369,10 +356,7 @@ public class VampirePlayerData
                 {
                     decreaseBlood(1);
 
-                    if (Config.isDebug)
-                    {
-                        player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
-                    }
+                    if (Config.isDebug) player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
                 }
             }
 

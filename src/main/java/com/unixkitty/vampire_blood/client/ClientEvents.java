@@ -55,7 +55,7 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event)
         {
-            if (Config.isDebug)
+            if (Config.renderDebugOverlay)
             {
                 MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::onRenderText);
             }
