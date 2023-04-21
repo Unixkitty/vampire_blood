@@ -32,7 +32,7 @@ public class PlayerBloodDataSyncS2CPacket
 
         context.enqueueWork(() ->
                 Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                        vampirePlayerData.setBlood(this.thirstLevel)));
+                        vampirePlayerData.setClientBlood(this.thirstLevel)));
 
         context.setPacketHandled(true);
 

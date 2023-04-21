@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -29,16 +29,13 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
     private static final ResourceLocation BLOODBAR_TEXTURES = new ResourceLocation(VampireBlood.MODID, "textures/gui/icons.png");
 
-    private BloodBarOverlay()
-    {
-
-    }
+    private BloodBarOverlay() {}
 
     @Override
     public void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
     {
         if (Minecraft.getInstance().player != null
-                && VampirePlayerData.isVampire(Minecraft.getInstance().player)
+                && ClientVampirePlayerDataCache.isVampire()
                 && gui.shouldDrawSurvivalElements()
                 && Minecraft.getInstance().player.isAlive()
                 && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity) && !Minecraft.getInstance().options.hideGui
@@ -50,8 +47,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
             int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
             gui.rightHeight += 10;
-            int blood = Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(VampirePlayerData::getThirstLevel).orElse(0);
-            int maxBlood = VampirePlayerData.Blood.MAX_THIRST;
 
             if (lastGuiTick != gui.getGuiTicks())
             {
@@ -59,7 +54,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
                 if (!tickZeroClamped)
                 {
-                    if (Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(VampirePlayerData::isFeeding).orElse(false) && regenBloodWave <= 0)
+                    if (ClientVampirePlayerDataCache.isFeeding && regenBloodWave <= 0)
                     {
                         regenBloodWave = 20;
                     }
@@ -80,7 +75,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             {
                 int x = startX - i * 8 - 9;
                 int idx = i * 2 + 1;
-                int idx2 = i * 2 + ((maxBlood / 2) + 1);
+                int idx2 = i * 2 + ((VampirePlayerData.Blood.MAX_THIRST / 2) + 1);
                 int offsetY = 0;
 
                 //TODO add more minor animations with different blood levels
@@ -92,7 +87,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     offsetY -= 2;
                 }
                 //Bar jitter that gets faster the lower the blood when below 1/6
-                else if (blood < maxBlood / 6 && gui.getGuiTicks() % (blood * 9 + 1) == 0)
+                else if (ClientVampirePlayerDataCache.thirstLevel < VampirePlayerData.Blood.MAX_THIRST / 6 && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
                 {
                     offsetY -= random.nextInt(3) - 1;
                 }
@@ -101,19 +96,19 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 blit(poseStack, x, startY + offsetY, 0, 0, 9, 9);
 
                 //Power of Canada
-                if (idx2 < blood)
+                if (idx2 < ClientVampirePlayerDataCache.thirstLevel)
                 {
                     blit(poseStack, x, startY + offsetY, 36, 0, 9, 9); //Double full
                 }
-                else if (idx2 == blood)
+                else if (idx2 == ClientVampirePlayerDataCache.thirstLevel)
                 {
                     blit(poseStack, x, startY + offsetY, 27, 0, 9, 9); //Double half full
                 }
-                else if (idx < blood)
+                else if (idx < ClientVampirePlayerDataCache.thirstLevel)
                 {
                     blit(poseStack, x, startY + offsetY, 18, 0, 9, 9); //Full
                 }
-                else if (idx == blood)
+                else if (idx == ClientVampirePlayerDataCache.thirstLevel)
                 {
                     blit(poseStack, x, startY + offsetY, 9, 0, 9, 9); //Half
                 }

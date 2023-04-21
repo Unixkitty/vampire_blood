@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.capability;
 
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
@@ -173,6 +174,14 @@ public class VampirePlayerData
         blood.thirstLevel = Math.max(Blood.MIN_THIRST, Math.min(points, Blood.MAX_THIRST));
     }
 
+    @OnlyIn(Dist.CLIENT)
+    public void setClientBlood(int points)
+    {
+        setBlood(points);
+
+        ClientVampirePlayerDataCache.thirstLevel = blood.thirstLevel;
+    }
+
     public void addBlood(int points)
     {
         blood.thirstLevel = Math.min(blood.thirstLevel + points, Blood.MAX_THIRST);
@@ -315,9 +324,7 @@ public class VampirePlayerData
 
         private boolean needsSync = false;
 
-        private Blood()
-        {
-        }
+        private Blood() {}
 
         private void syncData(Player player)
         {

@@ -5,7 +5,7 @@ import net.minecraftforge.common.ForgeConfigSpec;
 @SuppressWarnings("CanBeFinal")
 public class Config
 {
-    public static boolean isDebug = false;
+    public static boolean isDebug = true;
     public static boolean renderDebugOverlay = true;
 
     public static ForgeConfigSpec COMMON_CONFIG;
