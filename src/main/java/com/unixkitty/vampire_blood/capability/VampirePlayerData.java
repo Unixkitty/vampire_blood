@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood.capability;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
@@ -25,8 +24,8 @@ public class VampirePlayerData
     private static final String BLOODTYPE_NBT_NAME = "bloodType";
 
     private Stage vampireLevel = Stage.NOT_VAMPIRE;
-    private int ticksInSun;
     private VampireBloodType bloodType = VampireBloodType.NONE;
+    private int ticksInSun;
 
     private boolean isFeeding = false; //Don't need to store this in NBT, fine if feeding stops after relogin
 
@@ -98,7 +97,7 @@ public class VampirePlayerData
         {
             handleFeeding(player);
 
-            if (Config.debugOutput.get()) syncDebugData(player);
+            syncDebugData(player); //TODO remove debug
 
             syncData(player);
 
@@ -249,10 +248,10 @@ public class VampirePlayerData
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setClientDebugData(int ticksInSun, int ticksFeeding, int thirstExhaustion, int thirstExhaustionIncrement, int thirstTickTimer)
+    public void setClientDebugData(int ticksFeeding, int thirstExhaustion, int thirstExhaustionIncrement, int thirstTickTimer)
     {
-        this.ticksInSun = ticksInSun;
         this.ticksFeeding = ticksFeeding;
+
         this.blood.thirstExhaustion = thirstExhaustion;
         this.blood.thirstExhaustionIncrement = thirstExhaustionIncrement;
         this.blood.thirstTickTimer = thirstTickTimer;
@@ -320,8 +319,6 @@ public class VampirePlayerData
         private int thirstExhaustionIncrement; //This should help make thirstExhaustion more dynamic based on configs and player actions
         private int thirstTickTimer; //This will be used for healing and starvation
 
-        private float vanillaExhaustionDelta;
-
         private boolean needsSync = false;
 
         private Blood() {}
@@ -348,7 +345,7 @@ public class VampirePlayerData
             //TODO special handling when Stage == IN_TRANSITION
 
             //TODO deal with Hunger status effect
-            this.vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
+            float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
 
             //Keep vanilla food level in the middle
             player.getFoodData().setFoodLevel(10);
@@ -367,16 +364,16 @@ public class VampirePlayerData
                 }
             }
 
-            handleExhaustion(player, isPeaceful);
+            handleExhaustion(player, vanillaExhaustionDelta, isPeaceful);
 
             this.syncData(player);
         }
 
-        private void handleExhaustion(Player player, boolean isPeaceful)
+        private void handleExhaustion(Player player, float vanillaExhaustionDelta, boolean isPeaceful)
         {
-            if (this.vanillaExhaustionDelta > 0)
+            if (vanillaExhaustionDelta > 0)
             {
-                exhaustionIncrement();
+                exhaustionIncrementFromVanilla(vanillaExhaustionDelta);
             }
 
             exhaustionIncrement(BloodRates.IDLE);
@@ -392,7 +389,10 @@ public class VampirePlayerData
 
         private void handleRegenAndStarvation(Player player, boolean isPeaceful)
         {
-            if ((Config.naturalHealthRegenWithGamerule.get() ? (Config.naturalHealthRegen.get() && player.level.getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) : Config.naturalHealthRegen.get()) && this.thirstLevel > 0 && player.isHurt())
+            final boolean areWeDoingNaturalRegen = (Config.naturalHealthRegenWithGamerule.get() ? (Config.naturalHealthRegen.get() && player.level.getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) : Config.naturalHealthRegen.get());
+
+            //Fast HP regen when above 1/6th blood
+            if (areWeDoingNaturalRegen && this.thirstLevel > MAX_THIRST / 6 && player.isHurt())
             {
                 ++this.thirstTickTimer;
 
@@ -401,9 +401,25 @@ public class VampirePlayerData
                     player.heal(1.0F);
 
                     exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+
                     this.thirstTickTimer = 0;
                 }
             }
+            //Slower HP regen when still have some blood below 1/6th
+            else if (areWeDoingNaturalRegen && this.thirstLevel <= MAX_THIRST / 6 && player.isHurt())
+            {
+                ++this.thirstTickTimer;
+
+                if (this.thirstTickTimer >= 80)
+                {
+                    player.heal(1.0F);
+
+                    exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+
+                    this.thirstTickTimer = 0;
+                }
+            }
+            //Starving
             else if (this.thirstLevel <= 0)
             {
                 ++this.thirstTickTimer;
@@ -429,11 +445,9 @@ public class VampirePlayerData
             }
         }
 
-        private void exhaustionIncrement()
+        private void exhaustionIncrementFromVanilla(float vanillaExhaustionDelta)
         {
-            VampireBlood.log().debug("Vanilla exhaustion above 0: " + this.vanillaExhaustionDelta);
-
-            this.thirstExhaustionIncrement += this.vanillaExhaustionDelta < 1.0F ? 1 : this.vanillaExhaustionDelta;
+            this.thirstExhaustionIncrement += vanillaExhaustionDelta < 1.0F ? 1 : vanillaExhaustionDelta;
         }
 
         private void exhaustionIncrement(BloodRates rate)

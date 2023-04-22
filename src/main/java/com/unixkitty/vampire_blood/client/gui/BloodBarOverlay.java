@@ -68,7 +68,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     }
                 }
                 //Bar jitter that gets faster with lower blood when below 1/6
-                else if (ClientVampirePlayerDataCache.thirstLevel < VampirePlayerData.Blood.MAX_THIRST / 6 && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
+                else if (ClientVampirePlayerDataCache.thirstLevel <= VampirePlayerData.Blood.MAX_THIRST / 6 && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
                 {
                     offsetY -= random.nextInt(3) - 1;
                     backgroundOffsetY = offsetY;

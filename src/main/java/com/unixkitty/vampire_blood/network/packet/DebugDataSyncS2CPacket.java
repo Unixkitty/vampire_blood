@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -53,7 +54,14 @@ public class DebugDataSyncS2CPacket
 
         context.enqueueWork(() ->
                 Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                        vampirePlayerData.setClientDebugData(this.ticksInSun, this.ticksFeeding, this.thirstExhaustion, this.thirstExhaustionIncrement, this.thirstTickTimer)));
+                        {
+                            vampirePlayerData.setClientDebugData(this.ticksFeeding, this.thirstExhaustion, this.thirstExhaustionIncrement, this.thirstTickTimer);
+
+                            ClientVampirePlayerDataCache.ticksFeeding = this.ticksFeeding;
+                            ClientVampirePlayerDataCache.Debug.thirstExhaustion = this.thirstExhaustion;
+                            ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = this.thirstExhaustionIncrement;
+                            ClientVampirePlayerDataCache.Debug.thirstTickTimer = this.thirstTickTimer;
+                        }));
 
         context.setPacketHandled(true);
 

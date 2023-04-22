@@ -3,7 +3,6 @@ package com.unixkitty.vampire_blood.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DrinkBloodC2SPacket;

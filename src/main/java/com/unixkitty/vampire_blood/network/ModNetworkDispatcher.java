@@ -25,12 +25,6 @@ public class ModNetworkDispatcher
     {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID + ":messages"), () -> PROTOCOL_VERSION, s -> true, s -> true);
 
-        INSTANCE.messageBuilder(TestC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(TestC2SPacket::new)
-                .encoder(TestC2SPacket::toBytes)
-                .consumerMainThread(TestC2SPacket::handle)
-                .add();
-
         INSTANCE.messageBuilder(DrinkBloodC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(DrinkBloodC2SPacket::new)
                 .encoder(DrinkBloodC2SPacket::toBytes)

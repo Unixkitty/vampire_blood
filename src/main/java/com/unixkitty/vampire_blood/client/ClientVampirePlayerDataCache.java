@@ -16,7 +16,9 @@ public final class ClientVampirePlayerDataCache
      */
     public static VampirePlayerData.Stage vampireLevel = VampirePlayerData.Stage.NOT_VAMPIRE;
     public static VampireBloodType bloodType = VampireBloodType.NONE;
+    public static int ticksInSun = 0; //TODO sync
     public static boolean isFeeding = false;
+    public static int ticksFeeding = 0;
 
     /*
         Blood data
@@ -26,5 +28,12 @@ public final class ClientVampirePlayerDataCache
     public static boolean isVampire()
     {
         return vampireLevel != VampirePlayerData.Stage.NOT_VAMPIRE && vampireLevel != VampirePlayerData.Stage.IN_TRANSITION;
+    }
+
+    public static final class Debug
+    {
+        public static int thirstExhaustion = 0;
+        public static int thirstExhaustionIncrement = 0;
+        public static int thirstTickTimer = 0;
     }
 }

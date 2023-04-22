@@ -1,7 +1,9 @@
 package com.unixkitty.vampire_blood;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -13,6 +15,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -29,9 +32,9 @@ public class VampireCommand
     {
         dispatcher.register(Commands.literal("vampire").requires(commandSourceStack -> commandSourceStack.hasPermission(4)).then(
                         Commands.literal("level").then(
-                                Commands.argument("player", EntityArgument.player()).then(
+                                playerArg().then(
                                         Commands.argument("level", IntegerArgumentType.integer()).executes(
-                                                context -> setPlayerVampirismLevel(context, EntityArgument.getPlayer(context, "player"), IntegerArgumentType.getInteger(context, "level"))
+                                                context -> setPlayerVampirismLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "level"))
                                         )
                                 )
                         ).then(
@@ -42,16 +45,30 @@ public class VampireCommand
                 ).then(
                         Commands.literal("blood").then(
                                 Commands.literal("get").then(
-                                        Commands.argument("player", EntityArgument.player()).executes(
-                                                context -> getBloodLevel(context, EntityArgument.getPlayer(context, "player"))
+                                        playerArg().executes(
+                                                context -> getBloodLevel(context, getPlayer(context))
                                         )
                                 )
                         ).then(
                                 Commands.literal("set").then(
-                                        Commands.argument("player", EntityArgument.player()).then(
+                                        playerArg().then(
                                                 Commands.argument("bloodPoints", IntegerArgumentType.integer(VampirePlayerData.Blood.MIN_THIRST, VampirePlayerData.Blood.MAX_THIRST)).executes(
-                                                        context -> setBloodLevel(context, EntityArgument.getPlayer(context, "player"), IntegerArgumentType.getInteger(context, "bloodPoints"))
+                                                        context -> setBloodLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "bloodPoints"))
                                                 )
+                                        )
+                                )
+                        )
+                ).then(
+                        Commands.literal("heal").then(
+                                playerArg().executes(
+                                        context -> setPlayerHealth(getPlayer(context), -1)
+                                )
+                        )
+                ).then(
+                        Commands.literal("set_health").then(
+                                playerArg().then(
+                                        Commands.argument("health", FloatArgumentType.floatArg(0)).executes(
+                                                context -> setPlayerHealth(getPlayer(context), FloatArgumentType.getFloat(context, "health"))
                                         )
                                 )
                         )
@@ -59,6 +76,16 @@ public class VampireCommand
         );
     }
 
+    private static int setPlayerHealth(ServerPlayer player, float health)
+    {
+        if (!player.isCreative() && !player.isSpectator())
+        {
+            player.setHealth(health < 0 ? player.getMaxHealth() : health);
+        }
+
+        return 0;
+    }
+    
     private static int setBloodLevel(CommandContext<CommandSourceStack> context, ServerPlayer player, int bloodPoints)
     {
         AtomicBoolean isVampire = new AtomicBoolean(false);
@@ -150,5 +177,15 @@ public class VampireCommand
         }
 
         return 0;
+    }
+
+    private static ServerPlayer getPlayer(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        return EntityArgument.getPlayer(context, "player");
+    }
+
+    private static RequiredArgumentBuilder<CommandSourceStack, EntitySelector> playerArg()
+    {
+        return Commands.argument("player", EntityArgument.player());
     }
 }

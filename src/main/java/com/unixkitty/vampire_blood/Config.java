@@ -41,7 +41,7 @@ public class Config
             {
                 naturalHealthRegen = commonConfig.comment("Should vampires regenerate health naturally").define(NATURAL_REGEN, true);
                 naturalHealthRegenWithGamerule = commonConfig.comment("Should only regenerate health naturally if vanilla gamerule allows").define(NATURAL_REGEN_GAMERULE, false);
-                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health").defineInRange(HEALING_RATE, 10, 1, Integer.MAX_VALUE);
+                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 
