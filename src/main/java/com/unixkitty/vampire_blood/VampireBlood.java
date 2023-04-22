@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood;
 
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -22,19 +21,18 @@ public class VampireBlood
     public VampireBlood()
     {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
-        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_CONFIG);
 
-        modEventBus.addListener(this::onCommonSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onCommonSetup);
+
+//        modEventBus.addListener(this::onCommonSetup);
 
 //        MinecraftForge.EVENT_BUS.register(ModRegistry.class);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event)
     {
-        event.enqueueWork(() ->
-        {
-            ModNetworkDispatcher.register();
-        });
+        event.enqueueWork(ModNetworkDispatcher::register);
     }
 
     public static Logger log()

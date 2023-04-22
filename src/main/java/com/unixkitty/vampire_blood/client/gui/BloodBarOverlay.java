@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
@@ -21,11 +22,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
     public static final BloodBarOverlay INSTANCE = new BloodBarOverlay();
 
     protected final RandomSource random = RandomSource.create();
-
-    public int regenBloodWave = 0;
-    private boolean tickZeroClamped = false;
-
-    private int lastGuiTick = 0;
 
     private static final ResourceLocation BLOODBAR_TEXTURES = new ResourceLocation(VampireBlood.MODID, "textures/gui/icons.png");
 
@@ -48,52 +44,38 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
             gui.rightHeight += 10;
 
-            if (lastGuiTick != gui.getGuiTicks())
-            {
-                lastGuiTick = gui.getGuiTicks();
-
-                if (!tickZeroClamped)
-                {
-                    if (ClientVampirePlayerDataCache.isFeeding && regenBloodWave <= 0)
-                    {
-                        regenBloodWave = 20;
-                    }
-                    else if (regenBloodWave > 0)
-                    {
-                        regenBloodWave--;
-                    }
-
-                    tickZeroClamped = true;
-                }
-            }
-            else
-            {
-                tickZeroClamped = false;
-            }
-
             for (int i = 0; i < 10; ++i)
             {
                 int x = startX - i * 8 - 9;
                 int idx = i * 2 + 1;
                 int idx2 = i * 2 + ((VampirePlayerData.Blood.MAX_THIRST / 2) + 1);
                 int offsetY = 0;
+                int backgroundOffsetY = 0;
 
                 //TODO add more minor animations with different blood levels
-                //If feeding, don't need to jitter at low blood
-                //We check over 10 instead of 0 to treat 0~10 as a 'rest' period and 11~20 as active
-                //Calculate which icon to offset
-                if (regenBloodWave > 0 && regenBloodWave > 10 && (20 - regenBloodWave) == i)
+                //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
+                if (ClientVampirePlayerDataCache.isFeeding)
                 {
-                    offsetY -= 2;
+                    //Dancing
+                    if (Config.alternateBloodbarFeedingAnimation.get())
+                    {
+                        offsetY -= ((gui.getGuiTicks() - i) % 10.0) / 5.0;
+                    }
+                    else if (((gui.getGuiTicks() + (9 - i)) % 10) == 0)
+                    {
+                        offsetY -= 2;
+                        backgroundOffsetY = offsetY;
+                    }
                 }
-                //Bar jitter that gets faster the lower the blood when below 1/6
+                //Bar jitter that gets faster with lower blood when below 1/6
                 else if (ClientVampirePlayerDataCache.thirstLevel < VampirePlayerData.Blood.MAX_THIRST / 6 && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
                 {
                     offsetY -= random.nextInt(3) - 1;
+                    backgroundOffsetY = offsetY;
                 }
 
                 //Background
-                blit(poseStack, x, startY + offsetY, 0, 0, 9, 9);
+                blit(poseStack, x, startY + backgroundOffsetY, 0, 0, 9, 9);
 
                 //Power of Canada
                 if (idx2 < ClientVampirePlayerDataCache.thirstLevel)

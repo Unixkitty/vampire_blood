@@ -67,7 +67,7 @@ public class KeyBindings
                     {
                         //TODO LivingEntity
 //                        ModNetworkDispatcher.sendToServer(new DrinkBloodC2SPacket(((EntityHitResult) mouseOver).getEntity().getId()));
-                        if (Config.isDebug) player.sendSystemMessage(Component.literal("Drink blood key is down"));
+                        if (Config.debugOutput.get()) player.sendSystemMessage(Component.literal("Drink blood key is down"));
                         ModNetworkDispatcher.sendToServer(new DrinkBloodC2SPacket());
                     }
 //                    else if (mouseOver instanceof BlockHitResult)
@@ -83,7 +83,7 @@ public class KeyBindings
             if (succ)
             {
                 succ = false;
-                if (Config.isDebug) Minecraft.getInstance().player.sendSystemMessage(Component.literal("Drink blood key is off"));
+                if (Config.debugOutput.get()) Minecraft.getInstance().player.sendSystemMessage(Component.literal("Drink blood key is off"));
                 ModNetworkDispatcher.sendToServer(new StopDrinkBloodC2SPacket());
             }
         }

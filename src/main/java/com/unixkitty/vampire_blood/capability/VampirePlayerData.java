@@ -98,7 +98,7 @@ public class VampirePlayerData
         {
             handleFeeding(player);
 
-            if (Config.isDebug) syncDebugData(player);
+            if (Config.debugOutput.get()) syncDebugData(player);
 
             syncData(player);
 
@@ -119,7 +119,7 @@ public class VampirePlayerData
 
                 this.ticksFeeding = 0;
 
-                if (Config.isDebug) player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + Blood.MAX_THIRST));
+                if (Config.debugOutput.get()) player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + Blood.MAX_THIRST));
             }
         }
     }
@@ -363,7 +363,7 @@ public class VampirePlayerData
                 {
                     decreaseBlood(1);
 
-                    if (Config.isDebug) player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
+                    if (Config.debugOutput.get()) player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
                 }
             }
 
