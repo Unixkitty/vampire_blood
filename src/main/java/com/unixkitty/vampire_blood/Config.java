@@ -66,7 +66,7 @@ public class Config
             clientConfig.push("debug");
             {
                 debugOutput = clientConfig.comment("Print verbose debug info to chat").define(DEBUG_OUTPUT, false);
-                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define(RENDER_DEBUG_OVERLAY, true);
+                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define(RENDER_DEBUG_OVERLAY, false);
             }
             clientConfig.pop();
 
