@@ -1,4 +1,4 @@
-package com.unixkitty.vampire_blood.init;
+package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
@@ -89,10 +89,5 @@ public class ModEvents
                 }
             });
         }
-    }
-
-    public static boolean isPlayerMoving(Player player)
-    {
-        return player.xOld != player.getX() || player.yOld != player.getY() || player.zOld != player.getZ();
     }
 }
