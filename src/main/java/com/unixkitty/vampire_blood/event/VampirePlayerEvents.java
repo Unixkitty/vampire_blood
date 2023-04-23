@@ -2,7 +2,6 @@ package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
@@ -22,9 +21,9 @@ public class VampirePlayerEvents
         {
             var effect = event.getEffectInstance().getEffect();
 
-            if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirePlayerData.Stage.NOT_VAMPIRE).orElse(false))
+            if (VampirePlayerData.isUndead(player))
             {
-                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE || effect == MobEffects.POISON || effect == MobEffects.REGENERATION)
+                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE)
                 {
                     event.setResult(Event.Result.DENY);
                 }

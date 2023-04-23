@@ -215,6 +215,11 @@ public class VampirePlayerData
         }
     }
 
+    public static boolean isUndead(Player player)
+    {
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != Stage.NOT_VAMPIRE).orElse(false);
+    }
+
     public static boolean isVampire(Player player)
     {
         return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != Stage.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != Stage.IN_TRANSITION).orElse(false);

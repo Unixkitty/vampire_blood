@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.mixin;
 
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,12 +12,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntity.class)
 public class MixinLivingEntity
 {
-    @Inject(at = @At("HEAD"), method = "isInvertedHealAndHarm()Z", cancellable = true)
-    public void vampire$isInvertedHealAndHarm(CallbackInfoReturnable<Boolean> cir)
+    @Inject(at = @At("HEAD"), method = "getMobType()Lnet/minecraft/world/entity/MobType;", cancellable = true)
+    public void vampire$getMobType(CallbackInfoReturnable<MobType> result)
     {
-        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide() && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent() && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirePlayerData.Stage.NOT_VAMPIRE).orElse(false))
+        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide() && VampirePlayerData.isUndead(player))
         {
-            cir.setReturnValue(true);
+            result.setReturnValue(MobType.UNDEAD);
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "canBreatheUnderwater()Z", cancellable = true)
+    public void vampire$canBreatheUnderwater(CallbackInfoReturnable<Boolean> result)
+    {
+        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide())
+        {
+            result.setReturnValue(false);
         }
     }
 }
