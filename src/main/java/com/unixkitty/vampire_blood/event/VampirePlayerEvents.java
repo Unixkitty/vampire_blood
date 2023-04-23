@@ -5,6 +5,8 @@ import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -32,6 +34,15 @@ public class VampirePlayerEvents
                     event.getEffectInstance().duration = event.getEffectInstance().getDuration() / 2;
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingHurtEvent(final LivingHurtEvent event)
+    {
+        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof Player player && VampirePlayerData.isVampire(player) && event.getSource().isFire())
+        {
+            event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
         }
     }
 }
