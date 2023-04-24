@@ -130,7 +130,7 @@ public class VampirePlayerData
 
             syncData(player);
 
-            blood.tick(player);
+            blood.tick(player, this.vampireLevel);
         }
     }
 
@@ -358,11 +358,9 @@ public class VampirePlayerData
             this.needsSync = true;
         }
 
-        private void tick(Player player)
+        private void tick(Player player, Stage vampireLevel)
         {
             boolean isPeaceful = player.level.getDifficulty() == Difficulty.PEACEFUL;
-
-            //TODO special handling when Stage == IN_TRANSITION
 
             float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
 
@@ -371,22 +369,31 @@ public class VampirePlayerData
             player.getFoodData().setSaturation(0);
             player.getFoodData().setExhaustion(0);
 
-            if (this.thirstExhaustion >= 100)
+            //TODO special handling when Stage == IN_TRANSITION
+
+            if (vampireLevel == Stage.IN_TRANSITION)
             {
-                this.thirstExhaustion -= 100;
 
-                if (!isPeaceful)
+            }
+            else
+            {
+                if (this.thirstExhaustion >= 100)
                 {
-                    decreaseBlood(1);
+                    this.thirstExhaustion -= 100;
 
-                    if (Config.debugOutput.get())
+                    if (!isPeaceful)
                     {
-                        player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
+                        decreaseBlood(1);
+
+                        if (Config.debugOutput.get())
+                        {
+                            player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
+                        }
                     }
                 }
-            }
 
-            handleExhaustion(player, vanillaExhaustionDelta, isPeaceful);
+                handleExhaustion(player, vanillaExhaustionDelta, isPeaceful);
+            }
 
             this.syncData(player);
         }
