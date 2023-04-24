@@ -52,7 +52,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 int offsetY = 0;
                 int backgroundOffsetY = 0;
 
-                //TODO add more minor animations with different blood levels
                 //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
                 if (ClientVampirePlayerDataCache.isFeeding)
                 {

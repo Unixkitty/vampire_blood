@@ -5,6 +5,7 @@ import com.unixkitty.vampire_blood.Config;
 public enum BloodRates
 {
     IDLE,
+    HEALING_SLOW,
     HEALING;
 
     public int get()
@@ -23,6 +24,10 @@ public enum BloodRates
             {
                 return Config.bloodUsageRate.get() / 12;
             }*/
+            case HEALING_SLOW ->
+            {
+                return Config.bloodUsageRate.get() / 4;
+            }
             case HEALING ->
             {
                 return Config.bloodUsageRate.get() / 2;

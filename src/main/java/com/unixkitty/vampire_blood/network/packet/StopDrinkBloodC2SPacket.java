@@ -25,7 +25,6 @@ public class StopDrinkBloodC2SPacket
 
     }
 
-    //TODO actual blood stuff
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)
     {
         NetworkEvent.Context context = contextSupplier.get();

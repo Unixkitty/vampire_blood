@@ -55,8 +55,6 @@ public class DebugDataSyncS2CPacket
         context.enqueueWork(() ->
                 Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                         {
-                            vampirePlayerData.setClientDebugData(this.ticksFeeding, this.thirstExhaustion, this.thirstExhaustionIncrement, this.thirstTickTimer);
-
                             ClientVampirePlayerDataCache.ticksFeeding = this.ticksFeeding;
                             ClientVampirePlayerDataCache.Debug.thirstExhaustion = this.thirstExhaustion;
                             ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = this.thirstExhaustionIncrement;

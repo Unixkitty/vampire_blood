@@ -251,25 +251,6 @@ public class VampirePlayerData
     {
         return this.ticksFeeding;
     }
-
-    @OnlyIn(Dist.CLIENT)
-    public void setClientDebugData(int ticksFeeding, int thirstExhaustion, int thirstExhaustionIncrement, int thirstTickTimer)
-    {
-        this.ticksFeeding = ticksFeeding;
-
-        this.blood.thirstExhaustion = thirstExhaustion;
-        this.blood.thirstExhaustionIncrement = thirstExhaustionIncrement;
-        this.blood.thirstTickTimer = thirstTickTimer;
-    }
-
-    /*@OnlyIn(Dist.CLIENT)
-    public void tickClient(Player player)
-    {
-        if (isVampire(player))
-        {
-
-        }
-    }*/
     //===============================================
 
     public enum Stage
@@ -349,7 +330,6 @@ public class VampirePlayerData
 
             //TODO special handling when Stage == IN_TRANSITION
 
-            //TODO deal with Hunger status effect
             float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
 
             //Keep vanilla food level in the middle
@@ -419,7 +399,7 @@ public class VampirePlayerData
                 {
                     player.heal(1.0F);
 
-                    exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+                    exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
 
                     this.thirstTickTimer = 0;
                 }

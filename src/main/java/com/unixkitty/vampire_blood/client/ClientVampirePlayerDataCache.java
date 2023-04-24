@@ -16,7 +16,7 @@ public final class ClientVampirePlayerDataCache
      */
     public static VampirePlayerData.Stage vampireLevel = VampirePlayerData.Stage.NOT_VAMPIRE;
     public static VampireBloodType bloodType = VampireBloodType.NONE;
-    public static int ticksInSun = 0; //TODO sync
+    public static int ticksInSun = 0;
     public static boolean isFeeding = false;
     public static int ticksFeeding = 0;
 
