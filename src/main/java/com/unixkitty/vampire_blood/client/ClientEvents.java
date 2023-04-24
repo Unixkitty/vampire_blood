@@ -3,14 +3,12 @@ package com.unixkitty.vampire_blood.client;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -33,9 +31,24 @@ public final class ClientEvents
         {
             Minecraft mc = Minecraft.getInstance();
 
-            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && mc.player != null && VampirePlayerData.isVampire(mc.player) && mc.gameMode.hasExperience() && mc.player.isAlive())
+            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && mc.player != null && VampirePlayerData.isUndead(mc.player) && mc.gameMode.hasExperience() && mc.player.isAlive())
             {
                 event.setCanceled(true);
+            }
+        }
+
+        @SubscribeEvent
+        public static void onClientPlayerClone(ClientPlayerNetworkEvent.Clone event)
+        {
+            if (ClientVampirePlayerDataCache.playerJustRespawned)
+            {
+                event.getNewPlayer().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                {
+                    vampirePlayerData.setVampireLevel(ClientVampirePlayerDataCache.vampireLevel.getId());
+                    vampirePlayerData.setBloodType(ClientVampirePlayerDataCache.bloodType.ordinal());
+                });
+
+                ClientVampirePlayerDataCache.playerJustRespawned = false;
             }
         }
 

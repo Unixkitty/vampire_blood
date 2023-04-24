@@ -17,7 +17,7 @@ public class ModDebugOverlay
 
     public static void onRenderText(RenderGuiOverlayEvent event)
     {
-        if (Config.renderDebugOverlay.get() && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && ClientVampirePlayerDataCache.isVampire())
+        if (Config.renderDebugOverlay.get() && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator())
         {
             if (Minecraft.getInstance().options.renderDebug) return;
 
@@ -42,18 +42,22 @@ public class ModDebugOverlay
         int i = 0;
 
         final int renderStartX = screenWidth - fontRenderer.width(longestLine) - fontRenderer.width("     ");
-        final int renderStartY = screenHeight / 3;
+        final int renderStartY = MARGIN_PX;
 
-        drawLine("thirstLevel: " + ClientVampirePlayerDataCache.thirstLevel + "/" + VampirePlayerData.Blood.MAX_THIRST, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
-        drawLine("thirstExhaustionLevel: " + ClientVampirePlayerDataCache.Debug.thirstExhaustion + "/100", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
-        drawLine(longestLine.replace("!!!", Integer.toString(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement)), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
-        drawLine("thirstTickTimer: " + ClientVampirePlayerDataCache.Debug.thirstTickTimer, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_GRAY.getColor());
-        drawLine("isFeeding: " + ClientVampirePlayerDataCache.isFeeding, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
         drawLine("vampireLevel: " + ClientVampirePlayerDataCache.vampireLevel, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_PURPLE.getColor());
+
+        if (ClientVampirePlayerDataCache.isVampire())
+        {
+            drawLine("thirstLevel: " + ClientVampirePlayerDataCache.thirstLevel + "/" + VampirePlayerData.Blood.MAX_THIRST, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
+            drawLine("thirstExhaustionLevel: " + ClientVampirePlayerDataCache.Debug.thirstExhaustion + "/100", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
+            drawLine(longestLine.replace("!!!", Integer.toString(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement)), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
+            drawLine("thirstTickTimer: " + ClientVampirePlayerDataCache.Debug.thirstTickTimer, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_GRAY.getColor());
+            drawLine("isFeeding: " + ClientVampirePlayerDataCache.isFeeding, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
 //        drawLine("ticksInSun: " + vampirePlayer.getSunTicks(), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.YELLOW.getColor());
-        drawLine("bloodType: " + ClientVampirePlayerDataCache.bloodType, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
+            drawLine("bloodType: " + ClientVampirePlayerDataCache.bloodType, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
+        }
         
-        drawLine("tickCount: " + player.tickCount, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
+        drawLine("player.tickCount: " + player.tickCount, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
     }
 
     private static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int lineNumber, int color)

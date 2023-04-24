@@ -20,6 +20,8 @@ public final class ClientVampirePlayerDataCache
     public static boolean isFeeding = false;
     public static int ticksFeeding = 0;
 
+    public static boolean playerJustRespawned = false;
+
     /*
         Blood data
      */

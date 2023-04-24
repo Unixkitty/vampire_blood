@@ -54,6 +54,12 @@ public class ModNetworkDispatcher
                 .encoder(PlayerVampireDataS2CPacket::toBytes)
                 .consumerMainThread(PlayerVampireDataS2CPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(PlayerRespawnS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(PlayerRespawnS2CPacket::new)
+                .encoder(PlayerRespawnS2CPacket::toBytes)
+                .consumerMainThread(PlayerRespawnS2CPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message)

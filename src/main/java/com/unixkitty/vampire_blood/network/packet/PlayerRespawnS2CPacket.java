@@ -2,39 +2,37 @@ package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.VampireBloodType;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PlayerVampireDataS2CPacket
+public class PlayerRespawnS2CPacket
 {
     private final int vampireLevel;
     private final int bloodType;
-    private final boolean isFeeding;
+    private final int thirstLevel;
 
-    public PlayerVampireDataS2CPacket(int vampireLevel, int bloodType, boolean isFeeding)
+    public PlayerRespawnS2CPacket(int vampireLevel, int bloodType, int thirstLevel)
     {
         this.vampireLevel = vampireLevel;
         this.bloodType = bloodType;
-        this.isFeeding = isFeeding;
+        this.thirstLevel = thirstLevel;
     }
 
-    public PlayerVampireDataS2CPacket(FriendlyByteBuf buffer)
+    public PlayerRespawnS2CPacket(FriendlyByteBuf buffer)
     {
         this.vampireLevel = buffer.readInt();
         this.bloodType = buffer.readInt();
-        this.isFeeding = buffer.readBoolean();
+        this.thirstLevel = buffer.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buffer)
     {
         buffer.writeInt(this.vampireLevel);
         buffer.writeInt(this.bloodType);
-        buffer.writeBoolean(this.isFeeding);
+        buffer.writeInt(this.thirstLevel);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)
@@ -43,16 +41,10 @@ public class PlayerVampireDataS2CPacket
 
         context.enqueueWork(() ->
         {
-            Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-            {
-                vampirePlayerData.setVampireLevel(this.vampireLevel);
-                vampirePlayerData.setBloodType(this.bloodType);
-                vampirePlayerData.setFeeding(this.isFeeding);
-            });
-
             ClientVampirePlayerDataCache.vampireLevel = VampirePlayerData.Stage.fromId(this.vampireLevel);
             ClientVampirePlayerDataCache.bloodType = VampireBloodType.fromId(this.bloodType);
-            ClientVampirePlayerDataCache.isFeeding = this.isFeeding;
+            ClientVampirePlayerDataCache.thirstLevel = this.thirstLevel;
+            ClientVampirePlayerDataCache.playerJustRespawned = true;
         });
 
         context.setPacketHandled(true);

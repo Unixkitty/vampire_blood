@@ -1,10 +1,10 @@
 package com.unixkitty.vampire_blood.capability;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
+import com.unixkitty.vampire_blood.network.packet.PlayerRespawnS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -67,10 +67,39 @@ public class VampirePlayerData
         sync();
     }
 
-    public void copyOnDeath(VampirePlayerData source)
+    public static void copyData(Player oldPlayer, Player newPlayer, boolean isDeathEvent)
     {
-        this.vampireLevel = source.vampireLevel;
-        this.bloodType = VampireBloodType.FRAIL;
+        newPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(newVampData ->
+        {
+            oldPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(oldVampData ->
+            {
+                newVampData.vampireLevel = oldVampData.getVampireLevel();
+
+                if (isDeathEvent)
+                {
+                    if (newVampData.vampireLevel == Stage.IN_TRANSITION)
+                    {
+                        newVampData.vampireLevel = Stage.NOT_VAMPIRE; //Failing transition, player returns to monke
+                    }
+
+                    if (newVampData.vampireLevel != Stage.NOT_VAMPIRE)
+                    {
+                        newVampData.bloodType = VampireBloodType.FRAIL;
+                        newVampData.blood.thirstLevel = Blood.MAX_THIRST / 2; //Respawn with half thirst
+                    }
+                }
+                else if (newVampData.vampireLevel != Stage.IN_TRANSITION && newVampData.vampireLevel != Stage.NOT_VAMPIRE)
+                {
+                    newVampData.bloodType = oldVampData.bloodType;
+
+                    newVampData.blood.thirstLevel = oldVampData.getThirstLevel();
+                    newVampData.blood.thirstExhaustion = oldVampData.getThirstExhaustion();
+                    newVampData.blood.thirstExhaustionIncrement = oldVampData.getThirstExhaustionIncrement();
+                }
+            });
+
+            ModNetworkDispatcher.sendToClient(new PlayerRespawnS2CPacket(newVampData.vampireLevel.id, newVampData.bloodType.ordinal(), newVampData.blood.thirstLevel), (ServerPlayer) newPlayer);
+        });
     }
 
     public void saveNBTData(CompoundTag tag)
@@ -118,7 +147,10 @@ public class VampirePlayerData
 
                 this.ticksFeeding = 0;
 
-                if (Config.debugOutput.get()) player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + Blood.MAX_THIRST));
+                if (Config.debugOutput.get())
+                {
+                    player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + Blood.MAX_THIRST));
+                }
             }
         }
     }
@@ -174,11 +206,11 @@ public class VampirePlayerData
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void setClientBlood(int points)
+    public int setClientBlood(int points)
     {
         setBlood(points);
 
-        ClientVampirePlayerDataCache.thirstLevel = blood.thirstLevel;
+        return blood.thirstLevel;
     }
 
     public void addBlood(int points)
@@ -307,7 +339,9 @@ public class VampirePlayerData
 
         private boolean needsSync = false;
 
-        private Blood() {}
+        private Blood()
+        {
+        }
 
         private void syncData(Player player)
         {
@@ -345,7 +379,10 @@ public class VampirePlayerData
                 {
                     decreaseBlood(1);
 
-                    if (Config.debugOutput.get()) player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
+                    if (Config.debugOutput.get())
+                    {
+                        player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
+                    }
                 }
             }
 
@@ -404,6 +441,18 @@ public class VampirePlayerData
                     this.thirstTickTimer = 0;
                 }
             }
+            //Replenish thirst if playing on Peaceful
+            else if (isPeaceful && this.thirstLevel < MAX_THIRST)
+            {
+                ++this.thirstTickTimer;
+
+                if (this.thirstTickTimer >= 20)
+                {
+                    addBlood(1);
+
+                    this.thirstTickTimer = 0;
+                }
+            }
             //Starving
             else if (this.thirstLevel <= 0)
             {
@@ -411,11 +460,6 @@ public class VampirePlayerData
 
                 if (this.thirstTickTimer >= 80)
                 {
-                    //Similar to vanilla
-                    if (isPeaceful)
-                    {
-                        addBlood(1);
-                    }
                     if (player.getHealth() > 10.0F || player.level.getDifficulty() == Difficulty.HARD || player.getHealth() > 1.0F && player.level.getDifficulty() == Difficulty.NORMAL)
                     {
                         player.hurt(DamageSource.STARVE, 1.0F);

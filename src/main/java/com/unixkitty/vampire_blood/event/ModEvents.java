@@ -19,6 +19,7 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -41,29 +42,16 @@ public class ModEvents
         }
     }
 
-    //TODO test
-    /*
-        If player dies, some capability data needs to be copied over to their newly created entity
-
-        @SubscribeEvent(priority = EventPriority.HIGH)
-        public void onPlayerClone(PlayerEvent.@NotNull Clone event) {
-        if (!event.getEntity().getCommandSenderWorld().isClientSide) {
-            event.getOriginal().reviveCaps();
-            FactionPlayerHandler.get(event.getEntity()).copyFrom(event.getOriginal());
-            event.getOriginal().invalidateCaps();
-        }
-    }
-     */
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerCloned(final PlayerEvent.Clone event)
     {
-        if (event.isWasDeath())
+        if (!event.getEntity().getLevel().isClientSide())
         {
-            event.getOriginal().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(
-                    oldStore -> event.getOriginal().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(
-                            newStore -> newStore.copyOnDeath(oldStore)
-                    )
-            );
+            event.getOriginal().reviveCaps();
+
+            VampirePlayerData.copyData(event.getOriginal(), event.getEntity(), event.isWasDeath());
+
+            event.getOriginal().invalidateCaps();
         }
     }
 
