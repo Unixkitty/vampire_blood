@@ -19,6 +19,9 @@ public class Config
 
     public static final String HEALING_RATE = "naturalHealingRate";
     public static ForgeConfigSpec.IntValue naturalHealingRate;
+
+    public static final String UNDEAD_IGNORE = "shouldUndeadIgnoreVampires";
+    public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -39,9 +42,13 @@ public class Config
 
             commonConfig.push("General");
             {
+                commonConfig.push("Health regen");
                 naturalHealthRegen = commonConfig.comment("Should vampires regenerate health naturally").define(NATURAL_REGEN, true);
                 naturalHealthRegenWithGamerule = commonConfig.comment("Should only regenerate health naturally if vanilla gamerule allows").define(NATURAL_REGEN_GAMERULE, false);
                 naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
+                commonConfig.pop();
+
+                shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);
             }
             commonConfig.pop();
 
