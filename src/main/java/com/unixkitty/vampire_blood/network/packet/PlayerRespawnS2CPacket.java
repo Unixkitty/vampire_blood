@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.VampireBloodType;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.VampirismStage;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -41,7 +41,7 @@ public class PlayerRespawnS2CPacket
 
         context.enqueueWork(() ->
         {
-            ClientVampirePlayerDataCache.vampireLevel = VampirePlayerData.Stage.fromId(this.vampireLevel);
+            ClientVampirePlayerDataCache.vampireLevel = VampirismStage.fromId(this.vampireLevel);
             ClientVampirePlayerDataCache.bloodType = VampireBloodType.fromId(this.bloodType);
             ClientVampirePlayerDataCache.thirstLevel = this.thirstLevel;
             ClientVampirePlayerDataCache.playerJustRespawned = true;

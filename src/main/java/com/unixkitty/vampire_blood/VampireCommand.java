@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.capability.VampirismStage;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import net.minecraft.ChatFormatting;
@@ -94,7 +95,7 @@ public class VampireCommand
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirePlayerData.Stage.IN_TRANSITION.getId())
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                 {
                     isVampire.set(true);
 
@@ -121,7 +122,7 @@ public class VampireCommand
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirePlayerData.Stage.IN_TRANSITION.getId())
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                 {
                     isVampire.set(true);
 
@@ -140,7 +141,7 @@ public class VampireCommand
 
     private static int listLevels(CommandContext<CommandSourceStack> context)
     {
-        for (VampirePlayerData.Stage level : VampirePlayerData.Stage.values())
+        for (VampirismStage level : VampirismStage.values())
         {
             context.getSource().sendSystemMessage(
                     Component.literal(level.getId() + "     ").append(Component.translatable("vampire_blood.vampire_level." + level.toString().toLowerCase()))
@@ -154,7 +155,7 @@ public class VampireCommand
     {
         if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
         {
-            if (VampirePlayerData.Stage.fromId(level) == null) throw error_no_such_vampire_level.create(level);
+            if (VampirismStage.fromId(level) == null) throw error_no_such_vampire_level.create(level);
 
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {

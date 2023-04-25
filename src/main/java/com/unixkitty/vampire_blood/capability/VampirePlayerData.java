@@ -23,7 +23,7 @@ public class VampirePlayerData
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
     private static final String BLOODTYPE_NBT_NAME = "bloodType";
 
-    private Stage vampireLevel = Stage.NOT_VAMPIRE;
+    private VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     private VampireBloodType bloodType = VampireBloodType.NONE;
     private int ticksInSun;
 
@@ -45,9 +45,9 @@ public class VampirePlayerData
      */
     public void beginFeeding(LivingEntity target)
     {
-        if (this.vampireLevel != Stage.NOT_VAMPIRE)
+        if (this.vampireLevel != VampirismStage.NOT_VAMPIRE)
         {
-            if (this.vampireLevel == Stage.IN_TRANSITION)
+            if (this.vampireLevel == VampirismStage.IN_TRANSITION)
             {
                 //TODO handle transitioning
             }
@@ -77,18 +77,18 @@ public class VampirePlayerData
 
                 if (isDeathEvent)
                 {
-                    if (newVampData.vampireLevel == Stage.IN_TRANSITION)
+                    if (newVampData.vampireLevel == VampirismStage.IN_TRANSITION)
                     {
-                        newVampData.vampireLevel = Stage.NOT_VAMPIRE; //Failing transition, player returns to monke
+                        newVampData.vampireLevel = VampirismStage.NOT_VAMPIRE; //Failing transition, player returns to monke
                     }
 
-                    if (newVampData.vampireLevel != Stage.NOT_VAMPIRE)
+                    if (newVampData.vampireLevel != VampirismStage.NOT_VAMPIRE)
                     {
                         newVampData.bloodType = VampireBloodType.FRAIL;
                         newVampData.blood.thirstLevel = Blood.MAX_THIRST / 2; //Respawn with half thirst
                     }
                 }
-                else if (newVampData.vampireLevel != Stage.IN_TRANSITION && newVampData.vampireLevel != Stage.NOT_VAMPIRE)
+                else if (newVampData.vampireLevel != VampirismStage.IN_TRANSITION && newVampData.vampireLevel != VampirismStage.NOT_VAMPIRE)
                 {
                     newVampData.bloodType = oldVampData.bloodType;
 
@@ -113,7 +113,7 @@ public class VampirePlayerData
 
     public void loadNBTData(CompoundTag tag)
     {
-        this.vampireLevel = Stage.fromId(tag.getInt(LEVEL_NBT_NAME));
+        this.vampireLevel = VampirismStage.fromId(tag.getInt(LEVEL_NBT_NAME));
         this.ticksInSun = tag.getInt(SUNTICKS_NBT_NAME);
         this.bloodType = VampireBloodType.fromId(tag.getInt(BLOODTYPE_NBT_NAME));
 
@@ -122,7 +122,7 @@ public class VampirePlayerData
 
     public void tick(Player player)
     {
-        if (this.vampireLevel != Stage.NOT_VAMPIRE)
+        if (this.vampireLevel != VampirismStage.NOT_VAMPIRE)
         {
             handleFeeding(player);
 
@@ -155,14 +155,14 @@ public class VampirePlayerData
         }
     }
 
-    public Stage getVampireLevel()
+    public VampirismStage getVampireLevel()
     {
         return this.vampireLevel;
     }
 
     public void setVampireLevel(int level)
     {
-        this.vampireLevel = Stage.fromId(level);
+        this.vampireLevel = VampirismStage.fromId(level);
     }
 
     public void setBloodType(int id)
@@ -249,17 +249,17 @@ public class VampirePlayerData
 
     public static boolean isUndead(Player player)
     {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != Stage.NOT_VAMPIRE).orElse(false);
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirismStage.NOT_VAMPIRE).orElse(false);
     }
 
     public static boolean isVampire(Player player)
     {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != Stage.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != Stage.IN_TRANSITION).orElse(false);
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirismStage.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != VampirismStage.IN_TRANSITION).orElse(false);
     }
 
     public static boolean isTransitioning(Player player)
     {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == Stage.IN_TRANSITION).orElse(false);
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismStage.IN_TRANSITION).orElse(false);
     }
 
     //TODO remove debug
@@ -284,44 +284,6 @@ public class VampirePlayerData
         return this.ticksFeeding;
     }
     //===============================================
-
-    public enum Stage
-    {
-        NOT_VAMPIRE(-1, 1, 1, 1),
-        IN_TRANSITION(0, 1, 1, 1),
-        FLEDGLING(1, 3, 2, 2),
-        VAMPIRE(2, 4, 3, 3),
-        MATURE(3, 5, 4, 4),
-        ORIGINAL(999, 10, 5, 4);
-
-        final int id;
-        final double healthMultiplier;
-        final double attackMultiplier;
-        final double speedBoostMultiplier;
-
-        Stage(int id, double healthMultiplier, double attackMultiplier, double speedBoostMultiplier)
-        {
-            this.id = id;
-            this.healthMultiplier = healthMultiplier;
-            this.attackMultiplier = attackMultiplier;
-            this.speedBoostMultiplier = speedBoostMultiplier;
-        }
-
-        public int getId()
-        {
-            return id;
-        }
-
-        public static Stage fromId(int id)
-        {
-            for (Stage stage : values())
-            {
-                if (stage.id == id) return stage;
-            }
-
-            return NOT_VAMPIRE;
-        }
-    }
 
     public class Blood
     {
@@ -358,7 +320,7 @@ public class VampirePlayerData
             this.needsSync = true;
         }
 
-        private void tick(Player player, Stage vampireLevel)
+        private void tick(Player player, VampirismStage vampireLevel)
         {
             boolean isPeaceful = player.level.getDifficulty() == Difficulty.PEACEFUL;
 
@@ -371,7 +333,7 @@ public class VampirePlayerData
 
             //TODO special handling when Stage == IN_TRANSITION
 
-            if (vampireLevel == Stage.IN_TRANSITION)
+            if (vampireLevel == VampirismStage.IN_TRANSITION)
             {
 
             }

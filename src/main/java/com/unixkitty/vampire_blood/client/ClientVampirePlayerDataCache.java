@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.client;
 
 import com.unixkitty.vampire_blood.capability.VampireBloodType;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -14,7 +14,7 @@ public final class ClientVampirePlayerDataCache
     /*
         General
      */
-    public static VampirePlayerData.Stage vampireLevel = VampirePlayerData.Stage.NOT_VAMPIRE;
+    public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     public static VampireBloodType bloodType = VampireBloodType.NONE;
     public static int ticksInSun = 0;
     public static boolean isFeeding = false;
@@ -29,7 +29,7 @@ public final class ClientVampirePlayerDataCache
 
     public static boolean isVampire()
     {
-        return vampireLevel != VampirePlayerData.Stage.NOT_VAMPIRE && vampireLevel != VampirePlayerData.Stage.IN_TRANSITION;
+        return vampireLevel != VampirismStage.NOT_VAMPIRE && vampireLevel != VampirismStage.IN_TRANSITION;
     }
 
     public static final class Debug
