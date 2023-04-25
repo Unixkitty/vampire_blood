@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
@@ -14,10 +15,13 @@ import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.Tiers;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -30,6 +34,15 @@ import java.util.function.Predicate;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class ModEvents
 {
+    @SubscribeEvent
+    public static void onLivingHurt(final LivingHurtEvent event)
+    {
+        if (!event.getEntity().getLevel().isClientSide() && Config.increasedDamageFromWood.get() && event.getEntity() instanceof Player && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getSource().getEntity() instanceof LivingEntity attacker && event.getAmount() > 0 && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
+        {
+            event.setAmount(event.getAmount() * 1.25F);
+        }
+    }
+
     @SubscribeEvent
     public static void onAttachCapabilityPlayer(final AttachCapabilitiesEvent<Entity> event)
     {

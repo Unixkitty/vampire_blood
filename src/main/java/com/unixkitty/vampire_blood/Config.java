@@ -22,6 +22,9 @@ public class Config
 
     public static final String UNDEAD_IGNORE = "shouldUndeadIgnoreVampires";
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
+
+    public static final String INCREASED_WOOD_DAMAGE = "increasedDamageFromWood";
+    public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -49,6 +52,7 @@ public class Config
                 commonConfig.pop();
 
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);
+                increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define(INCREASED_WOOD_DAMAGE, true);
             }
             commonConfig.pop();
 
