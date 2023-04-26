@@ -1,13 +1,19 @@
 {
   "commands.vampire_blood.level_change": "Changing vampire level to %s for player %s",
   "commands.vampire_blood.no_such_level": "No such vampirism level: %s",
+  "commands.vampire_blood.no_such_blood": "No such blood level: %s",
   "commands.vampire_blood.player_not_vampire": "Player %s is not a vampire",
+  "commands.vampire_blood.player_has_no_cap": "Player %s has no Forge vampire capability data!",
   "vampire_blood.vampire_level.not_vampire": "Not a vampire",
   "vampire_blood.vampire_level.in_transition": "In transition",
-  "vampire_blood.vampire_level.fledgling": "Fledling",
+  "vampire_blood.vampire_level.fledgling": "Fledgling",
   "vampire_blood.vampire_level.vampire": "Vampire",
   "vampire_blood.vampire_level.mature": "Mature",
   "vampire_blood.vampire_level.original": "Original",
+  "vampire_blood.blood_type.frail" : "Frail",
+  "vampire_blood.blood_type.creature" : "Creature",
+  "vampire_blood.blood_type.human" : "Human",
+  "vampire_blood.blood_type.vampire" : "Vampiric",
   "key.category.vampire_blood.main": "Vampire Blood",
   "key.vampire_blood.feed": "Feed"
 }

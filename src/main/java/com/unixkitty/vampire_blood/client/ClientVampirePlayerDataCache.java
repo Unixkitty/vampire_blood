@@ -15,7 +15,7 @@ public final class ClientVampirePlayerDataCache
         General
      */
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
-    public static VampireBloodType bloodType = VampireBloodType.NONE;
+    public static VampireBloodType bloodType = VampireBloodType.HUMAN;
     public static int ticksInSun = 0;
     public static boolean isFeeding = false;
     public static int ticksFeeding = 0;

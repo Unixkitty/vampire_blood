@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.capability;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
@@ -24,7 +25,7 @@ public class VampirePlayerData
     private static final String BLOODTYPE_NBT_NAME = "bloodType";
 
     private VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
-    private VampireBloodType bloodType = VampireBloodType.NONE;
+    private VampireBloodType bloodType = VampireBloodType.HUMAN;
     private int ticksInSun;
 
     private boolean isFeeding = false; //Don't need to store this in NBT, fine if feeding stops after relogin
@@ -160,14 +161,36 @@ public class VampirePlayerData
         return this.vampireLevel;
     }
 
+    public void setVampireLevel(ServerPlayer player, int level)
+    {
+        this.vampireLevel = VampirismStage.fromId(level);
+
+        notifyAndUpdate(player);
+    }
+
+    public void setBloodType(ServerPlayer player, int id)
+    {
+        this.bloodType = VampireBloodType.fromId(id);
+
+        notifyAndUpdate(player);
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public void setVampireLevel(int level)
     {
         this.vampireLevel = VampirismStage.fromId(level);
     }
 
+    @OnlyIn(Dist.CLIENT)
     public void setBloodType(int id)
     {
         this.bloodType = VampireBloodType.fromId(id);
+    }
+
+    private void notifyAndUpdate(ServerPlayer player)
+    {
+        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType);
+        ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.ordinal(), this.isFeeding), player);
     }
 
     public int getSunTicks()

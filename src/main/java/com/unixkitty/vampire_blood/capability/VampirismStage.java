@@ -1,5 +1,7 @@
 package com.unixkitty.vampire_blood.capability;
 
+import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+
 public enum VampirismStage
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0, 0),
@@ -10,17 +12,17 @@ public enum VampirismStage
     ORIGINAL(999, 10, 5, 4, 0.5F, 0);
 
     final int id;
-    final float healthMultiplier;
-    final float attackMultiplier;
+    final double healthMultiplier;
+    final double strengthMultiplier;
     final float speedBoostMultiplier;
     final float bloodUsageMultiplier;
     final float drainVictimBaseChance;
 
-    VampirismStage(int id, float healthMultiplier, float attackMultiplier, float speedBoostMultiplier, float bloodUsageMultiplier, float drainVictimBaseChance)
+    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, float speedBoostMultiplier, float bloodUsageMultiplier, float drainVictimBaseChance)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;
-        this.attackMultiplier = attackMultiplier;
+        this.strengthMultiplier = strengthMultiplier;
         this.speedBoostMultiplier = speedBoostMultiplier;
         this.bloodUsageMultiplier = bloodUsageMultiplier;
         this.drainVictimBaseChance = drainVictimBaseChance;
@@ -31,6 +33,48 @@ public enum VampirismStage
         return id;
     }
 
+    public double getHealthMultiplier()
+    {
+        return healthMultiplier;
+    }
+
+    public double getStrengthMultiplier()
+    {
+        return strengthMultiplier;
+    }
+
+    public float getSpeedBoostMultiplier()
+    {
+        return speedBoostMultiplier;
+    }
+
+    public float getBloodUsageMultiplier()
+    {
+        return bloodUsageMultiplier;
+    }
+
+    public float getDrainVictimBaseChance()
+    {
+        return drainVictimBaseChance;
+    }
+
+    public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
+    {
+        switch (modifier)
+        {
+            case HEALTH ->
+            {
+                return healthMultiplier;
+            }
+            case STRENGTH ->
+            {
+                return strengthMultiplier;
+            }
+        }
+
+        return 1;
+    }
+
     public static VampirismStage fromId(int id)
     {
         for (VampirismStage stage : values())
@@ -38,6 +82,6 @@ public enum VampirismStage
             if (stage.id == id) return stage;
         }
 
-        return NOT_VAMPIRE;
+        return null;
     }
 }
