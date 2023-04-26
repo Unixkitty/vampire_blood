@@ -189,8 +189,17 @@ public class VampirePlayerData
 
     private void notifyAndUpdate(ServerPlayer player)
     {
+        checkOriginal(player);
         VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType);
         ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.ordinal(), this.isFeeding), player);
+    }
+
+    private void checkOriginal(ServerPlayer player)
+    {
+//        if (this.vampireLevel == VampirismStage.ORIGINAL && !player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
+//        {
+//            this.vampireLevel = VampirismStage.MATURE;
+//        }
     }
 
     public int getSunTicks()
@@ -265,6 +274,8 @@ public class VampirePlayerData
         if (this.needsSync)
         {
             this.needsSync = false;
+
+            checkOriginal((ServerPlayer) player);
 
             ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.ordinal(), this.isFeeding), (ServerPlayer) player);
         }
