@@ -4,7 +4,7 @@ import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifier
 
 public enum VampireBloodType
 {
-    FRAIL(0.25, 0.25, 0.25, 0.25, 1.5),
+    FRAIL(0.3333333333333333, 0.25, 0.25, 0.25, 1.5),
     CREATURE(0.5, 0.5, 0.5, 0.5, 1.25),
     HUMAN(1, 1, 1, 1, 1),
     VAMPIRE(1.25, 1, 1, 0.75, 1);

@@ -65,7 +65,7 @@ public class ModDebugOverlay
 
                 if (attributeInstance != null)
                 {
-                    drawLine(modifier.name() + ": " + attributeInstance.getValue() + " ( " + attributeInstance.getBaseValue() + " ( " + ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier) + " * " + ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier) + " ) ", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_AQUA.getColor());
+                    drawLine(modifier.name() + ": " + attributeInstance.getValue() + " ( " + attributeInstance.getBaseValue() + " ( " + String.format("%.2f", ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier)) + " * " + String.format("%.2f", ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier)) + " ) ", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_AQUA.getColor());
                 }
             }
         }

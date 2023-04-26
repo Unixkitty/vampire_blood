@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.capability.attribute;
 
-import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampireBloodType;
 import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,8 +16,6 @@ public class VampireAttributeModifiers
 
     public static void updateAttributes(ServerPlayer player, VampirismStage vampirismStage, VampireBloodType bloodType)
     {
-        VampireBlood.log().debug("We're about to update attributes");
-
         for (Modifier modifier : Modifier.values())
         {
             //1. Remove existing modifier
@@ -40,7 +37,11 @@ public class VampireAttributeModifiers
                 {
                     if (modifier.getModifierOperation() == AttributeModifier.Operation.MULTIPLY_BASE)
                     {
-                        modifierValue = vampirismStage.getAttributeMultiplier(modifier) * bloodType.getAttributeMultiplier(modifier);
+                        modifierValue = (vampirismStage.getAttributeMultiplier(modifier) * bloodType.getAttributeMultiplier(modifier)) - 1.0D;
+                    }
+                    else if (modifier.getModifierOperation() == AttributeModifier.Operation.ADDITION)
+                    {
+                        modifierValue = Math.round(((attribute.getBaseValue() * vampirismStage.getAttributeMultiplier(modifier) * bloodType.getAttributeMultiplier(modifier)) - attribute.getBaseValue()) / 2) * 2;
                     }
                 }
 
@@ -55,7 +56,7 @@ public class VampireAttributeModifiers
 
     public enum Modifier
     {
-        HEALTH(Attributes.MAX_HEALTH, "VampireHealthModifier", "43f72fe4-af73-4412-a5fc-a60f3a250aed", AttributeModifier.Operation.MULTIPLY_BASE),
+        HEALTH(Attributes.MAX_HEALTH, "VampireHealthModifier", "43f72fe4-af73-4412-a5fc-a60f3a250aed", AttributeModifier.Operation.ADDITION),
         STRENGTH(Attributes.ATTACK_DAMAGE, "VampireStrengthModifier", "0a0caf30-6479-4e32-8ca9-42a84f1bd4ff", AttributeModifier.Operation.MULTIPLY_BASE);
 
         private final Attribute baseAttribute;

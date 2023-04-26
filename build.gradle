@@ -168,6 +168,9 @@ dependencies {
 
     // at runtime, use the full JEI jar
     runtimeOnly fg.deobf("mezz.jei:jei-${mod_minecraft_version}-forge:${jei_version}")
+
+    runtimeOnly fg.deobf("curse.maven:moonlight-499980:4491267") //mmmm dependency
+    runtimeOnly fg.deobf("curse.maven:mmmm-225738:4410143")
 }
 
 mixin {
