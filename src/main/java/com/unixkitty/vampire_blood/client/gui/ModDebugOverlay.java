@@ -56,9 +56,11 @@ public class ModDebugOverlay
             drawLine("thirstExhaustionLevel: " + ClientVampirePlayerDataCache.Debug.thirstExhaustion + "/100", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
             drawLine(longestLine.replace("!!!", Integer.toString(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement)), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
             drawLine("thirstTickTimer: " + ClientVampirePlayerDataCache.Debug.thirstTickTimer, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_GRAY.getColor());
-            drawLine("isFeeding: " + ClientVampirePlayerDataCache.isFeeding, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
+            drawLine("isFeeding: " + ClientVampirePlayerDataCache.isFeeding, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_GRAY.getColor());
 //        drawLine("ticksInSun: " + vampirePlayer.getSunTicks(), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.YELLOW.getColor());
             drawLine("bloodType: " + ClientVampirePlayerDataCache.bloodType, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
+            drawLine("Health: " + player.getHealth() + "/" + player.getMaxHealth() + " | Rate: " + VampirePlayerData.getHealthRegenRate(player) + "/" + Config.naturalHealingRate.get() + "t", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.RED.getColor());
+
             for (VampireAttributeModifiers.Modifier modifier : VampireAttributeModifiers.Modifier.values())
             {
                 attributeInstance = player.getAttribute(modifier.getBaseAttribute());

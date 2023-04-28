@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -24,72 +25,70 @@ public class VampireCommand
     private static final DynamicCommandExceptionType error_no_such_vampire_level = new DynamicCommandExceptionType(o -> Component.translatable("commands.vampire_blood.no_such_level", o));
     private static final DynamicCommandExceptionType error_no_such_blood_type = new DynamicCommandExceptionType(o -> Component.translatable("commands.vampire_blood.no_such_blood", o));
 
-    /*
-        /vampire <level> <player> < true | false >
-     */
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
-        dispatcher.register(Commands.literal("vampire").requires(commandSourceStack -> commandSourceStack.hasPermission(4)).then(
-                        Commands.literal("level").then(
-                                playerArg().then(
-                                        Commands.argument("level", IntegerArgumentType.integer()).executes(
-                                                context -> setPlayerVampirismLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "level"))
-                                        )
-                                ).executes(
-                                        context -> getPlayerVampirismLevel(context, getPlayer(context))
-                                )
-                        ).then(
-                                Commands.literal("list").executes(
-                                        VampireCommand::listLevels
-                                )
-                        )
-                ).then(
-                        Commands.literal("blood_type").then(
-                                playerArg().then(
-                                        Commands.argument("type", IntegerArgumentType.integer()).executes(
-                                                context -> setPlayerBloodType(context, getPlayer(context), IntegerArgumentType.getInteger(context, "type"))
-                                        )
-                                ).executes(
-                                        context -> getPlayerBloodType(context, getPlayer(context))
-                                )
-                        ).then(
-                                Commands.literal("list").executes(
-                                        VampireCommand::listBloodTypes
-                                )
-                        )
-                ).then(
-                        Commands.literal("blood").then(
-                                Commands.literal("get").then(
-                                        playerArg().executes(
-                                                context -> getBloodLevel(context, getPlayer(context))
-                                        )
-                                )
-                        ).then(
-                                Commands.literal("set").then(
-                                        playerArg().then(
-                                                Commands.argument("bloodPoints", IntegerArgumentType.integer(VampirePlayerData.Blood.MIN_THIRST, VampirePlayerData.Blood.MAX_THIRST)).executes(
-                                                        context -> setBloodLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "bloodPoints"))
-                                                )
-                                        )
-                                )
-                        )
-                ).then(
-                        Commands.literal("heal").then(
-                                playerArg().executes(
-                                        context -> setPlayerHealth(getPlayer(context), -1)
-                                )
-                        )
-                ).then(
-                        Commands.literal("set_health").then(
-                                playerArg().then(
-                                        Commands.argument("health", FloatArgumentType.floatArg(0)).executes(
-                                                context -> setPlayerHealth(getPlayer(context), FloatArgumentType.getFloat(context, "health"))
-                                        )
-                                )
-                        )
-                )
-        );
+        LiteralArgumentBuilder<CommandSourceStack> vampireCommand = Commands.literal("vampire")
+                .requires(commandSourceStack -> commandSourceStack.hasPermission(4));
+
+        registerLevelCommand(vampireCommand);
+        registerBloodTypeCommand(vampireCommand);
+        registerBloodCommand(vampireCommand);
+        registerHealCommand(vampireCommand);
+        registerSetHealthCommand(vampireCommand);
+
+        dispatcher.register(vampireCommand);
     }
+
+    private static void registerLevelCommand(LiteralArgumentBuilder<CommandSourceStack> vampireCommand)
+    {
+        vampireCommand.then(Commands.literal("level")
+                .then(playerArg()
+                        .then(Commands.argument("level", IntegerArgumentType.integer())
+                                .executes(context -> setPlayerVampirismLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "level"))))
+                        .executes(context -> getPlayerVampirismLevel(context, getPlayer(context))))
+                .then(Commands.literal("list")
+                        .executes(VampireCommand::listLevels)));
+    }
+
+    private static void registerBloodTypeCommand(LiteralArgumentBuilder<CommandSourceStack> vampireCommand)
+    {
+        vampireCommand.then(Commands.literal("blood_type")
+                .then(playerArg()
+                        .then(Commands.argument("type", IntegerArgumentType.integer())
+                                .executes(context -> setPlayerBloodType(context, getPlayer(context), IntegerArgumentType.getInteger(context, "type"))))
+                        .executes(context -> getPlayerBloodType(context, getPlayer(context))))
+                .then(Commands.literal("list")
+                        .executes(VampireCommand::listBloodTypes)));
+    }
+
+    private static void registerBloodCommand(LiteralArgumentBuilder<CommandSourceStack> vampireCommand)
+    {
+        vampireCommand.then(Commands.literal("blood")
+                .then(Commands.literal("get")
+                        .then(playerArg()
+                                .executes(context -> getBloodLevel(context, getPlayer(context)))))
+                .then(Commands.literal("set")
+                        .then(playerArg()
+                                .then(Commands.argument("bloodPoints", IntegerArgumentType.integer(VampirePlayerData.Blood.MIN_THIRST, VampirePlayerData.Blood.MAX_THIRST))
+                                        .executes(context -> setBloodLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "bloodPoints")))))));
+    }
+
+    private static void registerHealCommand(LiteralArgumentBuilder<CommandSourceStack> vampireCommand)
+    {
+        vampireCommand.then(Commands.literal("heal")
+                .then(playerArg()
+                        .executes(context -> setPlayerHealth(getPlayer(context), -1))));
+    }
+
+    private static void registerSetHealthCommand(LiteralArgumentBuilder<CommandSourceStack> vampireCommand)
+    {
+        vampireCommand.then(Commands.literal("set_health")
+                .then(playerArg()
+                        .then(Commands.argument("health", FloatArgumentType.floatArg(0))
+                                .executes(context -> setPlayerHealth(getPlayer(context), FloatArgumentType.getFloat(context, "health"))))));
+    }
+
+    //===========================================================================
 
     private static int setPlayerHealth(ServerPlayer player, float health)
     {
@@ -100,7 +99,7 @@ public class VampireCommand
 
         return 0;
     }
-    
+
     private static int setBloodLevel(CommandContext<CommandSourceStack> context, ServerPlayer player, int bloodPoints)
     {
         if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())

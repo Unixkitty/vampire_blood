@@ -11,14 +11,11 @@ public class Config
     public static final String BLOOD_USAGE_RATE = "bloodUsageRate";
     public static ForgeConfigSpec.IntValue bloodUsageRate;
 
-    public static final String NATURAL_REGEN = "naturalHealthRegen";
-    public static ForgeConfigSpec.BooleanValue naturalHealthRegen;
-
-    public static final String NATURAL_REGEN_GAMERULE = "naturalHealthRegenWithGamerule";
-    public static ForgeConfigSpec.BooleanValue naturalHealthRegenWithGamerule;
-
     public static final String HEALING_RATE = "naturalHealingRate";
     public static ForgeConfigSpec.IntValue naturalHealingRate;
+
+    public static final String HEALING_MULTIPLIER = "naturalHealingMultiplier";
+    public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
 
     public static final String UNDEAD_IGNORE = "shouldUndeadIgnoreVampires";
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
@@ -46,9 +43,8 @@ public class Config
             commonConfig.push("General");
             {
                 commonConfig.push("Health regen");
-                naturalHealthRegen = commonConfig.comment("Should vampires regenerate health naturally").define(NATURAL_REGEN, true);
-                naturalHealthRegenWithGamerule = commonConfig.comment("Should only regenerate health naturally if vanilla gamerule allows").define(NATURAL_REGEN_GAMERULE, false);
                 naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
+                naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange(HEALING_MULTIPLIER, 1.0D, 0.001, 100.0D);
                 commonConfig.pop();
 
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);

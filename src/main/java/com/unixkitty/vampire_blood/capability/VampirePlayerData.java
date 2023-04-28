@@ -13,8 +13,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -296,6 +296,11 @@ public class VampirePlayerData
         return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismStage.IN_TRANSITION).orElse(false);
     }
 
+    public static float getHealthRegenRate(Player player)
+    {
+        return (float) ((player.getMaxHealth() / player.getAttributeBaseValue(Attributes.MAX_HEALTH) / (20.0F / Config.naturalHealingRate.get())) * Config.naturalHealingMultiplier.get());
+    }
+
     //TODO remove debug
     //===============================================
     private void syncDebugData(Player player)
@@ -414,34 +419,36 @@ public class VampirePlayerData
 
         private void handleRegenAndStarvation(Player player, boolean isPeaceful)
         {
-            final boolean areWeDoingNaturalRegen = (Config.naturalHealthRegenWithGamerule.get() ? (Config.naturalHealthRegen.get() && player.level.getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION)) : Config.naturalHealthRegen.get());
-
-            //Fast HP regen when above 1/6th blood
-            if (areWeDoingNaturalRegen && this.thirstLevel > MAX_THIRST / 6 && player.isHurt())
+            //Check if we should do natural regen
+            if (player.isHurt())
             {
-                ++this.thirstTickTimer;
-
-                if (this.thirstTickTimer >= Config.naturalHealingRate.get())
+                //Standard HP regen when above 1/6th blood
+                if (this.thirstLevel > MAX_THIRST / 6)
                 {
-                    player.heal(1.0F);
+                    ++this.thirstTickTimer;
 
-                    exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+                    if (this.thirstTickTimer >= Config.naturalHealingRate.get())
+                    {
+                        player.heal(getHealthRegenRate(player));
 
-                    this.thirstTickTimer = 0;
+                        exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+
+                        this.thirstTickTimer = 0;
+                    }
                 }
-            }
-            //Slower HP regen when still have some blood below 1/6th
-            else if (areWeDoingNaturalRegen && this.thirstLevel <= MAX_THIRST / 6 && player.isHurt())
-            {
-                ++this.thirstTickTimer;
-
-                if (this.thirstTickTimer >= 80)
+                //Slower HP regen when still have some blood below 1/6th
+                else
                 {
-                    player.heal(1.0F);
+                    ++this.thirstTickTimer;
 
-                    exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
+                    if (this.thirstTickTimer >= 80)
+                    {
+                        player.heal(getHealthRegenRate(player));
 
-                    this.thirstTickTimer = 0;
+                        exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
+
+                        this.thirstTickTimer = 0;
+                    }
                 }
             }
             //Replenish thirst if playing on Peaceful
