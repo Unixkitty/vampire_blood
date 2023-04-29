@@ -22,6 +22,9 @@ public class Config
 
     public static final String INCREASED_WOOD_DAMAGE = "increasedDamageFromWood";
     public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
+
+    public static final String TIME_TO_SUN = "ticksToSunDamage";
+    public static ForgeConfigSpec.IntValue ticksToSunDamage;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -49,6 +52,8 @@ public class Config
 
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define(INCREASED_WOOD_DAMAGE, true);
+
+                ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange(TIME_TO_SUN, 60, 1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 

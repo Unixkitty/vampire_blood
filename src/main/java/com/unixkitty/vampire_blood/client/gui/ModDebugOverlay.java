@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.VampireUtil;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 
 public class ModDebugOverlay
@@ -19,7 +21,7 @@ public class ModDebugOverlay
 
     public static void onRenderText(RenderGuiOverlayEvent event)
     {
-        if (Config.renderDebugOverlay.get() && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator())
+        if (Config.renderDebugOverlay.get() && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
         {
             if (Minecraft.getInstance().options.renderDebug) return;
 
@@ -39,12 +41,17 @@ public class ModDebugOverlay
 
     private static void renderDebugText(PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight, Player player)
     {
-        String longestLine = "thirstExhaustionIncrement: " + "!!!" + "/" + Config.bloodUsageRate.get();
-
+//        String longestLine = "thirstExhaustionIncrement: " + "!!!" + "/" + Config.bloodUsageRate.get();
         int i = 0;
 
-        final int renderStartX = screenWidth - fontRenderer.width(longestLine) - fontRenderer.width("     ");
+//        final int renderStartX = screenWidth - fontRenderer.width(longestLine) - fontRenderer.width("     ");
+        final int renderStartX = MARGIN_PX;
         final int renderStartY = MARGIN_PX;
+
+        final int fillRenderStartX = renderStartX / 2;
+        final int fillRenderStartY = renderStartY * 3;
+
+        ForgeGui.fill(poseStack, fillRenderStartX, fillRenderStartY, fillRenderStartX + 200, fillRenderStartY + 115, Minecraft.getInstance().options.getBackgroundColor(0.3F));
 
         drawLine("vampireLevel: " + ClientVampirePlayerDataCache.vampireLevel, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_PURPLE.getColor());
 
@@ -54,12 +61,12 @@ public class ModDebugOverlay
 
             drawLine("thirstLevel: " + ClientVampirePlayerDataCache.thirstLevel + "/" + VampirePlayerData.Blood.MAX_THIRST, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
             drawLine("thirstExhaustionLevel: " + ClientVampirePlayerDataCache.Debug.thirstExhaustion + "/100", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
-            drawLine(longestLine.replace("!!!", Integer.toString(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement)), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
+            drawLine("thirstExhaustionIncrement: " + ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement + "/" + Config.bloodUsageRate.get(), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.GRAY.getColor());
             drawLine("thirstTickTimer: " + ClientVampirePlayerDataCache.Debug.thirstTickTimer, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_GRAY.getColor());
             drawLine("isFeeding: " + ClientVampirePlayerDataCache.isFeeding, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_GRAY.getColor());
-//        drawLine("ticksInSun: " + vampirePlayer.getSunTicks(), poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.YELLOW.getColor());
+            drawLine("ticksInSun: " + ClientVampirePlayerDataCache.Debug.ticksInSun, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.YELLOW.getColor());
             drawLine("bloodType: " + ClientVampirePlayerDataCache.bloodType, poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_RED.getColor());
-            drawLine("Health: " + player.getHealth() + "/" + player.getMaxHealth() + " | Rate: " + VampirePlayerData.getHealthRegenRate(player) + "/" + Config.naturalHealingRate.get() + "t", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.RED.getColor());
+            drawLine("Health: " + VampireUtil.formatDecimal(player.getHealth(), 1) + "/" + player.getMaxHealth() + " | Rate: " + VampireUtil.getHealthRegenRate(player) + "/" + Config.naturalHealingRate.get() + "t", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.RED.getColor());
 
             for (VampireAttributeModifiers.Modifier modifier : VampireAttributeModifiers.Modifier.values())
             {
@@ -67,7 +74,7 @@ public class ModDebugOverlay
 
                 if (attributeInstance != null)
                 {
-                    drawLine(modifier.name() + ": " + attributeInstance.getValue() + " ( " + attributeInstance.getBaseValue() + " ( " + String.format("%.2f", ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier)) + " * " + String.format("%.2f", ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier)) + " ) ", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_AQUA.getColor());
+                    drawLine(modifier.name() + ": " + attributeInstance.getValue() + " ( " + attributeInstance.getBaseValue() + " ( " + VampireUtil.formatDecimal(ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier), 2) + " * " + VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier), 2) + " ) ", poseStack, fontRenderer, renderStartX, renderStartY, ++i, ChatFormatting.DARK_AQUA.getColor());
                 }
             }
         }

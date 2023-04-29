@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.mixin;
 
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.VampireUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +15,7 @@ public class MixinLivingEntity
     @Inject(at = @At("HEAD"), method = "getMobType()Lnet/minecraft/world/entity/MobType;", cancellable = true)
     public void vampire$getMobType(CallbackInfoReturnable<MobType> result)
     {
-        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide() && VampirePlayerData.isUndead(player))
+        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide() && VampireUtil.isUndead(player))
         {
             result.setReturnValue(MobType.UNDEAD);
         }

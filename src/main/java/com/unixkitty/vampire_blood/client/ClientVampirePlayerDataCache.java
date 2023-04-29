@@ -16,7 +16,6 @@ public final class ClientVampirePlayerDataCache
      */
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     public static VampireBloodType bloodType = VampireBloodType.HUMAN;
-    public static int ticksInSun = 0;
     public static boolean isFeeding = false;
     public static int ticksFeeding = 0;
 
@@ -29,11 +28,12 @@ public final class ClientVampirePlayerDataCache
 
     public static boolean isVampire()
     {
-        return vampireLevel != VampirismStage.NOT_VAMPIRE && vampireLevel != VampirismStage.IN_TRANSITION;
+        return vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId();
     }
 
     public static final class Debug
     {
+        public static int ticksInSun = 0;
         public static int thirstExhaustion = 0;
         public static int thirstExhaustionIncrement = 0;
         public static int thirstTickTimer = 0;

@@ -1,19 +1,23 @@
 package com.unixkitty.vampire_blood.capability;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.VampireUtil;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerRespawnS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,6 +31,8 @@ public class VampirePlayerData
     private VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     private VampireBloodType bloodType = VampireBloodType.HUMAN;
     private int ticksInSun;
+    private boolean catchingUV = false;
+    private int catchingUVTicks;
 
     private boolean isFeeding = false; //Don't need to store this in NBT, fine if feeding stops after relogin
 
@@ -123,8 +129,12 @@ public class VampirePlayerData
 
     public void tick(Player player)
     {
+        player.level.getProfiler().push("vampire_tick");
+
         if (this.vampireLevel != VampirismStage.NOT_VAMPIRE)
         {
+            handleSunlight(player);
+
             handleFeeding(player);
 
             syncDebugData(player); //TODO remove debug
@@ -132,6 +142,97 @@ public class VampirePlayerData
             syncData(player);
 
             blood.tick(player, this.vampireLevel);
+        }
+
+        player.level.getProfiler().pop();
+    }
+
+    private void handleSunlight(Player player)
+    {
+        player.level.getProfiler().push("vampire_catching_sun_logic");
+
+        if (player.level.isDay())
+        {
+            //Cache the check for performance
+            if (this.catchingUVTicks <= 0)
+            {
+                this.catchingUV = catchingUV(player);
+                this.catchingUVTicks = 20;
+            }
+            else
+            {
+                --this.catchingUVTicks;
+            }
+
+            if (catchingUV)
+            {
+                ++this.ticksInSun;
+
+                //We do basic effects sooner and more often
+                if (this.ticksInSun >= Config.ticksToSunDamage.get() / 6)
+                {
+                    //Do common effects
+                    player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, Config.ticksToSunDamage.get() * 10, player.level.isRaining() ? 0 : 1, false, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, Config.ticksToSunDamage.get() * 10, player.level.isRaining() ? 0 : 1, false, false, true));
+                }
+
+                if (this.ticksInSun >= Config.ticksToSunDamage.get() / 2 && this.vampireLevel.id > VampirismStage.IN_TRANSITION.id)
+                {
+                    player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, Config.ticksToSunDamage.get() * 4, 0, false, false, true));
+                    player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, Config.ticksToSunDamage.get() * 3, 0, false, false, true));
+                }
+
+                if (this.ticksInSun >= Config.ticksToSunDamage.get())
+                {
+                    if (this.vampireLevel != VampirismStage.IN_TRANSITION)
+                    {
+                        player.hurt(ModRegistry.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
+                        player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
+                    }
+
+                    this.ticksInSun = 0;
+                }
+            }
+            else
+            {
+                this.ticksInSun = 0;
+            }
+        }
+        else
+        {
+            this.ticksInSun = 0;
+        }
+
+        player.level.getProfiler().pop();
+    }
+
+    private boolean catchingUV(Player player)
+    {
+        final BlockPos playerEyePos = new BlockPos(player.getX(), player.getEyeY(), player.getZ());
+
+        //If fully submerged, including eyes, check if deep enough (4 blocks) or if the block above the liquid can't see the sky
+        if (player.isUnderWater())
+        {
+            BlockPos abovePos;
+            BlockPos blockPosAboveLiquid = null;
+
+            for (int i = 0; i <= 4; i++)
+            {
+                abovePos = playerEyePos.above(i);
+
+                if (!player.level.getBlockState(abovePos).getMaterial().isLiquid())
+                {
+                    blockPosAboveLiquid = abovePos;
+                    break;
+                }
+            }
+
+            //If shallow enough liquid and found nonwater above, can it see sky
+            return blockPosAboveLiquid != null && player.level.canSeeSky(blockPosAboveLiquid);
+        }
+        else //If Player not in water and can see sky
+        {
+            return player.level.canSeeSky(playerEyePos);
         }
     }
 
@@ -281,26 +382,6 @@ public class VampirePlayerData
         }
     }
 
-    public static boolean isUndead(Player player)
-    {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirismStage.NOT_VAMPIRE).orElse(false);
-    }
-
-    public static boolean isVampire(Player player)
-    {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirismStage.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != VampirismStage.IN_TRANSITION).orElse(false);
-    }
-
-    public static boolean isTransitioning(Player player)
-    {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismStage.IN_TRANSITION).orElse(false);
-    }
-
-    public static float getHealthRegenRate(Player player)
-    {
-        return (float) ((player.getMaxHealth() / player.getAttributeBaseValue(Attributes.MAX_HEALTH) / (20.0F / Config.naturalHealingRate.get())) * Config.naturalHealingMultiplier.get());
-    }
-
     //TODO remove debug
     //===============================================
     private void syncDebugData(Player player)
@@ -361,6 +442,8 @@ public class VampirePlayerData
 
         private void tick(Player player, VampirismStage vampireLevel)
         {
+            player.level.getProfiler().push("vampire_blood_tick");
+
             boolean isPeaceful = player.level.getDifficulty() == Difficulty.PEACEFUL;
 
             float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
@@ -371,7 +454,6 @@ public class VampirePlayerData
             player.getFoodData().setExhaustion(0);
 
             //TODO special handling when Stage == IN_TRANSITION
-
             if (vampireLevel == VampirismStage.IN_TRANSITION)
             {
 
@@ -397,6 +479,8 @@ public class VampirePlayerData
             }
 
             this.syncData(player);
+
+            player.level.getProfiler().pop();
         }
 
         private void handleExhaustion(Player player, float vanillaExhaustionDelta, boolean isPeaceful)
@@ -429,7 +513,7 @@ public class VampirePlayerData
 
                     if (this.thirstTickTimer >= Config.naturalHealingRate.get())
                     {
-                        player.heal(getHealthRegenRate(player));
+                        player.heal(VampireUtil.getHealthRegenRate(player));
 
                         exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
 
@@ -443,7 +527,7 @@ public class VampirePlayerData
 
                     if (this.thirstTickTimer >= 80)
                     {
-                        player.heal(getHealthRegenRate(player));
+                        player.heal(VampireUtil.getHealthRegenRate(player));
 
                         exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
 

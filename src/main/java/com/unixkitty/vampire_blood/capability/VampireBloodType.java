@@ -9,11 +9,11 @@ public enum VampireBloodType
     HUMAN(1, 1, 1, 1, 1),
     VAMPIRE(1.25, 1, 1, 0.75, 1);
 
-    private final double healthMultiplier;
-    private final double strengthMultiplier;
-    private final double speedBoostModifier;
-    private final double bloodSaturationModifier;
-    private final double drainVictimChanceModifier;
+    final double healthMultiplier;
+    final double strengthMultiplier;
+    final double speedBoostModifier;
+    final double bloodSaturationModifier;
+    final double drainVictimChanceModifier;
 
     VampireBloodType(double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier, double drainVictimChanceModifier)
     {

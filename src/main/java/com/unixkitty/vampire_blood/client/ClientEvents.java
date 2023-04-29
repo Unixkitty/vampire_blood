@@ -2,7 +2,7 @@ package com.unixkitty.vampire_blood.client;
 
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.VampireUtil;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
@@ -31,7 +31,7 @@ public final class ClientEvents
         {
             Minecraft mc = Minecraft.getInstance();
 
-            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && mc.player != null && VampirePlayerData.isUndead(mc.player) && mc.gameMode.hasExperience() && mc.player.isAlive())
+            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && mc.player != null && VampireUtil.isUndead(mc.player) && mc.gameMode.hasExperience() && mc.player.isAlive())
             {
                 event.setCanceled(true);
             }
