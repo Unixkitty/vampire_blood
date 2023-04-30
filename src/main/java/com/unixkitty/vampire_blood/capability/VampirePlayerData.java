@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood.capability;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.VampireUtil;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
@@ -9,6 +8,7 @@ import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerRespawnS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -33,6 +33,7 @@ public class VampirePlayerData
     private int ticksInSun;
     private boolean catchingUV = false;
     private int catchingUVTicks;
+    private int noRegenTicks;
 
     private boolean isFeeding = false; //Don't need to store this in NBT, fine if feeding stops after relogin
 
@@ -188,6 +189,8 @@ public class VampirePlayerData
                     {
                         player.hurt(ModRegistry.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
                         player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
+
+                        addPreventRegenTicks(Config.ticksToSunDamage.get());
                     }
 
                     this.ticksInSun = 0;
@@ -255,6 +258,11 @@ public class VampirePlayerData
                 }
             }
         }
+    }
+
+    public void addPreventRegenTicks(int amount)
+    {
+        this.noRegenTicks = Math.min((this.noRegenTicks + amount), Config.noRegenTicksLimit.get());
     }
 
     public VampirismStage getVampireLevel()
@@ -389,6 +397,11 @@ public class VampirePlayerData
         ModNetworkDispatcher.sendToClient(new DebugDataSyncS2CPacket(this), (ServerPlayer) player);
     }
 
+    public int getNoRegenTicks()
+    {
+        return this.noRegenTicks;
+    }
+
     public int getThirstExhaustionIncrement()
     {
         return blood.thirstExhaustionIncrement;
@@ -504,34 +517,41 @@ public class VampirePlayerData
         private void handleRegenAndStarvation(Player player, boolean isPeaceful)
         {
             //Check if we should do natural regen
-            if (player.isHurt() && !catchingUV)
+            if (player.isHurt())
             {
-                //Standard HP regen when above 1/6th blood
-                if (this.thirstLevel > MAX_THIRST / 6)
+                if (noRegenTicks > 0)
                 {
-                    ++this.thirstTickTimer;
-
-                    if (this.thirstTickTimer >= Config.naturalHealingRate.get())
-                    {
-                        player.heal(VampireUtil.getHealthRegenRate(player));
-
-                        exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
-
-                        this.thirstTickTimer = 0;
-                    }
+                    --noRegenTicks;
                 }
-                //Slower HP regen when still have some blood below 1/6th
                 else
                 {
-                    ++this.thirstTickTimer;
-
-                    if (this.thirstTickTimer >= 80)
+                    //Standard HP regen when above 1/6th blood
+                    if (this.thirstLevel > MAX_THIRST / 6)
                     {
-                        player.heal(VampireUtil.getHealthRegenRate(player));
+                        ++this.thirstTickTimer;
 
-                        exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
+                        if (this.thirstTickTimer >= Config.naturalHealingRate.get())
+                        {
+                            player.heal(VampireUtil.getHealthRegenRate(player));
 
-                        this.thirstTickTimer = 0;
+                            exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+
+                            this.thirstTickTimer = 0;
+                        }
+                    }
+                    //Slower HP regen when still have some blood below 1/6th
+                    else
+                    {
+                        ++this.thirstTickTimer;
+
+                        if (this.thirstTickTimer >= 80)
+                        {
+                            player.heal(VampireUtil.getHealthRegenRate(player));
+
+                            exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
+
+                            this.thirstTickTimer = 0;
+                        }
                     }
                 }
             }

@@ -2,9 +2,9 @@ package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.VampireUtil;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,14 +31,27 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingHurt(final LivingHurtEvent event)
     {
-        if (!event.getEntity().getLevel().isClientSide() && Config.increasedDamageFromWood.get() && event.getEntity() instanceof Player && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getSource().getEntity() instanceof LivingEntity attacker && event.getAmount() > 0 && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
+        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof Player player)
         {
-            event.setAmount(event.getAmount() * 1.25F);
-        }
+            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+            {
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.NOT_VAMPIRE.getId())
+                {
+                    if (Config.increasedDamageFromWood.get() && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getSource().getEntity() instanceof LivingEntity attacker && event.getAmount() > 0 && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
+                    {
+                        event.setAmount(event.getAmount() * 1.25F);
 
-        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof Player player && VampireUtil.isVampire(player) && event.getSource().isFire())
-        {
-            event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
+                        vampirePlayerData.addPreventRegenTicks(60);
+                    }
+
+                    if (event.getSource().isFire())
+                    {
+                        event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
+
+                        vampirePlayerData.addPreventRegenTicks(20);
+                    }
+                }
+            });
         }
     }
 

@@ -25,6 +25,9 @@ public class Config
 
     public static final String TIME_TO_SUN = "ticksToSunDamage";
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
+
+    public static final String NO_REGEN_TICKS = "noRegenTicksLimit";
+    public static ForgeConfigSpec.IntValue noRegenTicksLimit;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -48,6 +51,7 @@ public class Config
                 commonConfig.push("Health regen");
                 naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
                 naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange(HEALING_MULTIPLIER, 1.0D, 0.001, 100.0D);
+                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange(NO_REGEN_TICKS, 60, 1, Integer.MAX_VALUE);
                 commonConfig.pop();
 
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);

@@ -11,6 +11,7 @@ public class DebugDataSyncS2CPacket
 {
     private final int ticksInSun;
     private final int ticksFeeding;
+    private final int noRegenTicks;
 
     private final int thirstExhaustion;
     private final int thirstExhaustionIncrement;
@@ -20,6 +21,7 @@ public class DebugDataSyncS2CPacket
     {
         this.ticksInSun = data.getSunTicks();
         this.ticksFeeding = data.getFeedingTicks();
+        this.noRegenTicks = data.getNoRegenTicks();
 
         this.thirstExhaustion = data.getThirstExhaustion();
         this.thirstExhaustionIncrement = data.getThirstExhaustionIncrement();
@@ -30,6 +32,7 @@ public class DebugDataSyncS2CPacket
     {
         this.ticksInSun = buffer.readInt();
         this.ticksFeeding = buffer.readInt();
+        this.noRegenTicks = buffer.readInt();
 
         this.thirstExhaustion = buffer.readInt();
         this.thirstExhaustionIncrement = buffer.readInt();
@@ -40,6 +43,7 @@ public class DebugDataSyncS2CPacket
     {
         buffer.writeInt(this.ticksInSun);
         buffer.writeInt(this.ticksFeeding);
+        buffer.writeInt(this.noRegenTicks);
 
         buffer.writeInt(this.thirstExhaustion);
         buffer.writeInt(this.thirstExhaustionIncrement);
@@ -54,6 +58,8 @@ public class DebugDataSyncS2CPacket
         {
             ClientVampirePlayerDataCache.ticksFeeding = this.ticksFeeding;
             ClientVampirePlayerDataCache.Debug.ticksInSun = this.ticksInSun;
+            ClientVampirePlayerDataCache.Debug.noRegenTicks = this.noRegenTicks;
+
             ClientVampirePlayerDataCache.Debug.thirstExhaustion = this.thirstExhaustion;
             ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = this.thirstExhaustionIncrement;
             ClientVampirePlayerDataCache.Debug.thirstTickTimer = this.thirstTickTimer;

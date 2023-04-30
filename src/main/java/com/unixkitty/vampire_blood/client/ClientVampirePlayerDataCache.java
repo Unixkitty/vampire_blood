@@ -34,6 +34,7 @@ public final class ClientVampirePlayerDataCache
     public static final class Debug
     {
         public static int ticksInSun = 0;
+        public static int noRegenTicks = 0;
         public static int thirstExhaustion = 0;
         public static int thirstExhaustionIncrement = 0;
         public static int thirstTickTimer = 0;

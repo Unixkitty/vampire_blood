@@ -1,9 +1,9 @@
 package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.VampireUtil;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectCategory;

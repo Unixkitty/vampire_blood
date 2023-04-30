@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.mixin;
 
-import com.unixkitty.vampire_blood.VampireUtil;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.player.Player;
