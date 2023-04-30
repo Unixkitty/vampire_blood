@@ -18,7 +18,7 @@ public final class ModRegistry
         @Override
         public Component getLocalizedDeathMessage(LivingEntity whoDied)
         {
-            return Component.translatable("vampire_blood.death.attack.sunlight_" + whoDied.getRandom().nextIntBetweenInclusive(1, 8), whoDied.getDisplayName());
+            return Component.translatable("vampire_blood.death.attack.sunlight_" + whoDied.getRandom().nextIntBetweenInclusive(1, 9), whoDied.getDisplayName());
         }
     }.bypassArmor().setMagic();
 

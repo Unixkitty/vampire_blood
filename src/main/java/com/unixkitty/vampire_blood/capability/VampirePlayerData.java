@@ -504,7 +504,7 @@ public class VampirePlayerData
         private void handleRegenAndStarvation(Player player, boolean isPeaceful)
         {
             //Check if we should do natural regen
-            if (player.isHurt())
+            if (player.isHurt() && !catchingUV)
             {
                 //Standard HP regen when above 1/6th blood
                 if (this.thirstLevel > MAX_THIRST / 6)
