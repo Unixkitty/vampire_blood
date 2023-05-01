@@ -8,14 +8,13 @@ import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerRespawnS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
+import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -157,7 +156,7 @@ public class VampirePlayerData
             //Cache the check for performance
             if (this.catchingUVTicks <= 0)
             {
-                this.catchingUV = catchingUV(player);
+                this.catchingUV = SunExposurer.isCatchingUV(player);
                 this.catchingUVTicks = 20;
             }
             else
@@ -169,18 +168,18 @@ public class VampirePlayerData
             {
                 ++this.ticksInSun;
 
-                //We do basic effects sooner and more often
-                if (this.ticksInSun >= Config.ticksToSunDamage.get() / 6)
+                //We do basic effects sooner
+                if (this.ticksInSun == Config.ticksToSunDamage.get() / 6)
                 {
                     //Do common effects
-                    player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, Config.ticksToSunDamage.get() * 10, player.level.isRaining() ? 0 : 1, false, false, true));
-                    player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, Config.ticksToSunDamage.get() * 10, player.level.isRaining() ? 0 : 1, false, false, true));
+                    SunExposurer.chanceEffect(player, MobEffects.WEAKNESS, 10, player.level.isRaining() ? 0 : 1, 100);
+                    SunExposurer.chanceEffect(player, MobEffects.DIG_SLOWDOWN, 10, player.level.isRaining() ? 0 : 1, 100);
                 }
 
-                if (this.ticksInSun >= Config.ticksToSunDamage.get() / 2 && this.vampireLevel.id > VampirismStage.IN_TRANSITION.id)
+                if (this.ticksInSun == Config.ticksToSunDamage.get() / 2)
                 {
-                    player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, Config.ticksToSunDamage.get() * 4, 0, false, false, true));
-                    player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, Config.ticksToSunDamage.get() * 3, 0, false, false, true));
+                    SunExposurer.chanceEffect(player, MobEffects.CONFUSION, 4, 0, this.vampireLevel);
+                    SunExposurer.chanceEffect(player, MobEffects.BLINDNESS, 3, 0, this.vampireLevel);
                 }
 
                 if (this.ticksInSun >= Config.ticksToSunDamage.get())
@@ -207,36 +206,6 @@ public class VampirePlayerData
         }
 
         player.level.getProfiler().pop();
-    }
-
-    private boolean catchingUV(Player player)
-    {
-        final BlockPos playerEyePos = new BlockPos(player.getX(), player.getEyeY(), player.getZ());
-
-        //If fully submerged, including eyes, check if deep enough (4 blocks) or if the block above the liquid can't see the sky
-        if (player.isUnderWater())
-        {
-            BlockPos abovePos;
-            BlockPos blockPosAboveLiquid = null;
-
-            for (int i = 0; i <= 4; i++)
-            {
-                abovePos = playerEyePos.above(i);
-
-                if (!player.level.getBlockState(abovePos).getMaterial().isLiquid())
-                {
-                    blockPosAboveLiquid = abovePos;
-                    break;
-                }
-            }
-
-            //If shallow enough liquid and found nonwater above, can it see sky
-            return blockPosAboveLiquid != null && player.level.canSeeSky(blockPosAboveLiquid);
-        }
-        else //If Player not in water and can see sky
-        {
-            return player.level.canSeeSky(playerEyePos);
-        }
     }
 
     private void handleFeeding(Player player)

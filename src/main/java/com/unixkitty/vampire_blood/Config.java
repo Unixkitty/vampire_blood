@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood;
 
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config
