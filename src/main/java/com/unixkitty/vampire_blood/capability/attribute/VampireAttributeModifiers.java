@@ -38,7 +38,7 @@ public class VampireAttributeModifiers
                 {
                     attribute.addPermanentModifier(new AttributeModifier(modifier.getUuid(), modifier.getName(), modifierValue, modifier.getModifierOperation()));
                 }
-                
+
                 if (lastHealth != -1)
                 {
                     player.setHealth(Math.min(lastHealth, player.getMaxHealth()));

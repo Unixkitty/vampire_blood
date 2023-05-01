@@ -1,6 +1,11 @@
 package com.unixkitty.vampire_blood;
 
+import com.google.common.collect.Lists;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraftforge.common.ForgeConfigSpec;
+
+import java.util.List;
 
 public class Config
 {
@@ -8,39 +13,42 @@ public class Config
     public static ForgeConfigSpec CLIENT_CONFIG;
 
     /* BEGIN COMMON CONFIG ENTRIES */
-    public static final String BLOOD_USAGE_RATE = "bloodUsageRate";
+    private static final String BLOOD_USAGE_RATE = "bloodUsageRate";
     public static ForgeConfigSpec.IntValue bloodUsageRate;
 
-    public static final String HEALING_RATE = "naturalHealingRate";
+    private static final String HEALING_RATE = "naturalHealingRate";
     public static ForgeConfigSpec.IntValue naturalHealingRate;
 
-    public static final String HEALING_MULTIPLIER = "naturalHealingMultiplier";
+    private static final String HEALING_MULTIPLIER = "naturalHealingMultiplier";
     public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
 
-    public static final String UNDEAD_IGNORE = "shouldUndeadIgnoreVampires";
+    private static final String UNDEAD_IGNORE = "shouldUndeadIgnoreVampires";
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
 
-    public static final String INCREASED_WOOD_DAMAGE = "increasedDamageFromWood";
+    private static final String INCREASED_WOOD_DAMAGE = "increasedDamageFromWood";
     public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
 
-    public static final String TIME_TO_SUN = "ticksToSunDamage";
+    private static final String TIME_TO_SUN = "ticksToSunDamage";
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
 
-    public static final String NO_REGEN_TICKS = "noRegenTicksLimit";
+    private static final String SUNNY_DIMENSIONS = "sunnyDimensions";
+    public static final ForgeConfigSpec.ConfigValue<List<String>> sunnyDimensions;
+
+    private static final String NO_REGEN_TICKS = "noRegenTicksLimit";
     public static ForgeConfigSpec.IntValue noRegenTicksLimit;
 
-    public static final String VAMPIRE_DUST_DROPS = "vampireDustDropAmount";
+    private static final String VAMPIRE_DUST_DROPS = "vampireDustDropAmount";
     public static ForgeConfigSpec.IntValue vampireDustDropAmount;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
-    public static final String DEBUG_OUTPUT = "debugOutput";
+    private static final String DEBUG_OUTPUT = "debugOutput";
     public static ForgeConfigSpec.BooleanValue debugOutput;
 
-    public static final String RENDER_DEBUG_OVERLAY = "renderDebugOverlay";
+    private static final String RENDER_DEBUG_OVERLAY = "renderDebugOverlay";
     public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
 
-    public static final String ALTERNATE_BLOODBAR_FEEDING = "alternateBloodbarFeedingAnimation";
+    private static final String ALTERNATE_BLOODBAR_FEEDING = "alternateBloodbarFeedingAnimation";
     public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
     /* END ENTRIES */
 
@@ -62,6 +70,7 @@ public class Config
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define(INCREASED_WOOD_DAMAGE, true);
 
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange(TIME_TO_SUN, 60, 1, Integer.MAX_VALUE);
+                sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").define(SUNNY_DIMENSIONS, Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
 
                 vampireDustDropAmount = commonConfig.comment("How much vampire dust drops on death").defineInRange(VAMPIRE_DUST_DROPS, 2, 0, 64);
             }

@@ -26,6 +26,7 @@ public class MixinLivingEntity
     {
         if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide())
         {
+            //TODO does this conflict with enchantments or other external effects?
             result.setReturnValue(false);
         }
     }
