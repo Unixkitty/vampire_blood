@@ -8,9 +8,9 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.unixkitty.vampire_blood.capability.BloodData;
 import com.unixkitty.vampire_blood.capability.VampireBloodType;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -69,7 +69,7 @@ public class VampireCommand
                                 .executes(context -> getBloodLevel(context, getPlayer(context)))))
                 .then(Commands.literal("set")
                         .then(playerArg()
-                                .then(Commands.argument("bloodPoints", IntegerArgumentType.integer(VampirePlayerData.Blood.MIN_THIRST, VampirePlayerData.Blood.MAX_THIRST))
+                                .then(Commands.argument("bloodPoints", IntegerArgumentType.integer(BloodData.MIN_THIRST, BloodData.MAX_THIRST))
                                         .executes(context -> setBloodLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "bloodPoints")))))));
     }
 
@@ -110,7 +110,7 @@ public class VampireCommand
                 {
                     vampirePlayerData.setBlood(bloodPoints);
                     vampirePlayerData.syncBlood();
-                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + VampirePlayerData.Blood.MAX_THIRST));
+                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + BloodData.MAX_THIRST));
                 }
                 else
                 {
@@ -134,7 +134,7 @@ public class VampireCommand
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                 {
-                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + VampirePlayerData.Blood.MAX_THIRST));
+                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + BloodData.MAX_THIRST));
                 }
                 else
                 {
@@ -170,20 +170,24 @@ public class VampireCommand
 
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getBloodType().ordinal() != type)
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                 {
-                    vampirePlayerData.setBloodType(player, type);
+                    vampirePlayerData.updateBloodType(player, type);
+
+                    context.getSource().sendSuccess(
+                            Component.translatable(
+                                    "commands.vampire_blood.blood_change",
+                                    Component.literal(String.valueOf(type)).withStyle(ChatFormatting.BOLD),
+                                    player.getDisplayName()
+                            ),
+                            true
+                    );
+                }
+                else
+                {
+                    playerNotVampire(context, player);
                 }
             });
-
-            context.getSource().sendSuccess(
-                    Component.translatable(
-                            "commands.vampire_blood.level_change",
-                            Component.literal(String.valueOf(type)).withStyle(ChatFormatting.BOLD),
-                            player.getDisplayName()
-                    ),
-                    true
-            );
         }
         else
         {
@@ -215,7 +219,7 @@ public class VampireCommand
             {
                 if (vampirePlayerData.getVampireLevel().getId() != level)
                 {
-                    vampirePlayerData.setVampireLevel(player, level);
+                    vampirePlayerData.updateLevel(player, level);
                 }
             });
 
@@ -266,7 +270,7 @@ public class VampireCommand
 
     private static void playerNotVampire(CommandContext<CommandSourceStack> context, ServerPlayer player)
     {
-        context.getSource().sendSystemMessage(Component.translatable("commands.vampire_blood.player_not_vampire", player.getDisplayName()));
+        context.getSource().sendFailure(Component.translatable("commands.vampire_blood.player_not_vampire", player.getDisplayName()));
     }
 
     private static void capabilityFail(CommandContext<CommandSourceStack> context, ServerPlayer player)

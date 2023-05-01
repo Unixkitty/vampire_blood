@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.BloodData;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -48,7 +48,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             {
                 int x = startX - i * 8 - 9;
                 int idx = i * 2 + 1;
-                int idx2 = i * 2 + ((VampirePlayerData.Blood.MAX_THIRST / 2) + 1);
+                int idx2 = i * 2 + ((BloodData.MAX_THIRST / 2) + 1);
                 int offsetY = 0;
                 int backgroundOffsetY = 0;
 
@@ -67,7 +67,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     }
                 }
                 //Bar jitter that gets faster with lower blood when below 1/6
-                else if (ClientVampirePlayerDataCache.thirstLevel <= VampirePlayerData.Blood.MAX_THIRST / 6 && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
+                else if (ClientVampirePlayerDataCache.isHungry() && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
                 {
                     offsetY -= random.nextInt(3) - 1;
                     backgroundOffsetY = offsetY;

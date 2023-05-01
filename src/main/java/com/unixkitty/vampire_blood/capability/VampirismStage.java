@@ -5,11 +5,11 @@ import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifier
 public enum VampirismStage
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0, 0),
-    IN_TRANSITION(0, 1, 1, 1, 0, 0.5F),
-    FLEDGLING(1, 3, 2, 2, 2, 0.25F),
-    VAMPIRE(2, 4, 3, 3, 1.5F, 0.125F),
-    MATURE(3, 5, 4, 4, 1, 0),
-    ORIGINAL(999, 10, 5, 4, 0.5F, 0);
+    IN_TRANSITION(0, 1, 2, 1, 0, 0.5F),
+    FLEDGLING(1, 3, 3, 2, 1.75F, 0.25F),
+    VAMPIRE(2, 4, 4, 3, 1.5F, 0.125F),
+    MATURE(3, 5, 5, 4, 1.25F, 0),
+    ORIGINAL(999, 10, 6, 5, 1.0F, 0);
 
     final int id;
     final double healthMultiplier;
@@ -60,19 +60,12 @@ public enum VampirismStage
 
     public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
     {
-        switch (modifier)
+        return switch (modifier)
         {
-            case HEALTH ->
-            {
-                return healthMultiplier;
-            }
-            case STRENGTH ->
-            {
-                return strengthMultiplier;
-            }
-        }
-
-        return 1;
+            case HEALTH -> healthMultiplier;
+            case STRENGTH -> strengthMultiplier;
+            case BASE_SPEED -> this == IN_TRANSITION ? 1.25 : 1;
+        };
     }
 
     public static VampirismStage fromId(int id)

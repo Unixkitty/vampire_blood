@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;

@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.client;
 
+import com.unixkitty.vampire_blood.capability.BloodData;
 import com.unixkitty.vampire_blood.capability.VampireBloodType;
 import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,12 +32,22 @@ public final class ClientVampirePlayerDataCache
         return vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId();
     }
 
+    public static boolean isTransitioning()
+    {
+        return vampireLevel == VampirismStage.IN_TRANSITION;
+    }
+
+    public static boolean isHungry()
+    {
+        return thirstLevel <= BloodData.MAX_THIRST / 6;
+    }
+
     public static final class Debug
     {
         public static int ticksInSun = 0;
-        public static int noRegenTicks = 0;
         public static int thirstExhaustion = 0;
         public static int thirstExhaustionIncrement = 0;
         public static int thirstTickTimer = 0;
+        public static int noRegenTicks = 0;
     }
 }

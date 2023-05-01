@@ -7,7 +7,7 @@ public enum VampireBloodType
     FRAIL(0.3333333333333333, 0.25, 0.25, 0.25, 1.5),
     CREATURE(0.5, 0.5, 0.5, 0.5, 1.25),
     HUMAN(1, 1, 1, 1, 1),
-    VAMPIRE(1.25, 1, 1, 0.75, 1);
+    VAMPIRE(1.25, 1, 1.25, 0.25, 1);
 
     final double healthMultiplier;
     final double strengthMultiplier;
@@ -51,19 +51,12 @@ public enum VampireBloodType
 
     public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
     {
-        switch (modifier)
+        return switch (modifier)
         {
-            case HEALTH ->
-            {
-                return healthMultiplier;
-            }
-            case STRENGTH ->
-            {
-                return strengthMultiplier;
-            }
-        }
-
-        return 1;
+            case HEALTH -> healthMultiplier;
+            case STRENGTH -> strengthMultiplier;
+            case BASE_SPEED -> 1;
+        };
     }
 
     public static VampireBloodType fromId(int id)

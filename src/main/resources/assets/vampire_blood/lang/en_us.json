@@ -1,5 +1,6 @@
 {
   "commands.vampire_blood.level_change": "Changing vampire level to %s for player %s",
+  "commands.vampire_blood.blood_change": "Changing blood type to %s for player %s",
   "commands.vampire_blood.no_such_level": "No such vampirism level: %s",
   "commands.vampire_blood.no_such_blood": "No such blood level: %s",
   "commands.vampire_blood.player_not_vampire": "Player %s is not a vampire",

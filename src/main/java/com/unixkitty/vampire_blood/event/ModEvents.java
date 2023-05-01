@@ -3,7 +3,7 @@ package com.unixkitty.vampire_blood.event;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;

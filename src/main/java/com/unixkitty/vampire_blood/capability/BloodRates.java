@@ -10,30 +10,11 @@ public enum BloodRates
 
     public int get()
     {
-        switch (this)
+        return switch (this)
         {
-            case IDLE ->
-            {
-                return 1;
-            }
-/*            case MOVING ->
-            {
-                return Config.bloodUsageRate.get() / 120;
-            }
-            case SPRINTING ->
-            {
-                return Config.bloodUsageRate.get() / 12;
-            }*/
-            case HEALING_SLOW ->
-            {
-                return Config.bloodUsageRate.get() / 4;
-            }
-            case HEALING ->
-            {
-                return Config.bloodUsageRate.get() / 2;
-            }
-        }
-
-        return 0;
+            case IDLE -> 1;
+            case HEALING_SLOW -> Config.bloodUsageRate.get() / 4;
+            case HEALING -> Config.bloodUsageRate.get() / 2;
+        };
     }
 }

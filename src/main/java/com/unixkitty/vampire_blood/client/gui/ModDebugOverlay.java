@@ -2,7 +2,7 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.capability.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.BloodData;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.util.StringCrafter;
@@ -89,18 +89,18 @@ public class ModDebugOverlay
 
         if (ClientVampirePlayerDataCache.isVampire())
         {
-            craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerData.Blood.MAX_THIRST);
+            craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", BloodData.MAX_THIRST);
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.Debug.thirstExhaustion, "/100");
             craftLine(ChatFormatting.GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
             craftLine(ChatFormatting.DARK_GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
             craftLine(ChatFormatting.DARK_GRAY, "isFeeding: ", ClientVampirePlayerDataCache.isFeeding);
             craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientVampirePlayerDataCache.Debug.ticksInSun);
             craftLine(ChatFormatting.DARK_RED, "bloodType: ", ClientVampirePlayerDataCache.bloodType);
-            craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth(), 1), "/", player.getMaxHealth(), " | Rate: ", VampireUtil.getHealthRegenRate(player), "/", Config.naturalHealingRate.get(), "t");
+            craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth(), 1), "/", player.getMaxHealth(), " | Rate: ", VampireUtil.getHealthRegenRate(player), "/", ClientVampirePlayerDataCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
             craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientVampirePlayerDataCache.Debug.noRegenTicks);
-
-            addAttributes(player);
         }
+
+        addAttributes(player);
     }
 
     private static void craftLine(ChatFormatting formatting, Object... objects)
@@ -114,11 +114,14 @@ public class ModDebugOverlay
 
         for (VampireAttributeModifiers.Modifier modifier : VampireAttributeModifiers.Modifier.values())
         {
-            attributeInstance = player.getAttribute(modifier.getBaseAttribute());
-
-            if (attributeInstance != null)
+            if (modifier.isApplicableStage(ClientVampirePlayerDataCache.vampireLevel))
             {
-                craftLine(ChatFormatting.DARK_AQUA, modifier.name(), ": ", attributeInstance.getValue(), " ( ", attributeInstance.getBaseValue(), " ( ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier), 2), " * ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier), 2), " ) )");
+                attributeInstance = player.getAttribute(modifier.getBaseAttribute());
+
+                if (attributeInstance != null)
+                {
+                    craftLine(ChatFormatting.DARK_AQUA, modifier.name(), ": ", VampireUtil.formatDecimal(attributeInstance.getValue(), 2), " ( ", VampireUtil.formatDecimal(attributeInstance.getBaseValue(), 2), " ( ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier), 2), " * ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier), 2), " ) )");
+                }
             }
         }
     }
