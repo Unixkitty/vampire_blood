@@ -1,17 +1,23 @@
 package com.unixkitty.vampire_blood.event;
 
+import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -66,6 +72,15 @@ public class VampirePlayerEvents
             VampirePlayerData.copyData(event.getOriginal(), event.getEntity(), event.isWasDeath());
 
             event.getOriginal().invalidateCaps();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingDeath(final LivingDeathEvent event)
+    {
+        if (!event.getEntity().level.isClientSide() && event.getEntity() instanceof Player player && VampireUtil.isVampire(player) && event.getSource() != DamageSource.LAVA && Config.vampireDustDropAmount.get() > 0)
+        {
+            player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModRegistry.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
         }
     }
 

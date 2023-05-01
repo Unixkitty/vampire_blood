@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood;
 
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config
@@ -28,6 +29,9 @@ public class Config
 
     public static final String NO_REGEN_TICKS = "noRegenTicksLimit";
     public static ForgeConfigSpec.IntValue noRegenTicksLimit;
+
+    public static final String VAMPIRE_DUST_DROPS = "vampireDustDropAmount";
+    public static ForgeConfigSpec.IntValue vampireDustDropAmount;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -55,9 +59,12 @@ public class Config
                 commonConfig.pop();
 
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);
+
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define(INCREASED_WOOD_DAMAGE, true);
 
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange(TIME_TO_SUN, 60, 1, Integer.MAX_VALUE);
+
+                vampireDustDropAmount = commonConfig.comment("How much vampire dust drops on death").defineInRange(VAMPIRE_DUST_DROPS, 2, 0, 64);
             }
             commonConfig.pop();
 
