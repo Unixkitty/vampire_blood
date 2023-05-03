@@ -1,7 +1,8 @@
-package com.unixkitty.vampire_blood.capability;
+package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
@@ -20,19 +21,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VampirePlayerData
 {
+    public static final String BLOODTYPE_NBT_NAME = "bloodType";
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
-    private static final String BLOODTYPE_NBT_NAME = "bloodType";
 
     private VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
-    private VampireBloodType bloodType = VampireBloodType.HUMAN;
+    private BloodType bloodType = BloodType.HUMAN;
     private int ticksInSun;
     private boolean catchingUV = false;
     private int catchingUVTicks;
 
     private boolean isFeeding = false; //Don't need to store this in NBT, fine if feeding stops after relogin
 
-    private final BloodData blood = new BloodData();
+    private final VampirePlayerBloodData blood = new VampirePlayerBloodData();
 
     private LivingEntity feedingEntity = null;
     private int ticksFeeding;
@@ -87,8 +88,8 @@ public class VampirePlayerData
 
                     if (newVampData.vampireLevel != VampirismStage.NOT_VAMPIRE)
                     {
-                        newVampData.bloodType = VampireBloodType.FRAIL;
-                        newVampData.blood.thirstLevel = BloodData.MAX_THIRST / 2; //Respawn with half thirst
+                        newVampData.bloodType = BloodType.FRAIL;
+                        newVampData.blood.thirstLevel = VampirePlayerBloodData.MAX_THIRST / 2; //Respawn with half thirst
                     }
                 }
                 else if (newVampData.vampireLevel != VampirismStage.IN_TRANSITION && newVampData.vampireLevel != VampirismStage.NOT_VAMPIRE)
@@ -118,7 +119,7 @@ public class VampirePlayerData
     {
         this.vampireLevel = VampirismStage.fromId(tag.getInt(LEVEL_NBT_NAME));
         this.ticksInSun = tag.getInt(SUNTICKS_NBT_NAME);
-        this.bloodType = VampireBloodType.fromId(tag.getInt(BLOODTYPE_NBT_NAME));
+        this.bloodType = BloodType.fromId(tag.getInt(BLOODTYPE_NBT_NAME));
 
         blood.loadNBTData(tag);
     }
@@ -219,7 +220,7 @@ public class VampirePlayerData
 
                 if (Config.debugOutput.get())
                 {
-                    player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + BloodData.MAX_THIRST));
+                    player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
                 }
             }
         }
@@ -239,7 +240,7 @@ public class VampirePlayerData
     {
         if (this.vampireLevel == VampirismStage.IN_TRANSITION && level > VampirismStage.IN_TRANSITION.getId())
         {
-            this.setBlood(BloodData.MAX_THIRST / 6);
+            this.setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
         }
 
         this.vampireLevel = VampirismStage.fromId(level);
@@ -248,7 +249,7 @@ public class VampirePlayerData
         {
             this.setBlood(1);
 
-            this.bloodType = this.bloodType != VampireBloodType.HUMAN ? VampireBloodType.HUMAN : this.bloodType;
+            this.bloodType = this.bloodType != BloodType.HUMAN ? BloodType.HUMAN : this.bloodType;
         }
 
         notifyAndUpdate(player);
@@ -256,7 +257,7 @@ public class VampirePlayerData
 
     public void updateBloodType(ServerPlayer player, int id)
     {
-        this.bloodType = VampireBloodType.fromId(id);
+        this.bloodType = BloodType.fromId(id);
 
         notifyAndUpdate(player);
     }
@@ -270,7 +271,7 @@ public class VampirePlayerData
     @OnlyIn(Dist.CLIENT)
     public void setBloodType(int id)
     {
-        this.bloodType = VampireBloodType.fromId(id);
+        this.bloodType = BloodType.fromId(id);
     }
 
     private void notifyAndUpdate(ServerPlayer player)
@@ -294,7 +295,7 @@ public class VampirePlayerData
         return this.ticksInSun;
     }
 
-    public VampireBloodType getBloodType()
+    public BloodType getBloodType()
     {
         return this.bloodType;
     }
@@ -321,7 +322,7 @@ public class VampirePlayerData
 
     public void setBlood(int points)
     {
-        blood.thirstLevel = Math.max(BloodData.MIN_THIRST, Math.min(points, BloodData.MAX_THIRST));
+        blood.thirstLevel = Math.max(VampirePlayerBloodData.MIN_THIRST, Math.min(points, VampirePlayerBloodData.MAX_THIRST));
     }
 
     @OnlyIn(Dist.CLIENT)

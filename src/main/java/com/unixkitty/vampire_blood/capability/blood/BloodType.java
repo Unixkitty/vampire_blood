@@ -1,13 +1,15 @@
-package com.unixkitty.vampire_blood.capability;
+package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 
-public enum VampireBloodType
+public enum BloodType
 {
     FRAIL(0.3333333333333333, 0.25, 0.25, 0.25, 1.5),
     CREATURE(0.5, 0.5, 0.5, 0.5, 1.25),
+    PIGLIN(0.75, 0.75, 0.75, 0.75, 1.25),
     HUMAN(1, 1, 1, 1, 1),
-    VAMPIRE(1.25, 1, 1.25, 0.25, 1);
+    VAMPIRE(1.25, 1, 1.25, 0.25, 1),
+    NONE(0, 0, 0, 0, 0);
 
     final double healthMultiplier;
     final double strengthMultiplier;
@@ -15,7 +17,7 @@ public enum VampireBloodType
     final double bloodSaturationModifier;
     final double drainVictimChanceModifier;
 
-    VampireBloodType(double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier, double drainVictimChanceModifier)
+    BloodType(double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier, double drainVictimChanceModifier)
     {
         this.healthMultiplier = healthMultiplier;
         this.strengthMultiplier = strengthMultiplier;
@@ -59,9 +61,9 @@ public enum VampireBloodType
         };
     }
 
-    public static VampireBloodType fromId(int id)
+    public static BloodType fromId(int id)
     {
-        for (VampireBloodType type : values())
+        for (BloodType type : values())
         {
             if (type.ordinal() == id) return type;
         }

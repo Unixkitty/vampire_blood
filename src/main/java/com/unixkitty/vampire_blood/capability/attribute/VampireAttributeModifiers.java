@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.capability.attribute;
 
-import com.unixkitty.vampire_blood.capability.VampireBloodType;
-import com.unixkitty.vampire_blood.capability.VampirismStage;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class VampireAttributeModifiers
 {
-    public static void updateAttributes(ServerPlayer player, VampirismStage vampirismStage, VampireBloodType bloodType)
+    public static void updateAttributes(ServerPlayer player, VampirismStage vampirismStage, BloodType bloodType)
     {
         for (Modifier modifier : Modifier.values())
         {
@@ -81,7 +81,7 @@ public class VampireAttributeModifiers
             return uuid;
         }
 
-        public double getValue(double baseValue, VampirismStage vampirismStage, VampireBloodType bloodType)
+        public double getValue(double baseValue, VampirismStage vampirismStage, BloodType bloodType)
         {
             if (isApplicableStage(vampirismStage))
             {

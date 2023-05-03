@@ -8,10 +8,10 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import com.unixkitty.vampire_blood.capability.BloodData;
-import com.unixkitty.vampire_blood.capability.VampireBloodType;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
+import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -69,7 +69,7 @@ public class VampireCommand
                                 .executes(context -> getBloodLevel(context, getPlayer(context)))))
                 .then(Commands.literal("set")
                         .then(playerArg()
-                                .then(Commands.argument("bloodPoints", IntegerArgumentType.integer(BloodData.MIN_THIRST, BloodData.MAX_THIRST))
+                                .then(Commands.argument("bloodPoints", IntegerArgumentType.integer(VampirePlayerBloodData.MIN_THIRST, VampirePlayerBloodData.MAX_THIRST))
                                         .executes(context -> setBloodLevel(context, getPlayer(context), IntegerArgumentType.getInteger(context, "bloodPoints")))))));
     }
 
@@ -110,7 +110,7 @@ public class VampireCommand
                 {
                     vampirePlayerData.setBlood(bloodPoints);
                     vampirePlayerData.syncBlood();
-                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + BloodData.MAX_THIRST));
+                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
                 }
                 else
                 {
@@ -134,7 +134,7 @@ public class VampireCommand
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                 {
-                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + BloodData.MAX_THIRST));
+                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
                 }
                 else
                 {
@@ -152,7 +152,7 @@ public class VampireCommand
 
     private static int listBloodTypes(CommandContext<CommandSourceStack> context)
     {
-        for (VampireBloodType type : VampireBloodType.values())
+        for (BloodType type : BloodType.values())
         {
             context.getSource().sendSystemMessage(
                     Component.literal(type.ordinal() + "     ").append(Component.translatable("vampire_blood.blood_type." + type.toString().toLowerCase()))
@@ -166,7 +166,7 @@ public class VampireCommand
     {
         if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
         {
-            if (VampireBloodType.fromId(type) == null) throw error_no_such_blood_type.create(type);
+            if (BloodType.fromId(type) == null) throw error_no_such_blood_type.create(type);
 
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {

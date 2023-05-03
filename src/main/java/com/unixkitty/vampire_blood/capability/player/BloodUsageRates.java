@@ -1,8 +1,8 @@
-package com.unixkitty.vampire_blood.capability;
+package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
 
-public enum BloodRates
+public enum BloodUsageRates
 {
     IDLE,
     HEALING_SLOW,

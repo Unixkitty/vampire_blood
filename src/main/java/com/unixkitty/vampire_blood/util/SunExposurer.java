@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.util;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.capability.VampirismStage;
+import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;

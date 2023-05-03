@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.client;
 
-import com.unixkitty.vampire_blood.capability.BloodData;
-import com.unixkitty.vampire_blood.capability.VampireBloodType;
-import com.unixkitty.vampire_blood.capability.VampirismStage;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
+import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,7 +16,7 @@ public final class ClientVampirePlayerDataCache
         General
      */
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
-    public static VampireBloodType bloodType = VampireBloodType.HUMAN;
+    public static BloodType bloodType = BloodType.HUMAN;
     public static boolean isFeeding = false;
     public static int ticksFeeding = 0;
 
@@ -39,7 +39,7 @@ public final class ClientVampirePlayerDataCache
 
     public static boolean isHungry()
     {
-        return thirstLevel <= BloodData.MAX_THIRST / 6;
+        return thirstLevel <= VampirePlayerBloodData.MAX_THIRST / 6;
     }
 
     public static final class Debug

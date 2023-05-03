@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.capability.provider;
 
-import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.blood.BloodStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
@@ -12,27 +12,27 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class VampirePlayerProvider implements ICapabilityProvider, INBTSerializable<CompoundTag>
+public class BloodProvider implements ICapabilityProvider, INBTSerializable<CompoundTag>
 {
-    public static Capability<VampirePlayerData> VAMPIRE_PLAYER = CapabilityManager.get(new CapabilityToken<>() {});
+    public static Capability<BloodStorage> BLOOD_STORAGE = CapabilityManager.get(new CapabilityToken<>() {});
 
-    private VampirePlayerData vampirePlayerData = null;
-    private final LazyOptional<VampirePlayerData> optional = LazyOptional.of(this::createCap);
+    private BloodStorage blood_storage = null;
+    private final LazyOptional<BloodStorage> optional = LazyOptional.of(this::createCap);
 
-    private VampirePlayerData createCap()
+    private BloodStorage createCap()
     {
-        if (this.vampirePlayerData == null)
+        if (this.blood_storage == null)
         {
-            this.vampirePlayerData = new VampirePlayerData();
+            this.blood_storage = new BloodStorage();
         }
 
-        return this.vampirePlayerData;
+        return this.blood_storage;
     }
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side)
     {
-        return cap == VAMPIRE_PLAYER ? optional.cast() : LazyOptional.empty();
+        return cap == BLOOD_STORAGE ? optional.cast() : LazyOptional.empty();
     }
 
     @Override

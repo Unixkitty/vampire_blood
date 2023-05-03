@@ -2,8 +2,8 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.capability.BloodData;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.util.StringCrafter;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -89,7 +89,7 @@ public class ModDebugOverlay
 
         if (ClientVampirePlayerDataCache.isVampire())
         {
-            craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", BloodData.MAX_THIRST);
+            craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.Debug.thirstExhaustion, "/100");
             craftLine(ChatFormatting.GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
             craftLine(ChatFormatting.DARK_GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);

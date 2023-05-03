@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.BloodData;
+import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -48,7 +48,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             {
                 int x = startX - i * 8 - 9;
                 int idx = i * 2 + 1;
-                int idx2 = i * 2 + ((BloodData.MAX_THIRST / 2) + 1);
+                int idx2 = i * 2 + ((VampirePlayerBloodData.MAX_THIRST / 2) + 1);
                 int offsetY = 0;
                 int backgroundOffsetY = 0;
 

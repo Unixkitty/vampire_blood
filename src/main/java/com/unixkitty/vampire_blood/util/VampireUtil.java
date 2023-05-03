@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.util;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.capability.VampirismStage;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 

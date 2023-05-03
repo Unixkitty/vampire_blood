@@ -1,4 +1,4 @@
-package com.unixkitty.vampire_blood.capability;
+package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
@@ -11,7 +11,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 
-public class BloodData
+public class VampirePlayerBloodData
 {
     public static final int MIN_THIRST = 0;
     public static final int MAX_THIRST = 40;
@@ -30,7 +30,7 @@ public class BloodData
 
     private boolean needsSync = false;
 
-    BloodData()
+    VampirePlayerBloodData()
     {
     }
 
@@ -51,14 +51,14 @@ public class BloodData
 
     void addBlood(int points)
     {
-        this.thirstLevel = Math.min(this.thirstLevel + points, BloodData.MAX_THIRST);
+        this.thirstLevel = Math.min(this.thirstLevel + points, VampirePlayerBloodData.MAX_THIRST);
 
         sync();
     }
 
     void decreaseBlood(int points)
     {
-        this.thirstLevel = Math.max(this.thirstLevel - points, BloodData.MIN_THIRST);
+        this.thirstLevel = Math.max(this.thirstLevel - points, VampirePlayerBloodData.MIN_THIRST);
 
         sync();
     }
@@ -129,7 +129,7 @@ public class BloodData
                 {
                     player.heal(VampireUtil.getHealthRegenRate(player));
 
-                    exhaustionIncrement(BloodRates.HEALING, Config.naturalHealingRate.get());
+                    exhaustionIncrement(BloodUsageRates.HEALING, Config.naturalHealingRate.get());
 
                     this.thirstTickTimer = 0;
                 }
@@ -138,7 +138,7 @@ public class BloodData
                 {
                     player.heal(VampireUtil.getHealthRegenRate(player));
 
-                    exhaustionIncrement(BloodRates.HEALING_SLOW, Config.naturalHealingRate.get());
+                    exhaustionIncrement(BloodUsageRates.HEALING_SLOW, Config.naturalHealingRate.get());
 
                     this.thirstTickTimer = 0;
                 }
@@ -184,10 +184,10 @@ public class BloodData
 
     private void exhaustionIncrement()
     {
-        this.thirstExhaustionIncrement += BloodRates.IDLE.get();
+        this.thirstExhaustionIncrement += BloodUsageRates.IDLE.get();
     }
 
-    private void exhaustionIncrement(BloodRates rate, int ticks)
+    private void exhaustionIncrement(BloodUsageRates rate, int ticks)
     {
         this.thirstExhaustionIncrement += rate.get() * ticks;
     }

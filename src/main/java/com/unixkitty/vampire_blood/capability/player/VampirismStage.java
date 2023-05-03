@@ -1,4 +1,4 @@
-package com.unixkitty.vampire_blood.capability;
+package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 

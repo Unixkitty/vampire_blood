@@ -4,9 +4,14 @@ import com.google.common.collect.Lists;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 
 import java.util.List;
 
+@Mod.EventBusSubscriber(modid = VampireBlood.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config
 {
     public static ForgeConfigSpec COMMON_CONFIG;
@@ -32,7 +37,7 @@ public class Config
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
 
     private static final String SUNNY_DIMENSIONS = "sunnyDimensions";
-    public static final ForgeConfigSpec.ConfigValue<List<String>> sunnyDimensions;
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> sunnyDimensions;
 
     private static final String NO_REGEN_TICKS = "noRegenTicksLimit";
     public static ForgeConfigSpec.IntValue noRegenTicksLimit;
@@ -59,20 +64,23 @@ public class Config
 
             commonConfig.push("General");
             {
-                commonConfig.push("Health regen");
-                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
-                naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange(HEALING_MULTIPLIER, 1.0D, 0.001, 100.0D);
-                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange(NO_REGEN_TICKS, 60, 1, Integer.MAX_VALUE);
-                commonConfig.pop();
-
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);
 
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define(INCREASED_WOOD_DAMAGE, true);
 
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange(TIME_TO_SUN, 60, 1, Integer.MAX_VALUE);
-                sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").define(SUNNY_DIMENSIONS, Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
 
                 vampireDustDropAmount = commonConfig.comment("How much vampire dust drops on death").defineInRange(VAMPIRE_DUST_DROPS, 2, 0, 64);
+
+                sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList(SUNNY_DIMENSIONS), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
+            }
+            commonConfig.pop();
+
+            commonConfig.push("Health regen");
+            {
+                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
+                naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange(HEALING_MULTIPLIER, 1.0D, 0.001, 100.0D);
+                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange(NO_REGEN_TICKS, 60, 1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 
@@ -103,5 +111,30 @@ public class Config
 
             CLIENT_CONFIG = clientConfig.build();
         }
+    }
+
+    private static void reload(ModConfig config, ModConfig.Type type)
+    {
+        switch (type)
+        {
+            case CLIENT -> CLIENT_CONFIG.setConfig(config.getConfigData());
+            case COMMON -> COMMON_CONFIG.setConfig(config.getConfigData());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLoad(final ModConfigEvent.Loading event)
+    {
+        if (!event.getConfig().getModId().equals(VampireBlood.MODID)) return;
+
+        reload(event.getConfig(), event.getConfig().getType());
+    }
+
+    @SubscribeEvent
+    public static void onFileChange(final ModConfigEvent.Reloading event)
+    {
+        if (!event.getConfig().getModId().equals(VampireBlood.MODID)) return;
+
+        reload(event.getConfig(), event.getConfig().getType());
     }
 }

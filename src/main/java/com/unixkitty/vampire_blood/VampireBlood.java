@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood;
 
+import com.unixkitty.vampire_blood.capability.blood.BloodManager;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import net.minecraft.world.item.alchemy.PotionBrewing;
@@ -40,7 +41,7 @@ public class VampireBlood
         {
             ModNetworkDispatcher.register();
             PotionBrewing.addMix(Potions.AWKWARD, ModRegistry.VAMPIRE_DUST.get(), Potions.INVISIBILITY);
-
+            BloodManager.loadConfig();
         });
     }
 
