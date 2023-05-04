@@ -21,7 +21,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class VampirePlayerData
 {
-    public static final String BLOODTYPE_NBT_NAME = "bloodType";
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
 
@@ -102,15 +101,15 @@ public class VampirePlayerData
                 }
             });
 
-            ModNetworkDispatcher.sendToClient(new PlayerRespawnS2CPacket(newVampData.vampireLevel.id, newVampData.bloodType.ordinal(), newVampData.blood.thirstLevel), (ServerPlayer) newPlayer);
+            ModNetworkDispatcher.sendToClient(new PlayerRespawnS2CPacket(newVampData.vampireLevel.getId(), newVampData.bloodType.getId(), newVampData.blood.thirstLevel), (ServerPlayer) newPlayer);
         });
     }
 
     public void saveNBTData(CompoundTag tag)
     {
-        tag.putInt(LEVEL_NBT_NAME, this.vampireLevel.id);
+        tag.putInt(LEVEL_NBT_NAME, this.vampireLevel.getId());
         tag.putInt(SUNTICKS_NBT_NAME, this.ticksInSun);
-        tag.putInt(BLOODTYPE_NBT_NAME, this.bloodType.ordinal());
+        tag.putInt(BloodType.BLOODTYPE_NBT_NAME, this.bloodType.getId());
 
         blood.saveNBTData(tag);
     }
@@ -119,7 +118,7 @@ public class VampirePlayerData
     {
         this.vampireLevel = VampirismStage.fromId(tag.getInt(LEVEL_NBT_NAME));
         this.ticksInSun = tag.getInt(SUNTICKS_NBT_NAME);
-        this.bloodType = BloodType.fromId(tag.getInt(BLOODTYPE_NBT_NAME));
+        this.bloodType = BloodType.fromId(tag.getInt(BloodType.BLOODTYPE_NBT_NAME));
 
         blood.loadNBTData(tag);
     }
@@ -278,7 +277,7 @@ public class VampirePlayerData
     {
         checkOriginal(player);
         VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType);
-        ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.ordinal(), this.isFeeding), player);
+        ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.getId(), this.isFeeding), player);
         syncBlood();
     }
 
@@ -361,7 +360,7 @@ public class VampirePlayerData
 
             checkOriginal((ServerPlayer) player);
 
-            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.ordinal(), this.isFeeding), (ServerPlayer) player);
+            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel.getId(), this.bloodType.getId(), this.isFeeding), (ServerPlayer) player);
         }
     }
 

@@ -45,7 +45,7 @@ public final class ClientEvents
                 event.getNewPlayer().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                 {
                     vampirePlayerData.setVampireLevel(ClientVampirePlayerDataCache.vampireLevel.getId());
-                    vampirePlayerData.setBloodType(ClientVampirePlayerDataCache.bloodType.ordinal());
+                    vampirePlayerData.setBloodType(ClientVampirePlayerDataCache.bloodType.getId());
                 });
 
                 ClientVampirePlayerDataCache.playerJustRespawned = false;

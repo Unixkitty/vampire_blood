@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.TestListGenerator;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodStorage;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
@@ -44,23 +43,36 @@ public class ModEvents
     {
         if (!event.getLevel().isClientSide())
         {
-            if (event.getEntity() instanceof ServerPlayer player)
+            if (event.getEntity() instanceof LivingEntity entity)
             {
-                player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                if (entity instanceof ServerPlayer)
                 {
-                    vampirePlayerData.sync();
-                    vampirePlayerData.syncBlood();
-                });
-            }
-            else if (Config.shouldUndeadIgnoreVampires.get() && event.getEntity() instanceof Monster entity && entity.getMobType() == MobType.UNDEAD)
-            {
-                noAttackUndeadPlayer(entity);
+                    entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                    {
+                        vampirePlayerData.sync();
+                        vampirePlayerData.syncBlood();
+                    });
+                }
+                else
+                {
+                    String id = entity.getEncodeId();
+
+                    if (id != null)
+                    {
+                        entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> bloodStorage.updateBlood(id));
+                    }
+                }
+
+                if (Config.shouldUndeadIgnoreVampires.get() && entity instanceof Monster monster && entity.getMobType() == MobType.UNDEAD)
+                {
+                    noAttackUndeadPlayer(monster);
+                }
             }
         }
-        else
+        /*else
         {
-//            TestListGenerator.generate();
-        }
+            TestListGenerator.generate();
+        }*/
     }
 
     private static void noAttackUndeadPlayer(Monster monster)

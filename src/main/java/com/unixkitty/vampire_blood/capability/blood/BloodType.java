@@ -4,26 +4,35 @@ import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifier
 
 public enum BloodType
 {
-    FRAIL(0.3333333333333333, 0.25, 0.25, 0.25, 1.5),
-    CREATURE(0.5, 0.5, 0.5, 0.5, 1.25),
-    PIGLIN(0.75, 0.75, 0.75, 0.75, 1.25),
-    HUMAN(1, 1, 1, 1, 1),
-    VAMPIRE(1.25, 1, 1.25, 0.25, 1),
-    NONE(0, 0, 0, 0, 0);
+    NONE(0, 0, 0, 0, 0, 0),
+    FRAIL(1, 0.3333333333333333, 0.25, 0.25, 0.25, 1.5),
+    CREATURE(2, 0.5, 0.5, 0.5, 0.5, 1.25),
+    HUMAN(3, 1, 1, 1, 1, 1),
+    VAMPIRE(4, 1.25, 1, 1.25, 0.25, 1),
+    PIGLIN(5, 0.75, 0.75, 0.75, 0.75, 1.25);
 
-    final double healthMultiplier;
-    final double strengthMultiplier;
-    final double speedBoostModifier;
-    final double bloodSaturationModifier;
-    final double drainVictimChanceModifier;
+    public static final String BLOODTYPE_NBT_NAME = "bloodType";
 
-    BloodType(double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier, double drainVictimChanceModifier)
+    private final int id;
+    private final double healthMultiplier;
+    private final double strengthMultiplier;
+    private final double speedBoostModifier;
+    private final double bloodSaturationModifier;
+    private final double drainVictimChanceModifier;
+
+    BloodType(int id, double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier, double drainVictimChanceModifier)
     {
+        this.id = id;
         this.healthMultiplier = healthMultiplier;
         this.strengthMultiplier = strengthMultiplier;
         this.speedBoostModifier = speedBoostModifier;
         this.bloodSaturationModifier = bloodSaturationModifier;
         this.drainVictimChanceModifier = drainVictimChanceModifier;
+    }
+
+    public int getId()
+    {
+        return id;
     }
 
     public double getHealthMultiplier()
@@ -65,7 +74,7 @@ public enum BloodType
     {
         for (BloodType type : values())
         {
-            if (type.ordinal() == id) return type;
+            if (type.id == id) return type;
         }
 
         return null;

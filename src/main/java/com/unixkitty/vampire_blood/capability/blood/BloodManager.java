@@ -7,10 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 
-import javax.annotation.Nullable;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -22,10 +19,16 @@ public class BloodManager
 {
     private static final String configName = "blood.json";
 
-    private static final Map<ResourceLocation, BloodEntityConfig> bloodMap = new HashMap<>();
+    private static final Map<String, BloodEntityConfig> bloodMap = new HashMap<>();
+
+    private static boolean initialized = false;
 
     public static void loadConfig()
     {
+        if (initialized) return;
+
+        initialized = true;
+
         String configDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(VampireBlood.MODID), VampireBlood.MODID).toString();
 
         File file = FileUtils.getFile(configDir, configName);
@@ -39,15 +42,20 @@ public class BloodManager
 
             readBloodConfig(file);
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            VampireBlood.log().error("IO error with directory: " + configDir, e);
-
-            mapList(getDefaultList());
+            VampireBlood.log().error("IO error with: " + file, e);
         }
+
+        if (bloodMap.isEmpty()) mapList(getDefaultList());
     }
 
-    private static void readBloodConfig(File file) throws IOException
+    public static BloodEntityConfig getConfigFor(String id)
+    {
+        return bloodMap.getOrDefault(id, null);
+    }
+
+    private static void readBloodConfig(File file) throws Exception
     {
         VampireBlood.log().debug("Reading " + file.getName());
 
@@ -57,24 +65,15 @@ public class BloodManager
         BloodEntityListHolder entities = gson.fromJson(json, BloodEntityListHolder.class);
 
         mapList(entities);
+
+        VampireBlood.log().debug("Finished reading " + file.getName());
     }
 
-    private static void makeNewBloodConfig(File file)
+    private static void makeNewBloodConfig(File file) throws Exception
     {
         VampireBlood.log().debug("Creating new " + file.getName());
 
-        PrintWriter writer;
-
-        try
-        {
-            writer = new PrintWriter(file);
-        }
-        catch (FileNotFoundException e) //This is thrown if file can't be created either
-        {
-            VampireBlood.log().error("Error creating new blood config", e);
-
-            return;
-        }
+        PrintWriter writer = new PrintWriter(file);
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -86,19 +85,21 @@ public class BloodManager
     {
         bloodMap.clear();
 
-        for (BloodEntityConfig config : holder.entities())
+        for (BloodEntityConfig config : holder.entities)
         {
-            ResourceLocation resourceLocation = ResourceLocation.tryParse(config.id);
+            ResourceLocation resourceLocation = config.getResourceId();
 
             if (resourceLocation != null)
             {
-                bloodMap.put(resourceLocation, config);
+                bloodMap.put(resourceLocation.getPath(), config);
             }
         }
     }
 
     private static BloodEntityListHolder getDefaultList()
     {
+        VampireBlood.log().debug("Creating default entity blood list");
+
         List<BloodEntityConfig> list = new ArrayList<>();
 
         list.add(new BloodEntityConfig("minecraft:axolotl", "creature", 7, true));
@@ -145,30 +146,14 @@ public class BloodManager
         return new BloodEntityListHolder(list);
     }
 
-    public record BloodEntityListHolder(List<BloodEntityConfig> entities)
+    @SuppressWarnings("FieldMayBeFinal")
+    public static class BloodEntityListHolder
     {
-    }
+        private List<BloodEntityConfig> entities;
 
-    public record BloodEntityConfig(String id, String bloodType, int bloodPoints, boolean naturalRegen)
-    {
-        @Nullable
-        public ResourceLocation getId()
+        private BloodEntityListHolder(List<BloodEntityConfig> entities)
         {
-            return ResourceLocation.tryParse(this.id);
-        }
-
-        public BloodType getBloodType()
-        {
-            try
-            {
-                return BloodType.valueOf(bloodType.toUpperCase());
-            }
-            catch (IllegalArgumentException e)
-            {
-                VampireBlood.log().error(e);
-
-                return BloodType.NONE;
-            }
+            this.entities = entities;
         }
     }
 }

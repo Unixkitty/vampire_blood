@@ -155,7 +155,7 @@ public class VampireCommand
         for (BloodType type : BloodType.values())
         {
             context.getSource().sendSystemMessage(
-                    Component.literal(type.ordinal() + "     ").append(Component.translatable("vampire_blood.blood_type." + type.toString().toLowerCase()))
+                    Component.literal(type.getId() + "     ").append(Component.translatable("vampire_blood.blood_type." + type.toString().toLowerCase()))
             );
         }
 

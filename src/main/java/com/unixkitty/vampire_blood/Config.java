@@ -18,42 +18,25 @@ public class Config
     public static ForgeConfigSpec CLIENT_CONFIG;
 
     /* BEGIN COMMON CONFIG ENTRIES */
-    private static final String BLOOD_USAGE_RATE = "bloodUsageRate";
-    public static ForgeConfigSpec.IntValue bloodUsageRate;
-
-    private static final String HEALING_RATE = "naturalHealingRate";
-    public static ForgeConfigSpec.IntValue naturalHealingRate;
-
-    private static final String HEALING_MULTIPLIER = "naturalHealingMultiplier";
-    public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
-
-    private static final String UNDEAD_IGNORE = "shouldUndeadIgnoreVampires";
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
-
-    private static final String INCREASED_WOOD_DAMAGE = "increasedDamageFromWood";
     public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
-
-    private static final String TIME_TO_SUN = "ticksToSunDamage";
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
-
-    private static final String SUNNY_DIMENSIONS = "sunnyDimensions";
+    public static ForgeConfigSpec.IntValue vampireDustDropAmount;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> sunnyDimensions;
 
-    private static final String NO_REGEN_TICKS = "noRegenTicksLimit";
+    public static ForgeConfigSpec.IntValue naturalHealingRate;
+    public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
     public static ForgeConfigSpec.IntValue noRegenTicksLimit;
 
-    private static final String VAMPIRE_DUST_DROPS = "vampireDustDropAmount";
-    public static ForgeConfigSpec.IntValue vampireDustDropAmount;
+    public static ForgeConfigSpec.IntValue bloodUsageRate;
+    public static ForgeConfigSpec.IntValue playerBloodPoints;
+    public static ForgeConfigSpec.BooleanValue healthOrBloodPoints;
+    public static ForgeConfigSpec.BooleanValue entityRegen;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
-    private static final String DEBUG_OUTPUT = "debugOutput";
     public static ForgeConfigSpec.BooleanValue debugOutput;
-
-    private static final String RENDER_DEBUG_OVERLAY = "renderDebugOverlay";
     public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
-
-    private static final String ALTERNATE_BLOODBAR_FEEDING = "alternateBloodbarFeedingAnimation";
     public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
     /* END ENTRIES */
 
@@ -64,29 +47,32 @@ public class Config
 
             commonConfig.push("General");
             {
-                shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define(UNDEAD_IGNORE, true);
+                shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define("shouldUndeadIgnoreVampires", true);
 
-                increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define(INCREASED_WOOD_DAMAGE, true);
+                increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define("increasedDamageFromWood", true);
 
-                ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange(TIME_TO_SUN, 60, 1, Integer.MAX_VALUE);
+                ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
 
-                vampireDustDropAmount = commonConfig.comment("How much vampire dust drops on death").defineInRange(VAMPIRE_DUST_DROPS, 2, 0, 64);
+                vampireDustDropAmount = commonConfig.comment("How much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
 
-                sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList(SUNNY_DIMENSIONS), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
+                sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList("sunnyDimensions"), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
             }
             commonConfig.pop();
 
             commonConfig.push("Health regen");
             {
-                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange(HEALING_RATE, 20, 1, Integer.MAX_VALUE);
-                naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange(HEALING_MULTIPLIER, 1.0D, 0.001, 100.0D);
-                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange(NO_REGEN_TICKS, 60, 1, Integer.MAX_VALUE);
+                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange("naturalHealingRate", 20, 1, Integer.MAX_VALUE);
+                naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange("naturalHealingMultiplier", 1.0D, 0.001, 100.0D);
+                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange("noRegenTicksLimit", 60, 1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 
             commonConfig.push("Blood");
             {
-                bloodUsageRate = commonConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange(BLOOD_USAGE_RATE, 720, 1, Integer.MAX_VALUE);
+                bloodUsageRate = commonConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange("bloodUsageRate", 720, 1, Integer.MAX_VALUE);
+                playerBloodPoints = commonConfig.comment("Amount of blood points players have").defineInRange("playerBloodPoints", 40, 1, Integer.MAX_VALUE);
+                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").define("healthOrBloodPoints", true);
+                entityRegen = commonConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", true);
             }
             commonConfig.pop();
 
@@ -98,14 +84,14 @@ public class Config
 
             clientConfig.push("GUI");
             {
-                alternateBloodbarFeedingAnimation = clientConfig.comment("Alternate wave animation on bloodbar during feeding").define(ALTERNATE_BLOODBAR_FEEDING, false);
+                alternateBloodbarFeedingAnimation = clientConfig.comment("Alternate wave animation on bloodbar during feeding").define("alternateBloodbarFeedingAnimation", false);
             }
             clientConfig.pop();
 
             clientConfig.push("debug");
             {
-                debugOutput = clientConfig.comment("Print verbose debug info to chat").define(DEBUG_OUTPUT, false);
-                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define(RENDER_DEBUG_OVERLAY, false);
+                debugOutput = clientConfig.comment("Print verbose debug info to chat").define("debugOutput", false);
+                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define("renderDebugOverlay", false);
             }
             clientConfig.pop();
 

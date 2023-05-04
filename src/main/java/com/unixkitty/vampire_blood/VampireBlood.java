@@ -41,8 +41,9 @@ public class VampireBlood
         {
             ModNetworkDispatcher.register();
             PotionBrewing.addMix(Potions.AWKWARD, ModRegistry.VAMPIRE_DUST.get(), Potions.INVISIBILITY);
-            BloodManager.loadConfig();
         });
+
+        BloodManager.loadConfig();
     }
 
     public static Logger log()

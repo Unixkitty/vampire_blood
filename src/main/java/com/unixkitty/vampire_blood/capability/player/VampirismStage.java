@@ -11,12 +11,12 @@ public enum VampirismStage
     MATURE(3, 5, 5, 4, 1.25F, 0),
     ORIGINAL(999, 10, 6, 5, 1.0F, 0);
 
-    final int id;
-    final double healthMultiplier;
-    final double strengthMultiplier;
-    final float speedBoostMultiplier;
-    final float bloodUsageMultiplier;
-    final float drainVictimBaseChance;
+    private final int id;
+    private final double healthMultiplier;
+    private final double strengthMultiplier;
+    private final float speedBoostMultiplier;
+    private final float bloodUsageMultiplier;
+    private final float drainVictimBaseChance;
 
     VampirismStage(int id, double healthMultiplier, double strengthMultiplier, float speedBoostMultiplier, float bloodUsageMultiplier, float drainVictimBaseChance)
     {
