@@ -12,9 +12,7 @@ public final class ClientVampirePlayerDataCache
 {
     private ClientVampirePlayerDataCache() {}
 
-    /*
-        General
-     */
+    // General
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     public static BloodType bloodType = BloodType.HUMAN;
     public static boolean isFeeding = false;
@@ -22,19 +20,17 @@ public final class ClientVampirePlayerDataCache
 
     public static boolean playerJustRespawned = false;
 
-    /*
-        Blood data
-     */
+    //Blood data
     public static int thirstLevel = 0;
+
+    //Entity blood
+    public static int mouseOverEntityBlood = 0;
+    public static int mouseOverEntityMaxBlood = 0;
+    public static boolean isLookingAtEntity = false;
 
     public static boolean isVampire()
     {
         return vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId();
-    }
-
-    public static boolean isTransitioning()
-    {
-        return vampireLevel == VampirismStage.IN_TRANSITION;
     }
 
     public static boolean isHungry()

@@ -20,7 +20,7 @@ public class StopDrinkBloodC2SPacket
 
     }
 
-    public void toBytes(FriendlyByteBuf buf)
+    public void toBytes(FriendlyByteBuf buffer)
     {
 
     }

@@ -1,10 +1,7 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
-import com.unixkitty.vampire_blood.VampireBlood;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
-
-import javax.annotation.Nullable;
 
 public class BloodStorage
 {
@@ -12,18 +9,19 @@ public class BloodStorage
     private static final String BLOOD_POINTS_NBT_NAME = "bloodPoints";
     private static final String REGEN_NBT_NAME = "naturalRegen";
 
-    private String id;
-    private BloodType bloodType;
-    private int maxBloodPoints;
-    private int bloodPoints;
-    private boolean naturalRegen;
+    private String id = "";
+    private BloodType bloodType = BloodType.NONE;
+    private int maxBloodPoints = 0;
+    private int bloodPoints = 0;
+    private boolean naturalRegen = false;
 
     public void tick(LivingEntity entity)
     {
+        if (this.bloodType == BloodType.NONE) return;
+
         entity.level.getProfiler().push("entity_blood_tick");
 
         //TODO regen either blood points or HP based on config
-        if (this.bloodType == BloodType.NONE) return;
 
         entity.level.getProfiler().pop();
     }
@@ -31,8 +29,6 @@ public class BloodStorage
     public void updateBlood(String id)
     {
         this.id = id;
-
-        VampireBlood.log().debug("Updating blood data for entity: " + this.id);
 
         BloodEntityConfig bloodConfig = BloodManager.getConfigFor(this.id);
 
@@ -68,10 +64,19 @@ public class BloodStorage
         return this.bloodType != BloodType.NONE && this.maxBloodPoints > 0;
     }
 
-    @Nullable
     public BloodType getBloodType()
     {
-        return this.bloodType == BloodType.NONE ? null : this.bloodType;
+        return this.bloodType;
+    }
+
+    public int getBloodPoints()
+    {
+        return this.bloodPoints;
+    }
+
+    public int getMaxBloodPoints()
+    {
+        return this.maxBloodPoints;
     }
 
     public void saveNBTData(CompoundTag tag)

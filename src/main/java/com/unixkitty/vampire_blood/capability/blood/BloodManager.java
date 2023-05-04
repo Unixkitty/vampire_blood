@@ -91,7 +91,7 @@ public class BloodManager
 
             if (resourceLocation != null)
             {
-                bloodMap.put(resourceLocation.getPath(), config);
+                bloodMap.put(resourceLocation.toString(), config);
             }
         }
     }

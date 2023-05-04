@@ -4,9 +4,12 @@ import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
+import com.unixkitty.vampire_blood.client.gui.EntityBloodOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
+import com.unixkitty.vampire_blood.client.gui.MouseOverHandler;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -17,6 +20,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 public final class ClientEvents
 {
+    public static final int MARGIN_PX = 5;
+    public static final ResourceLocation ICONS_PNG = new ResourceLocation(VampireBlood.MODID, "textures/gui/icons.png");
+
     @Mod.EventBusSubscriber(modid = VampireBlood.MODID, value = Dist.CLIENT)
     public static class ClientForgeEvents
     {
@@ -52,6 +58,12 @@ public final class ClientEvents
             }
         }
 
+        @SubscribeEvent
+        public static void onEntityMouseOver(final RenderHighlightEvent.Entity event)
+        {
+            MouseOverHandler.handle(event);
+        }
+
         /*@SubscribeEvent
         public static void onClientTick(final TickEvent.ClientTickEvent event)
         {
@@ -70,7 +82,7 @@ public final class ClientEvents
         {
             if (Config.renderDebugOverlay.get())
             {
-                MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::onRenderText);
+                MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::render);
             }
         }
 
@@ -84,6 +96,7 @@ public final class ClientEvents
         public static void onRegisterGuiOverlays(final RegisterGuiOverlaysEvent event)
         {
             event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "bloodbar", BloodBarOverlay.INSTANCE);
+            event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "entity_blood", EntityBloodOverlay.INSTANCE);
         }
     }
 }

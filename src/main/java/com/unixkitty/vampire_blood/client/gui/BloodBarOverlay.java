@@ -3,12 +3,11 @@ package com.unixkitty.vampire_blood.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
+import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,8 +22,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
     protected final RandomSource random = RandomSource.create();
 
-    private static final ResourceLocation BLOODBAR_TEXTURES = new ResourceLocation(VampireBlood.MODID, "textures/gui/icons.png");
-
     private BloodBarOverlay() {}
 
     @Override
@@ -37,8 +34,10 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity) && !Minecraft.getInstance().options.hideGui
         )
         {
+            Minecraft.getInstance().getProfiler().push("blood_bar_overlay");
+
             RenderSystem.enableBlend();
-            RenderSystem.setShaderTexture(0, BLOODBAR_TEXTURES);
+            RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
 
             int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
             int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
@@ -55,7 +54,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
                 if (ClientVampirePlayerDataCache.isFeeding)
                 {
-                    //Dancing
+                    //Alternate dancing-like animation
                     if (Config.alternateBloodbarFeedingAnimation.get())
                     {
                         offsetY -= ((gui.getGuiTicks() - i) % 10.0) / 5.0;
@@ -97,6 +96,8 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
             RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
             RenderSystem.disableBlend();
+
+            Minecraft.getInstance().getProfiler().pop();
         }
     }
 }

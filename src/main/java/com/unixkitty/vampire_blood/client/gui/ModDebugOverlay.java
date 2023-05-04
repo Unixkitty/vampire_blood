@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
+import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.util.StringCrafter;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -12,6 +13,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -20,18 +23,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
+@OnlyIn(Dist.CLIENT)
 public class ModDebugOverlay
 {
-    private static final int MARGIN_PX = 5;
-
     private static final StringCrafter crafter = new StringCrafter();
     private static final List<Pair<String, Integer>> drawList = new ArrayList<>();
 
-    public static void onRenderText(RenderGuiOverlayEvent event)
+    public static void render(final RenderGuiOverlayEvent event)
     {
         if (Config.renderDebugOverlay.get() && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
         {
-            if (Minecraft.getInstance().options.renderDebug) return;
+            if (Minecraft.getInstance().options.hideGui || Minecraft.getInstance().options.renderDebug) return;
 
             Minecraft.getInstance().getProfiler().push("vampire_debug_overlay");
 
@@ -55,21 +57,21 @@ public class ModDebugOverlay
     {
         buildDrawList(player);
 
-        final int drawWidth = fontRenderer.width(crafter.getLongestLine()) + (MARGIN_PX * 4);
-        final int drawHeight = (fontRenderer.lineHeight * drawList.size()) + (MARGIN_PX * 3);
+        final int drawWidth = fontRenderer.width(crafter.getLongestLine()) + (ClientEvents.MARGIN_PX * 4);
+        final int drawHeight = (fontRenderer.lineHeight * drawList.size()) + (ClientEvents.MARGIN_PX * 3);
 
         //BACKGROUND BOX
-        final int boxStartX = MARGIN_PX;
-        final int boxStartY = MARGIN_PX;
+        final int boxStartX = ClientEvents.MARGIN_PX;
+        final int boxStartY = ClientEvents.MARGIN_PX;
 
-        final int boxEndX = boxStartX + drawWidth - MARGIN_PX;
-        final int boxEndY = boxStartY + drawHeight - MARGIN_PX;
+        final int boxEndX = boxStartX + drawWidth - ClientEvents.MARGIN_PX;
+        final int boxEndY = boxStartY + drawHeight - ClientEvents.MARGIN_PX;
 
         ForgeGui.fill(poseStack, boxStartX, boxStartY, boxEndX, boxEndY, Minecraft.getInstance().options.getBackgroundColor(0.4F));
 
         //TEXT LINES
-        final int textStartX = boxStartX + MARGIN_PX;
-        final int textStartY = boxStartY + MARGIN_PX;
+        final int textStartX = boxStartX + ClientEvents.MARGIN_PX;
+        final int textStartY = boxStartY + ClientEvents.MARGIN_PX;
 
         for (int i = 0; i < drawList.size(); i++)
         {
@@ -126,7 +128,7 @@ public class ModDebugOverlay
         }
     }
 
-    private static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
+    public static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
     {
         fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, color, false);
     }

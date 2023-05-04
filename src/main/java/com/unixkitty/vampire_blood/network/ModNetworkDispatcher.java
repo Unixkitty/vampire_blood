@@ -60,6 +60,18 @@ public class ModNetworkDispatcher
                 .encoder(PlayerRespawnS2CPacket::toBytes)
                 .consumerMainThread(PlayerRespawnS2CPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(RequestEntityBloodC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(RequestEntityBloodC2SPacket::new)
+                .encoder(RequestEntityBloodC2SPacket::toBytes)
+                .consumerMainThread(RequestEntityBloodC2SPacket::handle)
+                .add();
+
+        INSTANCE.messageBuilder(EntityBloodResponseS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(EntityBloodResponseS2CPacket::new)
+                .encoder(EntityBloodResponseS2CPacket::toBytes)
+                .consumerMainThread(EntityBloodResponseS2CPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message)
