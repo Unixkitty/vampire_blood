@@ -4,9 +4,12 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 
+@OnlyIn(Dist.CLIENT)
 public class MouseOverHandler
 {
     public static int lastEntityId = -1;
@@ -15,10 +18,11 @@ public class MouseOverHandler
     public static int bloodPoints = 0;
 
     private static int lastTick = 0;
+    private static boolean hasData = false;
 
     public static void handle(final RenderHighlightEvent.Entity event)
     {
-        if (event.getTarget().getEntity() instanceof LivingEntity entity)
+        if (event.getTarget().getEntity() instanceof PathfinderMob entity && entity.isAlive())
         {
             int currentTick = Minecraft.getInstance().gui.getGuiTicks();
 
@@ -35,6 +39,11 @@ public class MouseOverHandler
 
             lastTick = currentTick;
         }
+        //TODO players
+        /*else if (event.getTarget().getEntity() instanceof Player player)
+        {
+
+        }*/
     }
 
     public static void reset()
@@ -43,6 +52,23 @@ public class MouseOverHandler
         bloodType = BloodType.NONE;
         maxBloodPoints = 0;
         bloodPoints = 0;
+
+        hasData = false;
+    }
+
+    public static void setHasData()
+    {
+        hasData = true;
+    }
+
+    public static boolean hasData()
+    {
+        return hasData;
+    }
+
+    public static boolean isLookingAtEdible()
+    {
+        return hasData && maxBloodPoints > 0 && bloodType != BloodType.NONE;
     }
 
     private static void requestUpdateOn(int id)

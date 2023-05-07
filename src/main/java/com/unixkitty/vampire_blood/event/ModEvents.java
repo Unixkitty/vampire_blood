@@ -53,14 +53,9 @@ public class ModEvents
                         vampirePlayerData.syncBlood();
                     });
                 }
-                else
+                else if (entity.getEncodeId() != null)
                 {
-                    String id = entity.getEncodeId();
-
-                    if (id != null)
-                    {
-                        entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> bloodStorage.updateBlood(id));
-                    }
+                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> bloodStorage.updateBlood(entity));
                 }
 
                 if (Config.shouldUndeadIgnoreVampires.get() && entity instanceof Monster monster && entity.getMobType() == MobType.UNDEAD)

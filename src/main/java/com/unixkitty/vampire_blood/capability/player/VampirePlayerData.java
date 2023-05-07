@@ -11,7 +11,6 @@ import com.unixkitty.vampire_blood.network.packet.PlayerRespawnS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -217,10 +216,7 @@ public class VampirePlayerData
 
                 this.ticksFeeding = 0;
 
-                if (Config.debugOutput.get())
-                {
-                    player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
-                }
+//                player.sendSystemMessage(Component.literal("Feeding, + 1 blood point, current blood: " + this.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
             }
         }
     }

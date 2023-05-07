@@ -1,11 +1,13 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public enum BloodType
 {
     NONE(0, 0, 0, 0, 0, 0),
-    FRAIL(1, 0.3333333333333333, 0.25, 0.25, 0.25, 1.5),
+    FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.25, 0.25, 1.5),
     CREATURE(2, 0.5, 0.5, 0.5, 0.5, 1.25),
     HUMAN(3, 1, 1, 1, 1, 1),
     VAMPIRE(4, 1.25, 1, 1.25, 0.25, 1),
@@ -78,5 +80,23 @@ public enum BloodType
         }
 
         return null;
+    }
+
+    public int getColor()
+    {
+        return switch (this)
+        {
+            case NONE -> ChatFormatting.WHITE.getColor();
+            case FRAIL -> ChatFormatting.GRAY.getColor();
+            case CREATURE -> ChatFormatting.GREEN.getColor();
+            case HUMAN -> ChatFormatting.LIGHT_PURPLE.getColor();
+            case VAMPIRE -> ChatFormatting.DARK_RED.getColor();
+            case PIGLIN -> ChatFormatting.GOLD.getColor();
+        };
+    }
+
+    public Component getTranslation()
+    {
+        return Component.translatable("vampire_blood.blood_type." + this.toString().toLowerCase());
     }
 }

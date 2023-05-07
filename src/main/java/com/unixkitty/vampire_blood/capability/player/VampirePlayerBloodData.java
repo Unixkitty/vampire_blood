@@ -5,7 +5,6 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
@@ -83,11 +82,6 @@ public class VampirePlayerBloodData
             if (!isPeaceful)
             {
                 decreaseBlood(1);
-
-                if (Config.debugOutput.get())
-                {
-                    player.sendSystemMessage(Component.literal("Using, - 1 blood point, current blood: " + this.thirstLevel + "/" + MAX_THIRST));
-                }
             }
         }
 

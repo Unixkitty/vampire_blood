@@ -29,9 +29,11 @@ public class ModDebugOverlay
     private static final StringCrafter crafter = new StringCrafter();
     private static final List<Pair<String, Integer>> drawList = new ArrayList<>();
 
+    public static boolean keyEnabled = false;
+
     public static void render(final RenderGuiOverlayEvent event)
     {
-        if (Config.renderDebugOverlay.get() && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
+        if (Config.renderDebugOverlay.get() && keyEnabled && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
         {
             if (Minecraft.getInstance().options.hideGui || Minecraft.getInstance().options.renderDebug) return;
 
@@ -86,18 +88,19 @@ public class ModDebugOverlay
         drawList.clear();
         crafter.clear();
 
-        craftLine(ChatFormatting.DARK_PURPLE, "vampireLevel: ", ClientVampirePlayerDataCache.vampireLevel);
         craftLine(ChatFormatting.GRAY, "player.tickCount: ", player.tickCount);
+        craftLine(ChatFormatting.DARK_PURPLE, "vampireLevel: ", ClientVampirePlayerDataCache.vampireLevel);
 
         if (ClientVampirePlayerDataCache.isVampire())
         {
+            craftLine(ChatFormatting.RED, "bloodType: ", ClientVampirePlayerDataCache.bloodType);
             craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.Debug.thirstExhaustion, "/100");
-            craftLine(ChatFormatting.GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
-            craftLine(ChatFormatting.DARK_GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
+            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
+            craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
+            craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", MouseOverHandler.isLookingAtEdible());
             craftLine(ChatFormatting.DARK_GRAY, "isFeeding: ", ClientVampirePlayerDataCache.isFeeding);
             craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientVampirePlayerDataCache.Debug.ticksInSun);
-            craftLine(ChatFormatting.DARK_RED, "bloodType: ", ClientVampirePlayerDataCache.bloodType);
             craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth(), 1), "/", player.getMaxHealth(), " | Rate: ", VampireUtil.getHealthRegenRate(player), "/", ClientVampirePlayerDataCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
             craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientVampirePlayerDataCache.Debug.noRegenTicks);
         }
@@ -131,5 +134,10 @@ public class ModDebugOverlay
     public static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
     {
         fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, color, false);
+    }
+
+    public static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, ChatFormatting format)
+    {
+        fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, format.getColor(), false);
     }
 }

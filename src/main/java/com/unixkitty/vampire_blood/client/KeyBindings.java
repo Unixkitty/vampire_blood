@@ -1,15 +1,14 @@
 package com.unixkitty.vampire_blood.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DrinkBloodC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.StopDrinkBloodC2SPacket;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -32,7 +31,7 @@ public class KeyBindings
         event.register(FEED_KEY);
     }
 
-    public static void handleKeys(final InputEvent event)
+    public static void handleKeys(final InputEvent.Key event)
     {
 /*        Player player = Minecraft.getInstance().player;
 
@@ -45,6 +44,12 @@ public class KeyBindings
                 ModNetworkMessages.sendToServer(new DrinkBloodC2SPacket());
             }
         }*/
+
+        //Debug HUD toggle
+        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && FEED_KEY.isDown())
+        {
+            ModDebugOverlay.keyEnabled = !ModDebugOverlay.keyEnabled;
+        }
 
         if (FEED_KEY.isDown())
         {
@@ -66,7 +71,7 @@ public class KeyBindings
                     {
                         //TODO LivingEntity
 //                        ModNetworkDispatcher.sendToServer(new DrinkBloodC2SPacket(((EntityHitResult) mouseOver).getEntity().getId()));
-                        if (Config.debugOutput.get()) player.sendSystemMessage(Component.literal("Drink blood key is down"));
+//                        player.sendSystemMessage(Component.literal("Drink blood key is down"));
                         ModNetworkDispatcher.sendToServer(new DrinkBloodC2SPacket());
                     }
 //                    else if (mouseOver instanceof BlockHitResult)
@@ -82,7 +87,7 @@ public class KeyBindings
             if (succ)
             {
                 succ = false;
-                if (Config.debugOutput.get()) Minecraft.getInstance().player.sendSystemMessage(Component.literal("Drink blood key is off"));
+//                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Drink blood key is off"));
                 ModNetworkDispatcher.sendToServer(new StopDrinkBloodC2SPacket());
             }
         }

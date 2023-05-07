@@ -43,6 +43,8 @@ public class EntityBloodResponseS2CPacket
             MouseOverHandler.bloodType = BloodType.fromId(this.bloodType);
             MouseOverHandler.bloodPoints = this.bloodPoints;
             MouseOverHandler.maxBloodPoints = this.maxBloodPoints;
+
+            MouseOverHandler.setHasData();
         });
 
         context.setPacketHandled(true);

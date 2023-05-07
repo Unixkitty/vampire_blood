@@ -32,10 +32,10 @@ public class Config
     public static ForgeConfigSpec.IntValue playerBloodPoints;
     public static ForgeConfigSpec.BooleanValue healthOrBloodPoints;
     public static ForgeConfigSpec.BooleanValue entityRegen;
+    public static ForgeConfigSpec.IntValue entityRegenTime;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
-    public static ForgeConfigSpec.BooleanValue debugOutput;
     public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
     public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
     /* END ENTRIES */
@@ -47,7 +47,7 @@ public class Config
 
             commonConfig.push("General");
             {
-                shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").define("shouldUndeadIgnoreVampires", true);
+                shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").comment("Requires world restart").worldRestart().define("shouldUndeadIgnoreVampires", true);
 
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define("increasedDamageFromWood", true);
 
@@ -71,8 +71,9 @@ public class Config
             {
                 bloodUsageRate = commonConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange("bloodUsageRate", 720, 1, Integer.MAX_VALUE);
                 playerBloodPoints = commonConfig.comment("Amount of blood points players have").defineInRange("playerBloodPoints", 40, 1, Integer.MAX_VALUE);
-                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").define("healthOrBloodPoints", true);
+                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
                 entityRegen = commonConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", true);
+                entityRegenTime = commonConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 
@@ -90,7 +91,6 @@ public class Config
 
             clientConfig.push("debug");
             {
-                debugOutput = clientConfig.comment("Print verbose debug info to chat").define("debugOutput", false);
                 renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define("renderDebugOverlay", false);
             }
             clientConfig.pop();
