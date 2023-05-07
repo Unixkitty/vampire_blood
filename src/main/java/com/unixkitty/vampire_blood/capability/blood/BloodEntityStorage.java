@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -119,9 +120,9 @@ public class BloodEntityStorage
         this.ticksPerHeal = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
     }
 
-    private int healthToBlood(float value)
+    private int healthToBlood(float health)
     {
-        return (int) Math.ceil(value * this.bloodType.getBloodSaturationModifier());
+        return VampireUtil.healthToBlood(health, this.bloodType);
     }
 
     public void saveNBTData(CompoundTag tag)

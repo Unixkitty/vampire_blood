@@ -295,6 +295,11 @@ public class VampirePlayerData
         return this.bloodType;
     }
 
+    public BloodType getBloodTypeIdForFeeding()
+    {
+        return this.vampireLevel == VampirismStage.NOT_VAMPIRE ? BloodType.HUMAN : this.vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
+    }
+
     public void setFeeding(boolean feeding)
     {
         this.isFeeding = feeding;

@@ -4,7 +4,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
@@ -22,7 +22,7 @@ public class MouseOverHandler
 
     public static void handle(final RenderHighlightEvent.Entity event)
     {
-        if (event.getTarget().getEntity() instanceof PathfinderMob entity && entity.isAlive())
+        if (event.getTarget().getEntity() instanceof LivingEntity entity && entity.isAlive()) //LivingEntity because we want info about players as well
         {
             int currentTick = Minecraft.getInstance().gui.getGuiTicks();
 
@@ -39,11 +39,6 @@ public class MouseOverHandler
 
             lastTick = currentTick;
         }
-        //TODO players
-        /*else if (event.getTarget().getEntity() instanceof Player player)
-        {
-
-        }*/
     }
 
     public static void reset()

@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.util;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -32,5 +33,10 @@ public class VampireUtil
     public static float getHealthRegenRate(Player player)
     {
         return (float) ((player.getMaxHealth() / player.getAttributeBaseValue(Attributes.MAX_HEALTH) / (20.0F / Config.naturalHealingRate.get())) * Config.naturalHealingMultiplier.get());
+    }
+
+    public static int healthToBlood(float health, BloodType bloodType)
+    {
+        return (int) Math.ceil(health * bloodType.getBloodSaturationModifier());
     }
 }

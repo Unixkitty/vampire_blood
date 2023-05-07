@@ -6,11 +6,13 @@ import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -53,7 +55,7 @@ public class ModEvents
                         vampirePlayerData.syncBlood();
                     });
                 }
-                else if (entity.getEncodeId() != null)
+                else if (entity instanceof PathfinderMob && entity.getEncodeId() != null)
                 {
                     entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.updateBlood(entity));
                 }
@@ -98,17 +100,11 @@ public class ModEvents
     {
         if (event.getObject() instanceof LivingEntity)
         {
-            if (event.getObject() instanceof Player)
+            if (event.getObject() instanceof Player && !event.getObject().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
             {
-                //Attach vampirism cap
-                if (!event.getObject().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
-                {
-                    event.addCapability(new ResourceLocation(VampireBlood.MODID, "vampirism"), new VampirePlayerProvider());
-                }
+                event.addCapability(new ResourceLocation(VampireBlood.MODID, "vampirism"), new VampirePlayerProvider());
             }
-
-            //Attach blood storage
-            if (!event.getObject().getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
+            else if (event.getObject() instanceof PathfinderMob && !event.getObject().getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
             {
                 event.addCapability(new ResourceLocation(VampireBlood.MODID, "blood"), new BloodProvider());
             }
