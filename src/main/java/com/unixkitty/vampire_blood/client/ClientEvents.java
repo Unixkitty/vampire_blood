@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.client;
 
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
@@ -13,7 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -80,10 +78,7 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event)
         {
-            if (Config.renderDebugOverlay.get())
-            {
-                MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::render);
-            }
+            ModDebugOverlay.register();
         }
 
         @SubscribeEvent

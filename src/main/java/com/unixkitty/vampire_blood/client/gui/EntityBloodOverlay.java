@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,13 +36,16 @@ public class EntityBloodOverlay extends GuiComponent implements IGuiOverlay
 
             if (MouseOverHandler.isLookingAtEdible() && Minecraft.getInstance().hitResult instanceof EntityHitResult)
             {
-                int renderStartX = (screenWidth / 2) + MARGIN_PX * 2;
-                int renderStartY = (screenHeight / 2) - 3;
+                int renderStartX = (screenWidth / 2) + MARGIN_PX * 3;
+                int renderStartY = (screenHeight / 2) - 3 - gui.getFont().lineHeight;
 
                 poseStack.pushPose();
 
                 ModDebugOverlay.drawLine(MouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui.getFont(), renderStartX, renderStartY, MouseOverHandler.bloodType.getColor());
-                ModDebugOverlay.drawLine(MouseOverHandler.bloodPoints + "/" + MouseOverHandler.maxBloodPoints, poseStack, gui.getFont(), renderStartX, renderStartY + gui.getFont().lineHeight, ChatFormatting.RED);
+                ModDebugOverlay.drawLine(MouseOverHandler.bloodPoints + "/" + MouseOverHandler.maxBloodPoints, poseStack, gui.getFont(), renderStartX, renderStartY + gui.getFont().lineHeight, ChatFormatting.DARK_RED);
+
+                //TODO remove debug?
+                ModDebugOverlay.drawLine("HP: " + ((LivingEntity)((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getHealth() + "/" + ((LivingEntity)((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getMaxHealth(), poseStack, gui.getFont(), renderStartX, renderStartY + (gui.getFont().lineHeight * 2), ChatFormatting.RED);
 
                 poseStack.popPose();
             }

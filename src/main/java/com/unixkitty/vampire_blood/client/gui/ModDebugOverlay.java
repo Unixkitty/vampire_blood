@@ -18,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -30,6 +31,18 @@ public class ModDebugOverlay
     private static final List<Pair<String, Integer>> drawList = new ArrayList<>();
 
     public static boolean keyEnabled = false;
+
+    private static boolean isRegistered = false;
+
+    public static void register()
+    {
+        if (!isRegistered && Config.renderDebugOverlay.get())
+        {
+            MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::render);
+
+            isRegistered = true;
+        }
+    }
 
     public static void render(final RenderGuiOverlayEvent event)
     {

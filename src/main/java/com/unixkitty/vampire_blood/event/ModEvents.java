@@ -2,7 +2,7 @@ package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.blood.BloodStorage;
+import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
@@ -34,7 +34,7 @@ public class ModEvents
     {
         if (!event.getEntity().level.isClientSide())
         {
-            event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> bloodStorage.tick(event.getEntity()));
+            event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tick(event.getEntity()));
         }
     }
 
@@ -55,7 +55,7 @@ public class ModEvents
                 }
                 else if (entity.getEncodeId() != null)
                 {
-                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> bloodStorage.updateBlood(entity));
+                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.updateBlood(entity));
                 }
 
                 if (Config.shouldUndeadIgnoreVampires.get() && entity instanceof Monster monster && entity.getMobType() == MobType.UNDEAD)
@@ -64,10 +64,6 @@ public class ModEvents
                 }
             }
         }
-        /*else
-        {
-            TestListGenerator.generate();
-        }*/
     }
 
     private static void noAttackUndeadPlayer(Monster monster)
@@ -94,7 +90,7 @@ public class ModEvents
     public static void onRegisterCapabilities(final RegisterCapabilitiesEvent event)
     {
         event.register(VampirePlayerData.class);
-        event.register(BloodStorage.class);
+        event.register(BloodEntityStorage.class);
     }
 
     @SubscribeEvent

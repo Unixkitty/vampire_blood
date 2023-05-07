@@ -7,11 +7,11 @@ import net.minecraft.network.chat.Component;
 public enum BloodType
 {
     NONE(0, 0, 0, 0, 0, 0),
-    FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.25, 0.25, 1.5),
-    CREATURE(2, 0.5, 0.5, 0.5, 0.5, 1.25),
-    HUMAN(3, 1, 1, 1, 1, 1),
-    VAMPIRE(4, 1.25, 1, 1.25, 0.25, 1),
-    PIGLIN(5, 0.75, 0.75, 0.75, 0.75, 1.25);
+    FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 1.5),
+    CREATURE(2, 0.5, 0.5, 0.5, 1, 1.25),
+    HUMAN(3, 1, 1, 1, 2, 1),
+    VAMPIRE(4, 1.25, 1, 1.25, 0.75, 1),
+    PIGLIN(5, 0.75, 0.75, 0.75, 1.5, 1.25);
 
     public static final String BLOODTYPE_NBT_NAME = "bloodType";
 
@@ -35,16 +35,6 @@ public enum BloodType
     public int getId()
     {
         return id;
-    }
-
-    public double getHealthMultiplier()
-    {
-        return healthMultiplier;
-    }
-
-    public double getStrengthMultiplier()
-    {
-        return strengthMultiplier;
     }
 
     public double getSpeedBoostModifier()

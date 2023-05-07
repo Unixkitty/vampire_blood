@@ -4,7 +4,7 @@ import com.unixkitty.vampire_blood.Config;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 
-public class BloodStorage
+public class BloodEntityStorage
 {
     private static final String ID_NBT_NAME = "id";
     private static final String BLOOD_POINTS_NBT_NAME = "bloodPoints";
@@ -121,7 +121,7 @@ public class BloodStorage
 
     private int healthToBlood(float value)
     {
-        return (int) Math.ceil(value * this.bloodType.getHealthMultiplier());
+        return (int) Math.ceil(value * this.bloodType.getBloodSaturationModifier());
     }
 
     public void saveNBTData(CompoundTag tag)

@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.capability.provider;
 
-import com.unixkitty.vampire_blood.capability.blood.BloodStorage;
+import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.capabilities.Capability;
@@ -14,16 +14,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class BloodProvider implements ICapabilityProvider, INBTSerializable<CompoundTag>
 {
-    public static Capability<BloodStorage> BLOOD_STORAGE = CapabilityManager.get(new CapabilityToken<>() {});
+    public static Capability<BloodEntityStorage> BLOOD_STORAGE = CapabilityManager.get(new CapabilityToken<>() {});
 
-    private BloodStorage blood_storage = null;
-    private final LazyOptional<BloodStorage> optional = LazyOptional.of(this::createCap);
+    private BloodEntityStorage blood_storage = null;
+    private final LazyOptional<BloodEntityStorage> optional = LazyOptional.of(this::createCap);
 
-    private BloodStorage createCap()
+    private BloodEntityStorage createCap()
     {
         if (this.blood_storage == null)
         {
-            this.blood_storage = new BloodStorage();
+            this.blood_storage = new BloodEntityStorage();
         }
 
         return this.blood_storage;

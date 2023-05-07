@@ -33,16 +33,6 @@ public enum VampirismStage
         return id;
     }
 
-    public double getHealthMultiplier()
-    {
-        return healthMultiplier;
-    }
-
-    public double getStrengthMultiplier()
-    {
-        return strengthMultiplier;
-    }
-
     public float getSpeedBoostMultiplier()
     {
         return speedBoostMultiplier;

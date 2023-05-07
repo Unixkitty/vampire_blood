@@ -1,6 +1,8 @@
 package com.unixkitty.vampire_blood.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.TestListGenerator;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
@@ -9,6 +11,7 @@ import com.unixkitty.vampire_blood.network.packet.DrinkBloodC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.StopDrinkBloodC2SPacket;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -44,12 +47,6 @@ public class KeyBindings
                 ModNetworkMessages.sendToServer(new DrinkBloodC2SPacket());
             }
         }*/
-
-        //Debug HUD toggle
-        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && FEED_KEY.isDown())
-        {
-            ModDebugOverlay.keyEnabled = !ModDebugOverlay.keyEnabled;
-        }
 
         if (FEED_KEY.isDown())
         {
@@ -89,6 +86,34 @@ public class KeyBindings
                 succ = false;
 //                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Drink blood key is off"));
                 ModNetworkDispatcher.sendToServer(new StopDrinkBloodC2SPacket());
+            }
+        }
+
+        //TODO remove debug hud toggle
+        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && FEED_KEY.isDown())
+        {
+            if (Config.renderDebugOverlay.get())
+            {
+                ModDebugOverlay.keyEnabled = !ModDebugOverlay.keyEnabled;
+            }
+            else
+            {
+                Config.renderDebugOverlay.set(true);
+                Config.renderDebugOverlay.save();
+                ModDebugOverlay.keyEnabled = true;
+
+                ModDebugOverlay.register();
+            }
+        }
+
+        //TODO remove debug
+        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_T))
+        {
+            if (Minecraft.getInstance().player != null)
+            {
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Generating test list..."));
+                TestListGenerator.generate();
+                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Test list generated."));
             }
         }
     }
