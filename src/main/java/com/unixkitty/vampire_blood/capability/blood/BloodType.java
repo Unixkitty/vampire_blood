@@ -78,9 +78,9 @@ public enum BloodType
         {
             case NONE -> ChatFormatting.WHITE.getColor();
             case FRAIL -> ChatFormatting.GRAY.getColor();
-            case CREATURE -> ChatFormatting.GREEN.getColor();
-            case HUMAN -> ChatFormatting.LIGHT_PURPLE.getColor();
-            case VAMPIRE -> ChatFormatting.DARK_RED.getColor();
+            case CREATURE -> ChatFormatting.LIGHT_PURPLE.getColor();
+            case HUMAN -> ChatFormatting.DARK_RED.getColor();
+            case VAMPIRE -> ChatFormatting.DARK_PURPLE.getColor();
             case PIGLIN -> ChatFormatting.GOLD.getColor();
         };
     }

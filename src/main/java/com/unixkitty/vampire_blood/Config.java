@@ -38,6 +38,8 @@ public class Config
     /* BEGIN CLIENT CONFIG ENTRIES */
     public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
     public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
+    public static ForgeConfigSpec.BooleanValue detailedEntityBloodHUD;
+    public static ForgeConfigSpec.BooleanValue entityBloodHUDshowHP;
     /* END ENTRIES */
 
     static
@@ -86,6 +88,8 @@ public class Config
             clientConfig.push("GUI");
             {
                 alternateBloodbarFeedingAnimation = clientConfig.comment("Alternate wave animation on bloodbar during feeding").define("alternateBloodbarFeedingAnimation", false);
+                detailedEntityBloodHUD = clientConfig.comment("Alternate detailed entity blood HUD with numbers").define("detailedEntityBloodHUD", false);
+                entityBloodHUDshowHP = clientConfig.comment("Additionally show entity HP with detailed blood HUD").define("entityBloodHUDshowHP", false);
             }
             clientConfig.pop();
 

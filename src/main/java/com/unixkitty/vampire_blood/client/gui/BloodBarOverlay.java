@@ -22,82 +22,89 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
     protected final RandomSource random = RandomSource.create();
 
-    private BloodBarOverlay() {}
+    private BloodBarOverlay()
+    {
+    }
 
     @Override
     public void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
     {
-        if (Minecraft.getInstance().player != null
-                && ClientVampirePlayerDataCache.isVampire()
-                && gui.shouldDrawSurvivalElements()
-                && Minecraft.getInstance().player.isAlive()
-                && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity) && !Minecraft.getInstance().options.hideGui
-        )
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isAlive() && !Minecraft.getInstance().options.hideGui && gui.shouldDrawSurvivalElements())
         {
-            Minecraft.getInstance().getProfiler().push("blood_bar_overlay");
-
-            RenderSystem.enableBlend();
-            RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
-
-            int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
-            int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
-            gui.rightHeight += 10;
-
-            for (int i = 0; i < 10; ++i)
+            //Thirst level bar
+            if (ClientVampirePlayerDataCache.isVampire() && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity))
             {
-                int x = startX - i * 8 - 9;
-                int idx = i * 2 + 1;
-                int idx2 = i * 2 + ((VampirePlayerBloodData.MAX_THIRST / 2) + 1);
-                int offsetY = 0;
-                int backgroundOffsetY = 0;
+                Minecraft.getInstance().getProfiler().push("blood_bar_overlay");
 
-                //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
-                if (ClientVampirePlayerDataCache.isFeeding)
+                RenderSystem.enableBlend();
+                RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
+
+                int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
+                int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
+                gui.rightHeight += 10;
+
+                for (int i = 0; i < 10; ++i)
                 {
-                    //Alternate dancing-like animation
-                    if (Config.alternateBloodbarFeedingAnimation.get())
+                    int x = startX - i * 8 - 9;
+                    int idx = i * 2 + 1;
+                    int idx2 = i * 2 + ((VampirePlayerBloodData.MAX_THIRST / 2) + 1);
+                    int offsetY = 0;
+                    int backgroundOffsetY = 0;
+
+                    //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
+                    if (ClientVampirePlayerDataCache.isFeeding)
                     {
-                        offsetY -= ((gui.getGuiTicks() - i) % 10.0) / 5.0;
+                        //Alternate dancing-like animation
+                        if (Config.alternateBloodbarFeedingAnimation.get())
+                        {
+                            offsetY -= ((gui.getGuiTicks() - i) % 10.0) / 5.0;
+                        }
+                        else if (((gui.getGuiTicks() + (9 - i)) % 10) == 0)
+                        {
+                            offsetY -= 2;
+                            backgroundOffsetY = offsetY;
+                        }
                     }
-                    else if (((gui.getGuiTicks() + (9 - i)) % 10) == 0)
+                    //Bar jitter that gets faster with lower blood when below 1/6
+                    else if (ClientVampirePlayerDataCache.isHungry() && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
                     {
-                        offsetY -= 2;
+                        offsetY -= random.nextInt(3) - 1;
                         backgroundOffsetY = offsetY;
                     }
-                }
-                //Bar jitter that gets faster with lower blood when below 1/6
-                else if (ClientVampirePlayerDataCache.isHungry() && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
-                {
-                    offsetY -= random.nextInt(3) - 1;
-                    backgroundOffsetY = offsetY;
+
+                    //Background
+                    blit(poseStack, x, startY + backgroundOffsetY, 0, 0, 9, 9);
+
+                    //Power of Canada
+                    if (idx2 < ClientVampirePlayerDataCache.thirstLevel)
+                    {
+                        blit(poseStack, x, startY + offsetY, 36, 0, 9, 9); //Double full
+                    }
+                    else if (idx2 == ClientVampirePlayerDataCache.thirstLevel)
+                    {
+                        blit(poseStack, x, startY + offsetY, 27, 0, 9, 9); //Double half full
+                    }
+                    else if (idx < ClientVampirePlayerDataCache.thirstLevel)
+                    {
+                        blit(poseStack, x, startY + offsetY, 18, 0, 9, 9); //Full
+                    }
+                    else if (idx == ClientVampirePlayerDataCache.thirstLevel)
+                    {
+                        blit(poseStack, x, startY + offsetY, 9, 0, 9, 9); //Half
+                    }
                 }
 
-                //Background
-                blit(poseStack, x, startY + backgroundOffsetY, 0, 0, 9, 9);
+                RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
+                RenderSystem.disableBlend();
 
-                //Power of Canada
-                if (idx2 < ClientVampirePlayerDataCache.thirstLevel)
-                {
-                    blit(poseStack, x, startY + offsetY, 36, 0, 9, 9); //Double full
-                }
-                else if (idx2 == ClientVampirePlayerDataCache.thirstLevel)
-                {
-                    blit(poseStack, x, startY + offsetY, 27, 0, 9, 9); //Double half full
-                }
-                else if (idx < ClientVampirePlayerDataCache.thirstLevel)
-                {
-                    blit(poseStack, x, startY + offsetY, 18, 0, 9, 9); //Full
-                }
-                else if (idx == ClientVampirePlayerDataCache.thirstLevel)
-                {
-                    blit(poseStack, x, startY + offsetY, 9, 0, 9, 9); //Half
-                }
+                Minecraft.getInstance().getProfiler().pop();
             }
 
-            RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
-            RenderSystem.disableBlend();
-
-            Minecraft.getInstance().getProfiler().pop();
+            //Entity blood HUD
+            EntityBloodOverlay.render(gui, poseStack, partialTick, screenWidth, screenHeight);
         }
     }
+
+
+
 }

@@ -23,10 +23,10 @@ public final class ClientVampirePlayerDataCache
     //Blood data
     public static int thirstLevel = 0;
 
-    //Entity blood
-    public static int mouseOverEntityBlood = 0;
-    public static int mouseOverEntityMaxBlood = 0;
-    public static boolean isLookingAtEntity = false;
+    public static boolean canFeed()
+    {
+        return vampireLevel.getId() > VampirismStage.NOT_VAMPIRE.getId();
+    }
 
     public static boolean isVampire()
     {

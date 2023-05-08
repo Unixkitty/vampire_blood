@@ -3,7 +3,6 @@ package com.unixkitty.vampire_blood.client;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
-import com.unixkitty.vampire_blood.client.gui.EntityBloodOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.client.gui.MouseOverHandler;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -61,15 +60,6 @@ public final class ClientEvents
         {
             MouseOverHandler.handle(event);
         }
-
-        /*@SubscribeEvent
-        public static void onClientTick(final TickEvent.ClientTickEvent event)
-        {
-            if (event.phase == TickEvent.Phase.END && Minecraft.getInstance().player != null)
-            {
-                Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.tickClient(Minecraft.getInstance().player));
-            }
-        }*/
     }
 
     @Mod.EventBusSubscriber(modid = VampireBlood.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -91,7 +81,6 @@ public final class ClientEvents
         public static void onRegisterGuiOverlays(final RegisterGuiOverlaysEvent event)
         {
             event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "bloodbar", BloodBarOverlay.INSTANCE);
-            event.registerAbove(VanillaGuiOverlay.CROSSHAIR.id(), "entity_blood", EntityBloodOverlay.INSTANCE);
         }
     }
 }
