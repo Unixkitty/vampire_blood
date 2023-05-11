@@ -25,16 +25,16 @@ public class ModNetworkDispatcher
     {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID + ":messages"), () -> PROTOCOL_VERSION, s -> true, s -> true);
 
-        INSTANCE.messageBuilder(DrinkBloodC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(DrinkBloodC2SPacket::new)
-                .encoder(DrinkBloodC2SPacket::toBytes)
-                .consumerMainThread(DrinkBloodC2SPacket::handle)
+        INSTANCE.messageBuilder(RequestFeedingC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(RequestFeedingC2SPacket::new)
+                .encoder(RequestFeedingC2SPacket::toBytes)
+                .consumerMainThread(RequestFeedingC2SPacket::handle)
                 .add();
 
-        INSTANCE.messageBuilder(StopDrinkBloodC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(StopDrinkBloodC2SPacket::new)
-                .encoder(StopDrinkBloodC2SPacket::toBytes)
-                .consumerMainThread(StopDrinkBloodC2SPacket::handle)
+        INSTANCE.messageBuilder(RequestStopFeedingC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(RequestStopFeedingC2SPacket::new)
+                .encoder(RequestStopFeedingC2SPacket::toBytes)
+                .consumerMainThread(RequestStopFeedingC2SPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(PlayerBloodDataSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)

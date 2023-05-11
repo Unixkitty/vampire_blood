@@ -4,28 +4,26 @@ import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifier
 
 public enum VampirismStage
 {
-    NOT_VAMPIRE(-1, 1, 1, 1, 0, 0),
-    IN_TRANSITION(0, 1, 2, 1, 0, 0.5F),
-    FLEDGLING(1, 3, 3, 2, 1.75F, 0.25F),
-    VAMPIRE(2, 4, 4, 3, 1.5F, 0.125F),
-    MATURE(3, 5, 5, 4, 1.25F, 0),
-    ORIGINAL(999, 10, 6, 5, 1.0F, 0);
+    NOT_VAMPIRE(-1, 1, 1, 1, 0),
+    IN_TRANSITION(0, 1, 2, 1, 0),
+    FLEDGLING(1, 3, 3, 2, 1.75F),
+    VAMPIRE(2, 4, 4, 3, 1.5F),
+    MATURE(3, 5, 5, 4, 1.25F),
+    ORIGINAL(999, 10, 6, 5, 1.0F);
 
     private final int id;
     private final double healthMultiplier;
     private final double strengthMultiplier;
     private final float speedBoostMultiplier;
     private final float bloodUsageMultiplier;
-    private final float drainVictimBaseChance;
 
-    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, float speedBoostMultiplier, float bloodUsageMultiplier, float drainVictimBaseChance)
+    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, float speedBoostMultiplier, float bloodUsageMultiplier)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;
         this.strengthMultiplier = strengthMultiplier;
         this.speedBoostMultiplier = speedBoostMultiplier;
         this.bloodUsageMultiplier = bloodUsageMultiplier;
-        this.drainVictimBaseChance = drainVictimBaseChance;
     }
 
     public int getId()
@@ -43,9 +41,16 @@ public enum VampirismStage
         return bloodUsageMultiplier;
     }
 
-    public float getDrainVictimBaseChance()
+    public float getBloodlustMultiplier(boolean bloodPointGained)
     {
-        return drainVictimBaseChance;
+        return switch (this)
+        {
+            case NOT_VAMPIRE, IN_TRANSITION -> 0.0F;
+            case FLEDGLING -> bloodPointGained ? 1.75F : 3.5F;
+            case VAMPIRE -> bloodPointGained ? 3F : 2.75F;
+            case MATURE -> bloodPointGained ? 3.75F : 1.75F;
+            case ORIGINAL -> bloodPointGained ? 5F : 1.25F;
+        };
     }
 
     public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)

@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.network.packet;
 
+import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -7,14 +8,14 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class DrinkBloodC2SPacket
+public class RequestStopFeedingC2SPacket
 {
-    public DrinkBloodC2SPacket()
+    public RequestStopFeedingC2SPacket()
     {
 
     }
 
-    public DrinkBloodC2SPacket(FriendlyByteBuf buffer)
+    public RequestStopFeedingC2SPacket(FriendlyByteBuf buffer)
     {
 
     }
@@ -32,7 +33,7 @@ public class DrinkBloodC2SPacket
         {
             ServerPlayer player = context.getSender();
 
-            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.beginFeeding(null));
+            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::stopFeeding);
         });
 
         context.setPacketHandled(true);

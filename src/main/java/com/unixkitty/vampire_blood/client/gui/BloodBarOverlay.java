@@ -14,6 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
+import org.lwjgl.opengl.GL11;
 
 @OnlyIn(Dist.CLIENT)
 public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
@@ -36,12 +37,26 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             {
                 Minecraft.getInstance().getProfiler().push("blood_bar_overlay");
 
-                RenderSystem.enableBlend();
                 RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
 
                 int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
                 int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
                 gui.rightHeight += 10;
+
+                if (Config.showBloodbarExhaustionUnderlay.get())
+                {
+                    int width = (int) (Math.min(1F, Math.max(0F, ClientVampirePlayerDataCache.thirstExhaustion / 100F)) * 81);
+
+                    RenderSystem.enableBlend();
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.625F);
+                    RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+                    //Exhaustion underlay
+                    blit(poseStack, startX - width, startY, 126 - width, 0, width, 9);
+
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.disableBlend();
+                }
 
                 for (int i = 0; i < 10; ++i)
                 {
@@ -95,7 +110,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 }
 
                 RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
-                RenderSystem.disableBlend();
 
                 Minecraft.getInstance().getProfiler().pop();
             }

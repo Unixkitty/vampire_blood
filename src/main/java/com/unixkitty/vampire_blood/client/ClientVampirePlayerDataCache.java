@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class ClientVampirePlayerDataCache
 {
+
     private ClientVampirePlayerDataCache() {}
 
     // General
@@ -22,6 +23,8 @@ public final class ClientVampirePlayerDataCache
 
     //Blood data
     public static int thirstLevel = 0;
+    public static int thirstExhaustion = 0;
+    public static float bloodlust = 0;
 
     public static boolean canFeed()
     {
@@ -41,9 +44,9 @@ public final class ClientVampirePlayerDataCache
     public static final class Debug
     {
         public static int ticksInSun = 0;
-        public static int thirstExhaustion = 0;
         public static int thirstExhaustionIncrement = 0;
         public static int thirstTickTimer = 0;
         public static int noRegenTicks = 0;
+        public static int consecutiveBloodtypePoints = 0;
     }
 }

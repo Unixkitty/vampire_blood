@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.client.gui;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
 import net.minecraft.client.Minecraft;
@@ -22,7 +23,7 @@ public class MouseOverHandler
 
     public static void handle(final RenderHighlightEvent.Entity event)
     {
-        if (event.getTarget().getEntity() instanceof LivingEntity entity && entity.isAlive()) //LivingEntity because we want info about players as well
+        if (ClientVampirePlayerDataCache.canFeed() && event.getTarget().getEntity() instanceof LivingEntity entity && entity.isAlive()) //LivingEntity because we want info about players as well
         {
             int currentTick = Minecraft.getInstance().gui.getGuiTicks();
 

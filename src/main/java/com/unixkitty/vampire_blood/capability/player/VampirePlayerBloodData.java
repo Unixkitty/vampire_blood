@@ -1,10 +1,11 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
@@ -12,20 +13,18 @@ import net.minecraft.world.entity.player.Player;
 
 public class VampirePlayerBloodData
 {
-    public static final int MIN_THIRST = 0;
     public static final int MAX_THIRST = 40;
 
-    private static final String THIRST_NBT_NAME = "thirstLevel";
-    private static final String THIRST_EXHAUSTION_NBT_NAME = "thirstExhaustion";
-    private static final String THIRST_TIMER_NBT_NAME = "thirstTickTimer";
-    private static final String THIRST_EXHAUSTION_INCREMENT_NBT_NAME = "thirstExhaustionIncrement";
-    private static final String NO_REGEN_TICKS = "noRegenTicks";
-
+    VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
+    BloodType bloodType = BloodType.HUMAN;
     int thirstLevel = 1;
     int thirstExhaustion; //This is somewhat similar to vanilla's in FoodData.java, decrease thirst level if this gets up to some limit, and change this back to 0
     int thirstExhaustionIncrement; //This helps make thirstExhaustion more dynamic based on configs and player actions
     int thirstTickTimer; //This is used for healing and starvation
     int noRegenTicks;
+    float bloodlust;
+    BloodType lastConsumedBloodtype = bloodType;
+    int consecutiveBloodtypePoints;
 
     private boolean needsSync = false;
 
@@ -39,7 +38,7 @@ public class VampirePlayerBloodData
         {
             this.needsSync = false;
 
-            ModNetworkDispatcher.sendToClient(new PlayerBloodDataSyncS2CPacket(this.thirstLevel), (ServerPlayer) player);
+            ModNetworkDispatcher.sendToClient(new PlayerBloodDataSyncS2CPacket(this.thirstLevel, this.thirstExhaustion, this.bloodlust), (ServerPlayer) player);
         }
     }
 
@@ -48,18 +47,71 @@ public class VampirePlayerBloodData
         this.needsSync = true;
     }
 
-    void addBlood(int points)
+    void addBlood(Player player, int points, BloodType bloodType)
     {
         this.thirstLevel = Math.min(this.thirstLevel + points, VampirePlayerBloodData.MAX_THIRST);
+
+        updateBloodType(bloodType);
+
+        updateBloodlust(player, true);
 
         sync();
     }
 
-    void decreaseBlood(int points)
+    void decreaseBlood(Player player, int points, BloodType bloodType)
     {
-        this.thirstLevel = Math.max(this.thirstLevel - points, VampirePlayerBloodData.MIN_THIRST);
+        this.thirstLevel = Math.max(this.thirstLevel - points, 0);
+
+        updateBloodType(bloodType);
+
+        updateBloodlust(player, false);
 
         sync();
+    }
+
+    private void updateBloodlust(Player player, boolean bloodPointGained)
+    {
+        float lastBloodlust = this.bloodlust;
+
+        float thirstMultiplier = (float) thirstLevel / MAX_THIRST;
+
+        if (bloodPointGained)
+        {
+            this.bloodlust -= vampireLevel.getBloodlustMultiplier(bloodPointGained) * bloodType.getBloodlustMultiplier(bloodPointGained) * thirstMultiplier;
+            this.bloodlust = Math.max(this.bloodlust, 0.0F);
+        }
+        else
+        {
+            this.bloodlust += vampireLevel.getBloodlustMultiplier(bloodPointGained) * bloodType.getBloodlustMultiplier(bloodPointGained) * (1.0F - thirstMultiplier);
+            this.bloodlust = Math.min(this.bloodlust, 100.0F);
+        }
+
+        //TODO remove debug
+        if (lastBloodlust != this.bloodlust)
+        {
+            player.sendSystemMessage(Component.literal(
+                    "Bloodlust: " + lastBloodlust + " -> " + this.bloodlust + " (" + (this.bloodlust - lastBloodlust) + ")"
+                            + " level (" + this.vampireLevel.name().toLowerCase() + "): " + this.vampireLevel.getBloodlustMultiplier(bloodPointGained)
+                            + " bloodType (" + this.bloodType.name().toLowerCase() + "): " + this.bloodType.getBloodlustMultiplier(bloodPointGained)
+            ));
+        }
+    }
+
+    private void updateBloodType(BloodType bloodType)
+    {
+        if (lastConsumedBloodtype != bloodType)
+        {
+            consecutiveBloodtypePoints = 0;
+        }
+        else if (consecutiveBloodtypePoints >= MAX_THIRST / 2 && this.bloodType != bloodType)
+        {
+            this.bloodType = bloodType;
+            sync();
+        }
+        else
+        {
+            ++consecutiveBloodtypePoints;
+        }
     }
 
     void tick(Player player)
@@ -81,7 +133,7 @@ public class VampirePlayerBloodData
 
             if (!isPeaceful)
             {
-                decreaseBlood(1);
+                decreaseBlood(player, 1, this.bloodType);
             }
         }
 
@@ -98,6 +150,8 @@ public class VampirePlayerBloodData
         {
             this.thirstExhaustionIncrement -= Config.bloodUsageRate.get();
             this.thirstExhaustion++;
+
+            sync();
         }
 
         this.syncData(player);
@@ -145,7 +199,7 @@ public class VampirePlayerBloodData
 
             if (this.thirstTickTimer >= 20)
             {
-                addBlood(1);
+                addBlood(player, 1, BloodType.HUMAN);
 
                 this.thirstTickTimer = 0;
             }
@@ -184,23 +238,5 @@ public class VampirePlayerBloodData
     private void exhaustionIncrement(BloodUsageRates rate, int ticks)
     {
         this.thirstExhaustionIncrement += rate.get() * ticks;
-    }
-
-    protected void saveNBTData(CompoundTag tag)
-    {
-        tag.putInt(THIRST_NBT_NAME, this.thirstLevel);
-        tag.putInt(THIRST_EXHAUSTION_NBT_NAME, this.thirstExhaustion);
-        tag.putInt(THIRST_TIMER_NBT_NAME, this.thirstTickTimer);
-        tag.putInt(THIRST_EXHAUSTION_INCREMENT_NBT_NAME, this.thirstExhaustionIncrement);
-        tag.putInt(NO_REGEN_TICKS, this.noRegenTicks);
-    }
-
-    protected void loadNBTData(CompoundTag tag)
-    {
-        this.thirstLevel = tag.getInt(THIRST_NBT_NAME);
-        this.thirstExhaustion = tag.getInt(THIRST_EXHAUSTION_NBT_NAME);
-        this.thirstTickTimer = tag.getInt(THIRST_TIMER_NBT_NAME);
-        this.thirstExhaustionIncrement = tag.getInt(THIRST_EXHAUSTION_INCREMENT_NBT_NAME);
-        this.noRegenTicks = tag.getInt(NO_REGEN_TICKS);
     }
 }

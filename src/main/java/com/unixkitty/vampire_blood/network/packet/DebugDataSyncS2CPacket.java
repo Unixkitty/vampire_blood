@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -13,19 +12,19 @@ public class DebugDataSyncS2CPacket
     private final int ticksFeeding;
     private final int noRegenTicks;
 
-    private final int thirstExhaustion;
     private final int thirstExhaustionIncrement;
     private final int thirstTickTimer;
+    private final int consecutiveBloodtypePoints;
 
-    public DebugDataSyncS2CPacket(VampirePlayerData data)
+    public DebugDataSyncS2CPacket(int ticksInSun, int ticksFeeding, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int consecutiveBloodtypePoints)
     {
-        this.ticksInSun = data.getSunTicks();
-        this.ticksFeeding = data.getFeedingTicks();
-        this.noRegenTicks = data.getNoRegenTicks();
+        this.ticksInSun = ticksInSun;
+        this.ticksFeeding = ticksFeeding;
+        this.noRegenTicks = noRegenTicks;
 
-        this.thirstExhaustion = data.getThirstExhaustion();
-        this.thirstExhaustionIncrement = data.getThirstExhaustionIncrement();
-        this.thirstTickTimer = data.getThirstTickTimer();
+        this.thirstExhaustionIncrement = thirstExhaustionIncrement;
+        this.thirstTickTimer = thirstTickTimer;
+        this.consecutiveBloodtypePoints = consecutiveBloodtypePoints;
     }
 
     public DebugDataSyncS2CPacket(FriendlyByteBuf buffer)
@@ -34,9 +33,9 @@ public class DebugDataSyncS2CPacket
         this.ticksFeeding = buffer.readInt();
         this.noRegenTicks = buffer.readInt();
 
-        this.thirstExhaustion = buffer.readInt();
         this.thirstExhaustionIncrement = buffer.readInt();
         this.thirstTickTimer = buffer.readInt();
+        this.consecutiveBloodtypePoints = buffer.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buffer)
@@ -45,9 +44,9 @@ public class DebugDataSyncS2CPacket
         buffer.writeInt(this.ticksFeeding);
         buffer.writeInt(this.noRegenTicks);
 
-        buffer.writeInt(this.thirstExhaustion);
         buffer.writeInt(this.thirstExhaustionIncrement);
         buffer.writeInt(this.thirstTickTimer);
+        buffer.writeInt(this.consecutiveBloodtypePoints);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)
@@ -60,9 +59,9 @@ public class DebugDataSyncS2CPacket
             ClientVampirePlayerDataCache.Debug.ticksInSun = this.ticksInSun;
             ClientVampirePlayerDataCache.Debug.noRegenTicks = this.noRegenTicks;
 
-            ClientVampirePlayerDataCache.Debug.thirstExhaustion = this.thirstExhaustion;
             ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = this.thirstExhaustionIncrement;
             ClientVampirePlayerDataCache.Debug.thirstTickTimer = this.thirstTickTimer;
+            ClientVampirePlayerDataCache.Debug.consecutiveBloodtypePoints = this.consecutiveBloodtypePoints;
         });
 
         context.setPacketHandled(true);

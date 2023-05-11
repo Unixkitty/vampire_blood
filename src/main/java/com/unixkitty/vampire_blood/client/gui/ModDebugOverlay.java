@@ -107,8 +107,9 @@ public class ModDebugOverlay
         if (ClientVampirePlayerDataCache.isVampire())
         {
             craftLine(ChatFormatting.RED, "bloodType: ", ClientVampirePlayerDataCache.bloodType.getTranslation().getString());
+            craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodlust, 2), "/100");
             craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
-            craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.Debug.thirstExhaustion, "/100");
+            craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.thirstExhaustion, "/100");
             craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
             craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
             craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", MouseOverHandler.isLookingAtEdible());

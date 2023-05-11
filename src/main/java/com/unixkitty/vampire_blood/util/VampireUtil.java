@@ -39,4 +39,24 @@ public class VampireUtil
     {
         return (int) Math.ceil(health * bloodType.getBloodSaturationModifier());
     }
+
+    public static int clampInt(int value, int max)
+    {
+        return clampInt(0, value, max);
+    }
+
+    public static int clampInt(int min, int value, int max)
+    {
+        return Math.max(min, Math.min(value, max));
+    }
+
+    public static float clampFloat(float value, float max)
+    {
+        return clampFloat(0F, value, max);
+    }
+
+    public static float clampFloat(float min, float value, float max)
+    {
+        return Math.max(min, Math.min(value, max));
+    }
 }

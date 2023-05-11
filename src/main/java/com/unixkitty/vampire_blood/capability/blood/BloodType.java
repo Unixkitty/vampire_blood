@@ -6,12 +6,12 @@ import net.minecraft.network.chat.Component;
 
 public enum BloodType
 {
-    NONE(0, 0, 0, 0, 0, 0),
-    FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 1.5),
-    CREATURE(2, 0.5, 0.5, 0.5, 1, 1.25),
-    HUMAN(3, 1, 1, 1, 2, 1),
-    VAMPIRE(4, 1.25, 1, 1.25, 0.75, 1),
-    PIGLIN(5, 0.75, 0.75, 0.75, 1.5, 1.25);
+    NONE(0, 0, 0, 0, 0),
+    FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333),
+    CREATURE(2, 0.5, 0.5, 0.5, 1),
+    HUMAN(3, 1, 1, 1, 2),
+    VAMPIRE(4, 1.25, 1, 1.25, 0.75),
+    PIGLIN(5, 0.75, 0.75, 0.75, 1.5);
 
     public static final String BLOODTYPE_NBT_NAME = "bloodType";
 
@@ -20,16 +20,14 @@ public enum BloodType
     private final double strengthMultiplier;
     private final double speedBoostModifier;
     private final double bloodSaturationModifier;
-    private final double drainVictimChanceModifier;
 
-    BloodType(int id, double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier, double drainVictimChanceModifier)
+    BloodType(int id, double healthMultiplier, double strengthMultiplier, double speedBoostModifier, double bloodSaturationModifier)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;
         this.strengthMultiplier = strengthMultiplier;
         this.speedBoostModifier = speedBoostModifier;
         this.bloodSaturationModifier = bloodSaturationModifier;
-        this.drainVictimChanceModifier = drainVictimChanceModifier;
     }
 
     public int getId()
@@ -47,9 +45,17 @@ public enum BloodType
         return bloodSaturationModifier;
     }
 
-    public double getDrainVictimChanceModifier()
+    public float getBloodlustMultiplier(boolean bloodPointGained)
     {
-        return drainVictimChanceModifier;
+        return switch (this)
+        {
+            case NONE -> 0.0F;
+            case FRAIL -> bloodPointGained ? 1F : 3.75F;
+            case CREATURE -> bloodPointGained ? 2F : 2.5F;
+            case HUMAN -> bloodPointGained ? 3.75F : 1.5F;
+            case VAMPIRE -> bloodPointGained ? 3F : 1.25F;
+            case PIGLIN -> bloodPointGained ? 2F : 2.5F;
+        };
     }
 
     public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
