@@ -4,6 +4,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
@@ -50,8 +51,8 @@ public class PlayerVampireDataS2CPacket
                 vampirePlayerData.setFeeding(this.isFeeding);
             });
 
-            ClientVampirePlayerDataCache.vampireLevel = VampirismStage.fromId(this.vampireLevel);
-            ClientVampirePlayerDataCache.bloodType = BloodType.fromId(this.bloodType);
+            ClientVampirePlayerDataCache.vampireLevel = VampirismTier.fromId(VampirismStage.class, this.vampireLevel);
+            ClientVampirePlayerDataCache.bloodType = VampirismTier.fromId(BloodType.class, this.bloodType);
             ClientVampirePlayerDataCache.isFeeding = this.isFeeding;
         });
 

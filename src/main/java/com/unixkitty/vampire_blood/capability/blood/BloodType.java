@@ -1,10 +1,11 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
-public enum BloodType
+public enum BloodType implements VampirismTier
 {
     NONE(0, 0, 0, 0, 0),
     FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333),
@@ -30,6 +31,7 @@ public enum BloodType
         this.bloodSaturationModifier = bloodSaturationModifier;
     }
 
+    @Override
     public int getId()
     {
         return id;
@@ -45,6 +47,7 @@ public enum BloodType
         return bloodSaturationModifier;
     }
 
+    @Override
     public float getBloodlustMultiplier(boolean bloodPointGained)
     {
         return switch (this)
@@ -58,6 +61,7 @@ public enum BloodType
         };
     }
 
+    @Override
     public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
     {
         return switch (modifier)
@@ -68,16 +72,7 @@ public enum BloodType
         };
     }
 
-    public static BloodType fromId(int id)
-    {
-        for (BloodType type : values())
-        {
-            if (type.id == id) return type;
-        }
-
-        return null;
-    }
-
+    @Override
     public int getColor()
     {
         return switch (this)
@@ -91,8 +86,9 @@ public enum BloodType
         };
     }
 
+    @Override
     public Component getTranslation()
     {
-        return Component.translatable("vampire_blood.blood_type." + this.toString().toLowerCase());
+        return this.getTranslation("blood_type");
     }
 }

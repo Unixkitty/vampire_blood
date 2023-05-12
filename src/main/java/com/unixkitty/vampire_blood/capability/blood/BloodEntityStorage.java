@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.util.VampirismTier;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
@@ -137,7 +138,7 @@ public class BloodEntityStorage
     public void loadNBTData(CompoundTag tag)
     {
         this.id = tag.getString(ID_NBT_NAME);
-        this.bloodType = BloodType.fromId(tag.getInt(BloodType.BLOODTYPE_NBT_NAME));
+        this.bloodType = VampirismTier.fromId(BloodType.class, tag.getInt(BloodType.BLOODTYPE_NBT_NAME));
         this.bloodPoints = tag.getInt(BLOOD_POINTS_NBT_NAME);
         this.naturalRegen = tag.getBoolean(REGEN_NBT_NAME);
         this.naturalRegenTimer = tag.getInt(REGEN_TIMER_NBT_NAME);

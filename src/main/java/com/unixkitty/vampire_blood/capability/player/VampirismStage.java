@@ -1,8 +1,11 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.util.VampirismTier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
-public enum VampirismStage
+public enum VampirismStage implements VampirismTier
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0),
     IN_TRANSITION(0, 1, 2, 1, 0),
@@ -26,6 +29,7 @@ public enum VampirismStage
         this.bloodUsageMultiplier = bloodUsageMultiplier;
     }
 
+    @Override
     public int getId()
     {
         return id;
@@ -41,6 +45,7 @@ public enum VampirismStage
         return bloodUsageMultiplier;
     }
 
+    @Override
     public float getBloodlustMultiplier(boolean bloodPointGained)
     {
         return switch (this)
@@ -53,6 +58,7 @@ public enum VampirismStage
         };
     }
 
+    @Override
     public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
     {
         return switch (modifier)
@@ -63,13 +69,15 @@ public enum VampirismStage
         };
     }
 
-    public static VampirismStage fromId(int id)
+    @Override
+    public int getColor()
     {
-        for (VampirismStage stage : values())
-        {
-            if (stage.id == id) return stage;
-        }
+        return ChatFormatting.DARK_PURPLE.getColor();
+    }
 
-        return null;
+    @Override
+    public Component getTranslation()
+    {
+        return this.getTranslation("vampire_level");
     }
 }

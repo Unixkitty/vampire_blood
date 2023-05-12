@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.client.gui.MouseOverHandler;
+import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -40,7 +41,7 @@ public class EntityBloodResponseS2CPacket
 
         context.enqueueWork(() ->
         {
-            MouseOverHandler.bloodType = BloodType.fromId(this.bloodType);
+            MouseOverHandler.bloodType = VampirismTier.fromId(BloodType.class, this.bloodType);
             MouseOverHandler.bloodPoints = this.bloodPoints;
             MouseOverHandler.maxBloodPoints = this.maxBloodPoints;
 
