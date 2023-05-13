@@ -16,7 +16,7 @@ public final class ClientVampirePlayerDataCache
     // General
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     public static BloodType bloodType = BloodType.HUMAN;
-    public static boolean isFeeding = false;
+    public static boolean feeding = false;
     public static int ticksFeeding = 0;
 
     public static boolean playerJustRespawned = false;

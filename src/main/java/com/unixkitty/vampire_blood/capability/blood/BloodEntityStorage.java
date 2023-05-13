@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 

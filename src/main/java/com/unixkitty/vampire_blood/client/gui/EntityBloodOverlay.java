@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -27,7 +28,7 @@ public class EntityBloodOverlay
         {
             Minecraft.getInstance().getProfiler().push("entity_blood_overlay");
 
-            if (MouseOverHandler.isLookingAtEdible() && Minecraft.getInstance().hitResult instanceof EntityHitResult)
+            if (FeedingMouseOverHandler.isLookingAtEdible() && Minecraft.getInstance().hitResult instanceof EntityHitResult)
             {
                 int renderStartX = (screenWidth / 2) + (MARGIN_PX * 3);
                 int renderStartY = screenHeight / 2;
@@ -36,8 +37,8 @@ public class EntityBloodOverlay
                 {
                     renderStartY -= gui.getFont().lineHeight * 1.5;
 
-                    ModDebugOverlay.drawLine(MouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui.getFont(), renderStartX, renderStartY, MouseOverHandler.bloodType.getColor());
-                    ModDebugOverlay.drawLine(MouseOverHandler.bloodPoints + "/" + MouseOverHandler.maxBloodPoints, poseStack, gui.getFont(), renderStartX, renderStartY + gui.getFont().lineHeight, ChatFormatting.DARK_RED);
+                    ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui.getFont(), renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getColor());
+                    ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, poseStack, gui.getFont(), renderStartX, renderStartY + gui.getFont().lineHeight, ChatFormatting.DARK_RED);
 
                     if (Config.entityBloodHUDshowHP.get())
                     {
@@ -53,7 +54,7 @@ public class EntityBloodOverlay
                     RenderSystem.enableBlend();
                     RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
 
-                    gui.blit(poseStack, renderStartX, renderStartY, getIconIndex(), MouseOverHandler.bloodType.getId() * 9, 9, 9);
+                    gui.blit(poseStack, renderStartX, renderStartY, getIconIndex(), FeedingMouseOverHandler.bloodType.getId() * 9, 9, 9);
 
                     RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
                     RenderSystem.disableBlend();
@@ -63,9 +64,9 @@ public class EntityBloodOverlay
             }
             else
             {
-                if (MouseOverHandler.hasData())
+                if (FeedingMouseOverHandler.hasData())
                 {
-                    MouseOverHandler.reset();
+                    FeedingMouseOverHandler.reset();
                 }
             }
 
@@ -75,9 +76,9 @@ public class EntityBloodOverlay
 
     private static int getIconIndex()
     {
-        double healthPercentage = (double) MouseOverHandler.bloodPoints / MouseOverHandler.maxBloodPoints * 100;
+        double healthPercentage = (double) FeedingMouseOverHandler.bloodPoints / FeedingMouseOverHandler.maxBloodPoints * 100;
 
-        int iconIndex = MouseOverHandler.bloodPoints <= 1 ? 0 :
+        int iconIndex = FeedingMouseOverHandler.bloodPoints <= 1 ? 0 :
                 healthPercentage <= 25 ? 1 :
                         healthPercentage <= 50 ? 2 :
                                 healthPercentage <= 90 ? 3 : 4;

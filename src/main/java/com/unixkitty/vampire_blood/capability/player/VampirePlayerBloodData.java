@@ -5,7 +5,6 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
@@ -71,7 +70,7 @@ public class VampirePlayerBloodData
 
     private void updateBloodlust(Player player, boolean bloodPointGained)
     {
-        float lastBloodlust = this.bloodlust;
+//        float lastBloodlust = this.bloodlust;
 
         float thirstMultiplier = (float) thirstLevel / MAX_THIRST;
 
@@ -87,14 +86,14 @@ public class VampirePlayerBloodData
         }
 
         //TODO remove debug
-        if (lastBloodlust != this.bloodlust)
-        {
-            player.sendSystemMessage(Component.literal(
-                    "Bloodlust: " + lastBloodlust + " -> " + this.bloodlust + " (" + (this.bloodlust - lastBloodlust) + ")"
-                            + " level (" + this.vampireLevel.name().toLowerCase() + "): " + this.vampireLevel.getBloodlustMultiplier(bloodPointGained)
-                            + " bloodType (" + this.bloodType.name().toLowerCase() + "): " + this.bloodType.getBloodlustMultiplier(bloodPointGained)
-            ));
-        }
+//        if (lastBloodlust != this.bloodlust)
+//        {
+//            player.sendSystemMessage(Component.literal(
+//                    "Bloodlust: " + lastBloodlust + " -> " + this.bloodlust + " (" + (this.bloodlust - lastBloodlust) + ")"
+//                            + " level (" + this.vampireLevel.name().toLowerCase() + "): " + this.vampireLevel.getBloodlustMultiplier(bloodPointGained)
+//                            + " bloodType (" + this.bloodType.name().toLowerCase() + "): " + this.bloodType.getBloodlustMultiplier(bloodPointGained)
+//            ));
+//        }
     }
 
     private void updateBloodType(BloodType bloodType)

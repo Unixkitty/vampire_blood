@@ -67,7 +67,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     int backgroundOffsetY = 0;
 
                     //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
-                    if (ClientVampirePlayerDataCache.isFeeding)
+                    if (ClientVampirePlayerDataCache.feeding)
                     {
                         //Alternate dancing-like animation
                         if (Config.alternateBloodbarFeedingAnimation.get())

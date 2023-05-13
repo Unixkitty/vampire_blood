@@ -1,9 +1,7 @@
-package com.unixkitty.vampire_blood.client.gui;
+package com.unixkitty.vampire_blood.client.feeding;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
-import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
-import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -11,17 +9,17 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 
 @OnlyIn(Dist.CLIENT)
-public class MouseOverHandler
+public class FeedingMouseOverHandler
 {
-    public static int lastEntityId = -1;
     public static BloodType bloodType = BloodType.NONE;
     public static int maxBloodPoints = 0;
     public static int bloodPoints = 0;
 
+    private static int lastEntityId = -1;
     private static int lastTick = 0;
     private static boolean hasData = false;
 
-    public static void handle(final RenderHighlightEvent.Entity event)
+    static void handle(final RenderHighlightEvent.Entity event)
     {
         if (ClientVampirePlayerDataCache.canFeed() && event.getTarget().getEntity() instanceof LivingEntity entity && entity.isAlive()) //LivingEntity because we want info about players as well
         {
@@ -31,15 +29,20 @@ public class MouseOverHandler
             {
                 lastEntityId = entity.getId();
 
-                requestUpdateOn(entity.getId());
+                FeedingHandler.requestUpdateOn(entity.getId());
             }
             else if (lastTick != currentTick && currentTick % 20 == 0)
             {
-                requestUpdateOn(entity.getId());
+                FeedingHandler.requestUpdateOn(entity.getId());
             }
 
             lastTick = currentTick;
         }
+    }
+
+    public static int getLastHighlightedEntity()
+    {
+        return lastEntityId;
     }
 
     public static void reset()
@@ -65,10 +68,5 @@ public class MouseOverHandler
     public static boolean isLookingAtEdible()
     {
         return hasData && maxBloodPoints > 0 && bloodType != BloodType.NONE;
-    }
-
-    private static void requestUpdateOn(int id)
-    {
-        ModNetworkDispatcher.sendToServer(new RequestEntityBloodC2SPacket(id));
     }
 }

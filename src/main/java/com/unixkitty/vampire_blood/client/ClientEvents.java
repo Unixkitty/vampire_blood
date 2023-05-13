@@ -2,9 +2,9 @@ package com.unixkitty.vampire_blood.client;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
-import com.unixkitty.vampire_blood.client.gui.MouseOverHandler;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -58,7 +58,7 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onEntityMouseOver(final RenderHighlightEvent.Entity event)
         {
-            MouseOverHandler.handle(event);
+            FeedingHandler.handleMouseOver(event);
         }
     }
 

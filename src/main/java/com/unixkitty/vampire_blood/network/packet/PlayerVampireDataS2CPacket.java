@@ -53,7 +53,7 @@ public class PlayerVampireDataS2CPacket
 
             ClientVampirePlayerDataCache.vampireLevel = VampirismTier.fromId(VampirismStage.class, this.vampireLevel);
             ClientVampirePlayerDataCache.bloodType = VampirismTier.fromId(BloodType.class, this.bloodType);
-            ClientVampirePlayerDataCache.isFeeding = this.isFeeding;
+            ClientVampirePlayerDataCache.feeding = this.isFeeding;
         });
 
         context.setPacketHandled(true);

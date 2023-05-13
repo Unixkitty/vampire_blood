@@ -10,8 +10,8 @@ import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerRespawnS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -37,7 +37,7 @@ public class VampirePlayerData
     private boolean catchingUV = false;
     private int catchingUVTicks;
 
-    private boolean isFeeding = false;
+    private boolean feeding = false;
 
     private final VampirePlayerBloodData blood = new VampirePlayerBloodData();
 
@@ -64,7 +64,7 @@ public class VampirePlayerData
 
             //TODO check entity validity and stuff
             this.feedingEntity = target;
-            this.isFeeding = true;
+            this.feeding = true;
 
             sync();
         }
@@ -72,7 +72,7 @@ public class VampirePlayerData
 
     public void stopFeeding()
     {
-        this.isFeeding = false;
+        this.feeding = false;
 
         sync();
     }
@@ -195,7 +195,7 @@ public class VampirePlayerData
 
     private void handleFeeding(Player player)
     {
-        if (this.isFeeding)
+        if (this.feeding)
         {
             ++this.ticksFeeding;
 
@@ -263,7 +263,7 @@ public class VampirePlayerData
     {
         checkOriginal(player);
         VampireAttributeModifiers.updateAttributes(player, blood.vampireLevel, blood.bloodType);
-        ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(blood.vampireLevel.getId(), blood.bloodType.getId(), isFeeding), player);
+        ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(blood.vampireLevel.getId(), blood.bloodType.getId(), feeding), player);
         syncBlood();
     }
 
@@ -287,7 +287,7 @@ public class VampirePlayerData
 
     public void setFeeding(boolean feeding)
     {
-        this.isFeeding = feeding;
+        this.feeding = feeding;
     }
 
     public int getThirstLevel()
@@ -392,7 +392,7 @@ public class VampirePlayerData
 
             checkOriginal((ServerPlayer) player);
 
-            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(blood.vampireLevel.getId(), this.blood.bloodType.getId(), this.isFeeding), (ServerPlayer) player);
+            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(blood.vampireLevel.getId(), this.blood.bloodType.getId(), this.feeding), (ServerPlayer) player);
         }
     }
 

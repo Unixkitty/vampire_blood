@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifier
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.util.StringCrafter;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
@@ -112,8 +113,8 @@ public class ModDebugOverlay
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.thirstExhaustion, "/100");
             craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
             craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
-            craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", MouseOverHandler.isLookingAtEdible());
-            craftLine(ChatFormatting.DARK_GRAY, "isFeeding: ", ClientVampirePlayerDataCache.isFeeding);
+            craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", FeedingMouseOverHandler.isLookingAtEdible());
+            craftLine(ChatFormatting.DARK_GRAY, "isFeeding: ", ClientVampirePlayerDataCache.feeding);
             craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientVampirePlayerDataCache.Debug.ticksInSun);
             craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth(), 1), "/", player.getMaxHealth(), " | Rate: ", VampireUtil.getHealthRegenRate(player), "/", ClientVampirePlayerDataCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
             craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientVampirePlayerDataCache.Debug.noRegenTicks);

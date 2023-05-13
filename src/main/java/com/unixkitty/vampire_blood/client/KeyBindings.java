@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.TestListGenerator;
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -18,7 +19,7 @@ public class KeyBindings
     public static final String KEY_CATEGORY_MAIN = keyCategory("main");
     public static final String KEY_FEED = keyName("feed");
 
-    private static final KeyMapping FEED_KEY = new KeyMapping(KEY_FEED, KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, KEY_CATEGORY_MAIN);
+    public static final KeyMapping FEED_KEY = new KeyMapping(KEY_FEED, KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, KEY_CATEGORY_MAIN);
 
     public static void init(final RegisterKeyMappingsEvent event)
     {
@@ -29,7 +30,7 @@ public class KeyBindings
     {
         if (Minecraft.getInstance().player != null)
         {
-            FeedingHandler.handle(FEED_KEY.isDown(), Minecraft.getInstance().options.keyUp.isDown() || Minecraft.getInstance().options.keyDown.isDown() || Minecraft.getInstance().options.keyLeft.isDown() || Minecraft.getInstance().options.keyRight.isDown() || Minecraft.getInstance().options.keyJump.isDown());
+            FeedingHandler.handleKeys(event);
         }
 
         //TODO remove debug hud toggle
