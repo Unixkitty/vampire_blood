@@ -3,7 +3,6 @@ package com.unixkitty.vampire_blood.network.packet;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -47,16 +46,15 @@ public class RequestEntityBloodC2SPacket
 
                 if (entity instanceof PathfinderMob)
                 {
-                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage ->
-                            ModNetworkDispatcher.sendToClient(new EntityBloodResponseS2CPacket(bloodStorage.getBloodType().getId(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()), player));
+                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> VampireUtil.sendPlayerEntityBlood(player, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()));
                 }
-                else if (entity instanceof Player)
+                else if (entity instanceof Player otherPlayer)
                 {
                     entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                     {
                         BloodType bloodType = vampirePlayerData.getBloodTypeIdForFeeding();
 
-                        ModNetworkDispatcher.sendToClient(new EntityBloodResponseS2CPacket(bloodType.getId(), VampireUtil.healthToBlood(((Player) entity).getHealth(), bloodType), VampireUtil.healthToBlood(((Player) entity).getMaxHealth(), bloodType)), player);
+                        VampireUtil.sendPlayerEntityBlood(player, bloodType, VampireUtil.healthToBlood(otherPlayer.getHealth(), bloodType), VampireUtil.healthToBlood(otherPlayer.getMaxHealth(), bloodType));
                     });
                 }
             }

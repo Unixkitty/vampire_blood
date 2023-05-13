@@ -21,19 +21,26 @@ public class FeedingMouseOverHandler
 
     static void handle(final RenderHighlightEvent.Entity event)
     {
-        if (ClientVampirePlayerDataCache.canFeed() && event.getTarget().getEntity() instanceof LivingEntity entity && entity.isAlive()) //LivingEntity because we want info about players as well
+        if (ClientVampirePlayerDataCache.canFeed() && event.getTarget().getEntity() instanceof LivingEntity entity) //LivingEntity because we want info about players as well
         {
             int currentTick = Minecraft.getInstance().gui.getGuiTicks();
 
-            if (lastEntityId != entity.getId())
+            if (entity.isAlive())
             {
-                lastEntityId = entity.getId();
+                if (lastEntityId != entity.getId())
+                {
+                    lastEntityId = entity.getId();
 
-                FeedingHandler.requestUpdateOn(entity.getId());
+                    FeedingHandler.requestUpdateOn(entity.getId());
+                }
+                else if (lastTick != currentTick && currentTick % 20 == 0)
+                {
+                    FeedingHandler.requestUpdateOn(entity.getId());
+                }
             }
-            else if (lastTick != currentTick && currentTick % 20 == 0)
+            else if (lastEntityId == entity.getId())
             {
-                FeedingHandler.requestUpdateOn(entity.getId());
+                reset();
             }
 
             lastTick = currentTick;

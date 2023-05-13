@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,7 +32,10 @@ public class RequestStopFeedingC2SPacket
         {
             ServerPlayer player = context.getSender();
 
-            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::stopFeeding);
+            if (player != null)
+            {
+                player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.tryStopFeeding(player));
+            }
         });
 
         context.setPacketHandled(true);

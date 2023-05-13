@@ -28,5 +28,15 @@
   "vampire_blood.death.attack.sunlight_7": "%1$s has turned to ash",
   "vampire_blood.death.attack.sunlight_8": "The sun always wins, as %1$s found out",
   "vampire_blood.death.attack.sunlight_9": "%1$s had their blood replaced with molten cheese",
+  "vampire_blood.death.self.bloodloss_1": "%1$s donated their final drop to the Blood God",
+  "vampire_blood.death.self.bloodloss_2": "%1$s died from anemia",
+  "vampire_blood.death.self.bloodloss_3": "%1$s tried escaping this cruel world",
+  "vampire_blood.death.self.bloodloss_4": "Note to %1$s: stop playing with sharp objects",
+  "vampire_blood.death.attack.bloodloss_1": "%1$s was drained to death by %2$s",
+  "vampire_blood.death.attack.bloodloss_2": "%1$s couldn't keep their blood safe from %2$s",
+  "vampire_blood.death.attack.bloodloss_3": "%1$s donated too much blood to %2$s",
+  "vampire_blood.death.attack.bloodloss_4": "%1$s discovered the downside of being tasty",
+  "vampire_blood.death.attack.bloodloss_5": "%1$s fell victim to %2$s's vampiric appetite",
+  "vampire_blood.death.attack.bloodloss_6": "%1$s became a human juice box for %2$s",
   "item.vampire_blood.vampire_dust": "Vampire Dust"
 }

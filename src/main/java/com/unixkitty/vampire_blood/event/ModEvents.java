@@ -48,11 +48,7 @@ public class ModEvents
             {
                 if (entity instanceof ServerPlayer)
                 {
-                    entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                    {
-                        vampirePlayerData.sync();
-                        vampirePlayerData.syncBlood();
-                    });
+                    entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::sync);
                 }
                 else if (entity instanceof PathfinderMob && entity.getEncodeId() != null)
                 {

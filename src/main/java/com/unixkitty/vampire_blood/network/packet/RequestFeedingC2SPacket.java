@@ -3,6 +3,10 @@ package com.unixkitty.vampire_blood.network.packet;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -34,7 +38,15 @@ public class RequestFeedingC2SPacket
         {
             ServerPlayer player = context.getSender();
 
-            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.beginFeeding(null));
+            if (player != null)
+            {
+                Entity entity = player.level.getEntity(this.entityId);
+
+                if (entity instanceof PathfinderMob || entity instanceof Player)
+                {
+                    player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.beginFeeding((LivingEntity) entity, player));
+                }
+            }
         });
 
         context.setPacketHandled(true);

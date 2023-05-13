@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -42,7 +43,7 @@ public class EntityBloodOverlay
 
                     if (Config.entityBloodHUDshowHP.get())
                     {
-                        ModDebugOverlay.drawLine("HP: " + ((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getHealth() + "/" + ((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getMaxHealth(), poseStack, gui.getFont(), renderStartX, renderStartY + (gui.getFont().lineHeight * 2), ChatFormatting.RED);
+                        ModDebugOverlay.drawLine("HP: " + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getHealth(), 2) + "/" + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getMaxHealth(), 2), poseStack, gui.getFont(), renderStartX, renderStartY + (gui.getFont().lineHeight * 2), ChatFormatting.RED);
                     }
                 }
                 else

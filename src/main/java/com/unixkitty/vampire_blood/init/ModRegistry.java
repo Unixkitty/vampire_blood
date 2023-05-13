@@ -14,18 +14,42 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import javax.annotation.Nonnull;
+
 @SuppressWarnings("unused")
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public final class ModRegistry
 {
     public static final DamageSource SUN_DAMAGE = new DamageSource("sunlight")
     {
+        @Nonnull
         @Override
-        public Component getLocalizedDeathMessage(LivingEntity whoDied)
+        public Component getLocalizedDeathMessage(@Nonnull LivingEntity victim)
         {
-            return Component.translatable("vampire_blood.death.attack.sunlight_" + whoDied.getRandom().nextIntBetweenInclusive(1, 9), whoDied.getDisplayName());
+            return Component.translatable("vampire_blood.death.attack.sunlight_" + victim.getRandom().nextIntBetweenInclusive(1, 9), victim.getDisplayName());
         }
     }.bypassArmor().setMagic();
+
+    public static final DamageSource BLOOD_LOSS = new DamageSource("bloodloss")
+    {
+        @Nonnull
+        @Override
+        public Component getLocalizedDeathMessage(@Nonnull LivingEntity victim)
+        {
+            LivingEntity attacker = victim.getKillCredit();
+            final boolean suicide = attacker == victim || attacker == null;
+            String message = "vampire_blood.death." + (suicide ? "self" : "attack") + ".bloodloss_";
+
+            if (suicide)
+            {
+                return Component.translatable(message + victim.getRandom().nextIntBetweenInclusive(1, 4), victim.getDisplayName());
+            }
+            else
+            {
+                return Component.translatable(message + victim.getRandom().nextIntBetweenInclusive(1, 6), victim.getDisplayName(), attacker.getDisplayName());
+            }
+        }
+    }.bypassArmor();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, VampireBlood.MODID);
 

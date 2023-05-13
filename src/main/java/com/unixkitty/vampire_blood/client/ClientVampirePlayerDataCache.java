@@ -47,6 +47,7 @@ public final class ClientVampirePlayerDataCache
         public static int thirstExhaustionIncrement = 0;
         public static int thirstTickTimer = 0;
         public static int noRegenTicks = 0;
-        public static int consecutiveBloodtypePoints = 0;
+        public static BloodType lastConsumedBloodType = BloodType.NONE;
+        public static int consecutiveBloodPoints = 0;
     }
 }

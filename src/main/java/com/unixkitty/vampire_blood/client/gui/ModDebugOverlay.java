@@ -108,13 +108,18 @@ public class ModDebugOverlay
         if (ClientVampirePlayerDataCache.isVampire())
         {
             craftLine(ChatFormatting.RED, "bloodType: ", ClientVampirePlayerDataCache.bloodType.getTranslation().getString());
-            craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodlust, 2), "/100");
+
             craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
+            craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodlust, 2), "/100");
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", ClientVampirePlayerDataCache.thirstExhaustion, "/100");
             craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
             craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
+
             craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", FeedingMouseOverHandler.isLookingAtEdible());
-            craftLine(ChatFormatting.DARK_GRAY, "isFeeding: ", ClientVampirePlayerDataCache.feeding);
+            craftLine(ChatFormatting.DARK_GRAY, "feeding: ", ClientVampirePlayerDataCache.feeding);
+            craftLine(ChatFormatting.DARK_RED, "lastConsumedBloodType: ", ClientVampirePlayerDataCache.Debug.lastConsumedBloodType.getTranslation().getString());
+            craftLine(ChatFormatting.DARK_GRAY, "consecutiveBloodPoints: ", ClientVampirePlayerDataCache.Debug.consecutiveBloodPoints);
+
             craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientVampirePlayerDataCache.Debug.ticksInSun);
             craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth(), 1), "/", player.getMaxHealth(), " | Rate: ", VampireUtil.getHealthRegenRate(player), "/", ClientVampirePlayerDataCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
             craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientVampirePlayerDataCache.Debug.noRegenTicks);

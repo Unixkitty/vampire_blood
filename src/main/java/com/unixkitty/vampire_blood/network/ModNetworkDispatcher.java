@@ -37,10 +37,10 @@ public class ModNetworkDispatcher
                 .consumerMainThread(RequestStopFeedingC2SPacket::handle)
                 .add();
 
-        INSTANCE.messageBuilder(PlayerBloodDataSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(PlayerBloodDataSyncS2CPacket::new)
-                .encoder(PlayerBloodDataSyncS2CPacket::toBytes)
-                .consumerMainThread(PlayerBloodDataSyncS2CPacket::handle)
+        INSTANCE.messageBuilder(PlayerVampireDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(PlayerVampireDataS2CPacket::new)
+                .encoder(PlayerVampireDataS2CPacket::toBytes)
+                .consumerMainThread(PlayerVampireDataS2CPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(DebugDataSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
@@ -49,10 +49,10 @@ public class ModNetworkDispatcher
                 .consumerMainThread(DebugDataSyncS2CPacket::handle)
                 .add();
 
-        INSTANCE.messageBuilder(PlayerVampireDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(PlayerVampireDataS2CPacket::new)
-                .encoder(PlayerVampireDataS2CPacket::toBytes)
-                .consumerMainThread(PlayerVampireDataS2CPacket::handle)
+        INSTANCE.messageBuilder(PlayerFeedingStatusS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(PlayerFeedingStatusS2CPacket::new)
+                .encoder(PlayerFeedingStatusS2CPacket::toBytes)
+                .consumerMainThread(PlayerFeedingStatusS2CPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(PlayerRespawnS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
@@ -67,10 +67,10 @@ public class ModNetworkDispatcher
                 .consumerMainThread(RequestEntityBloodC2SPacket::handle)
                 .add();
 
-        INSTANCE.messageBuilder(EntityBloodResponseS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(EntityBloodResponseS2CPacket::new)
-                .encoder(EntityBloodResponseS2CPacket::toBytes)
-                .consumerMainThread(EntityBloodResponseS2CPacket::handle)
+        INSTANCE.messageBuilder(EntityBloodInfoS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(EntityBloodInfoS2CPacket::new)
+                .encoder(EntityBloodInfoS2CPacket::toBytes)
+                .consumerMainThread(EntityBloodInfoS2CPacket::handle)
                 .add();
     }
 

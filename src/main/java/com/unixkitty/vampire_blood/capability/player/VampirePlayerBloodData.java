@@ -1,14 +1,14 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
-import com.unixkitty.vampire_blood.network.packet.PlayerBloodDataSyncS2CPacket;
+import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.player.Player;
 
 public class VampirePlayerBloodData
 {
@@ -31,13 +31,13 @@ public class VampirePlayerBloodData
     {
     }
 
-    private void syncData(Player player)
+    private void syncData(ServerPlayer player)
     {
         if (this.needsSync)
         {
             this.needsSync = false;
 
-            ModNetworkDispatcher.sendToClient(new PlayerBloodDataSyncS2CPacket(this.thirstLevel, this.thirstExhaustion, this.bloodlust), (ServerPlayer) player);
+            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust), player);
         }
     }
 
@@ -46,7 +46,7 @@ public class VampirePlayerBloodData
         this.needsSync = true;
     }
 
-    void addBlood(Player player, int points, BloodType bloodType)
+    void addBlood(ServerPlayer player, int points, BloodType bloodType)
     {
         this.thirstLevel = Math.min(this.thirstLevel + points, VampirePlayerBloodData.MAX_THIRST);
 
@@ -54,10 +54,10 @@ public class VampirePlayerBloodData
 
         updateBloodlust(player, true);
 
-        sync();
+        notifyAndUpdate(player);
     }
 
-    void decreaseBlood(Player player, int points, BloodType bloodType)
+    void decreaseBlood(ServerPlayer player, int points, BloodType bloodType)
     {
         this.thirstLevel = Math.max(this.thirstLevel - points, 0);
 
@@ -65,10 +65,10 @@ public class VampirePlayerBloodData
 
         updateBloodlust(player, false);
 
-        sync();
+        notifyAndUpdate(player);
     }
 
-    private void updateBloodlust(Player player, boolean bloodPointGained)
+    private void updateBloodlust(ServerPlayer player, boolean bloodPointGained)
     {
 //        float lastBloodlust = this.bloodlust;
 
@@ -76,12 +76,12 @@ public class VampirePlayerBloodData
 
         if (bloodPointGained)
         {
-            this.bloodlust -= vampireLevel.getBloodlustMultiplier(bloodPointGained) * bloodType.getBloodlustMultiplier(bloodPointGained) * thirstMultiplier;
+            this.bloodlust -= vampireLevel.getBloodlustMultiplier(true) * bloodType.getBloodlustMultiplier(true) * thirstMultiplier;
             this.bloodlust = Math.max(this.bloodlust, 0.0F);
         }
         else
         {
-            this.bloodlust += vampireLevel.getBloodlustMultiplier(bloodPointGained) * bloodType.getBloodlustMultiplier(bloodPointGained) * (1.0F - thirstMultiplier);
+            this.bloodlust += vampireLevel.getBloodlustMultiplier(false) * bloodType.getBloodlustMultiplier(false) * (1.0F - thirstMultiplier);
             this.bloodlust = Math.min(this.bloodlust, 100.0F);
         }
 
@@ -98,22 +98,41 @@ public class VampirePlayerBloodData
 
     private void updateBloodType(BloodType bloodType)
     {
-        if (lastConsumedBloodtype != bloodType)
+        if (this.lastConsumedBloodtype != bloodType)
         {
-            consecutiveBloodtypePoints = 0;
-        }
-        else if (consecutiveBloodtypePoints >= MAX_THIRST / 2 && this.bloodType != bloodType)
-        {
-            this.bloodType = bloodType;
-            sync();
+            this.lastConsumedBloodtype = bloodType;
+            this.consecutiveBloodtypePoints = 1;
         }
         else
         {
-            ++consecutiveBloodtypePoints;
+            if (this.bloodType != bloodType && this.consecutiveBloodtypePoints >= MAX_THIRST / 2)
+            {
+                this.bloodType = bloodType;
+            }
+
+            if (this.consecutiveBloodtypePoints < MAX_THIRST / 2)
+            {
+                ++this.consecutiveBloodtypePoints;
+            }
         }
     }
 
-    void tick(Player player)
+    void checkOriginal(ServerPlayer player)
+    {
+        if (this.vampireLevel == VampirismStage.ORIGINAL && !player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
+        {
+            this.vampireLevel = VampirismStage.MATURE;
+        }
+    }
+
+    void notifyAndUpdate(ServerPlayer player)
+    {
+        checkOriginal(player);
+        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType);
+        sync();
+    }
+
+    void tick(ServerPlayer player)
     {
         player.level.getProfiler().push("vampire_blood_tick");
 
@@ -158,7 +177,7 @@ public class VampirePlayerBloodData
         player.level.getProfiler().pop();
     }
 
-    private void handleRegenAndStarvation(Player player, boolean isPeaceful)
+    private void handleRegenAndStarvation(ServerPlayer player, boolean isPeaceful)
     {
         //Check if we should do natural regen
         if (player.isHurt())

@@ -86,7 +86,7 @@ public class VampireCommand
                     if (value != null)
                     {
                         vampirePlayerData.setBlood(value);
-                        vampirePlayerData.syncBlood();
+                        vampirePlayerData.sync();
                     }
 
                     context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
@@ -116,7 +116,7 @@ public class VampireCommand
                     if (value != null)
                     {
                         vampirePlayerData.setBloodlust(value);
-                        vampirePlayerData.syncBlood();
+                        vampirePlayerData.sync();
                     }
 
                     context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getBloodlust() + "/100"));

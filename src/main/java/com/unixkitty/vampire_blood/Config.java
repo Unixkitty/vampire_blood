@@ -74,7 +74,7 @@ public class Config
             {
                 bloodUsageRate = commonConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange("bloodUsageRate", 720, 1, Integer.MAX_VALUE);
                 playerBloodPoints = commonConfig.comment("Amount of blood points players have").defineInRange("playerBloodPoints", 40, 1, Integer.MAX_VALUE);
-                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
+                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
                 entityRegen = commonConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", true);
                 entityRegenTime = commonConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
             }

@@ -1,17 +1,23 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
 
 public class BloodEntityStorage
 {
     private static final String ID_NBT_NAME = "id";
     private static final String BLOOD_POINTS_NBT_NAME = "bloodPoints";
+    private static final String MAX_BLOOD_POINTS_NBT_NAME = "maxBloodPoints";
     private static final String REGEN_NBT_NAME = "naturalRegen";
     private static final String REGEN_TIMER_NBT_NAME = "naturalRegenTimer";
+    private static final String FRESH_ENTITY_NBT_NAME = "freshEntity";
 
     private String id = "";
     private BloodType bloodType = BloodType.NONE;
@@ -20,7 +26,9 @@ public class BloodEntityStorage
     private boolean naturalRegen = false;
     private int naturalRegenTimer = 0;
 
-    private int ticksPerHeal = 0;
+    private int ticksPerRegen = 0;
+
+    private boolean freshEntity = true;
 
     public void tick(LivingEntity entity)
     {
@@ -33,7 +41,7 @@ public class BloodEntityStorage
             updateBloodHealth(entity);
         }
 
-        if (this.bloodType != BloodType.FRAIL && Config.entityRegen.get() && naturalRegen && entity.tickCount % this.ticksPerHeal == 0)
+        if (this.bloodType != BloodType.FRAIL && Config.entityRegen.get() && naturalRegen && entity.tickCount % this.ticksPerRegen == 0)
         {
             if (Config.healthOrBloodPoints.get())
             {
@@ -79,19 +87,25 @@ public class BloodEntityStorage
                 int lastMaxBloodPoints = this.maxBloodPoints;
                 int newMaxBloodPoints = bloodConfig.getBloodPoints();
 
-                if (newMaxBloodPoints != lastMaxBloodPoints)
+                //If fresh entity, directly set values
+                if (this.freshEntity)
                 {
                     this.maxBloodPoints = newMaxBloodPoints;
-
-                    if (newMaxBloodPoints < lastMaxBloodPoints && this.bloodPoints >= lastMaxBloodPoints)
-                    {
-                        this.bloodPoints = this.maxBloodPoints;
-                    }
+                    this.bloodPoints = this.maxBloodPoints;
+                }
+                //If pre existing entity, update only if max blood points in config changed
+                else if (newMaxBloodPoints != lastMaxBloodPoints)
+                {
+                    //Get last ratio of blood points to max
+                    this.bloodPoints = (int) (newMaxBloodPoints * ((float) this.bloodPoints / this.maxBloodPoints));
+                    this.maxBloodPoints = newMaxBloodPoints;
                 }
 
-                this.ticksPerHeal = Config.entityRegenTime.get() / this.maxBloodPoints;
+                this.ticksPerRegen = Config.entityRegenTime.get() / this.maxBloodPoints;
             }
         }
+
+        this.freshEntity = false;
     }
 
     public boolean isEdible()
@@ -114,11 +128,64 @@ public class BloodEntityStorage
         return this.maxBloodPoints;
     }
 
+    public boolean decreaseBlood(LivingEntity attacker, LivingEntity victim)
+    {
+        if (isEdible() && this.bloodPoints > 0)
+        {
+            if (Config.healthOrBloodPoints.get() && victim.getMobType() != MobType.UNDEAD)
+            {
+                float resultingHealth = victim.getHealth() - (float) this.bloodType.getBloodSaturationModifier();
+
+                if (resultingHealth > 0)
+                {
+                    victim.setHealth(resultingHealth);
+                }
+                else
+                {
+                    victim.setLastHurtByMob(attacker);
+                    victim.hurt(ModRegistry.BLOOD_LOSS, (float) this.bloodType.getBloodSaturationModifier());
+                }
+
+                return true;
+            }
+            else
+            {
+                int resultingBloodPoints = this.bloodPoints - 1;
+
+                if (victim.getMobType() == MobType.UNDEAD)
+                {
+                    if (resultingBloodPoints >= 0)
+                    {
+                        --this.bloodPoints;
+                    }
+                }
+                else if (resultingBloodPoints > 0)
+                {
+                    --this.bloodPoints;
+                }
+                else
+                {
+                    victim.setLastHurtByMob(attacker);
+                    victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void preventMovement(LivingEntity entity)
+    {
+        entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 9, false, false, true));
+    }
+
     private void updateBloodHealth(LivingEntity entity)
     {
         this.maxBloodPoints = healthToBlood(entity.getMaxHealth());
         this.bloodPoints = healthToBlood(entity.getHealth());
-        this.ticksPerHeal = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
+        this.ticksPerRegen = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
     }
 
     private int healthToBlood(float health)
@@ -131,8 +198,10 @@ public class BloodEntityStorage
         tag.putString(ID_NBT_NAME, this.id);
         tag.putInt(BloodType.BLOODTYPE_NBT_NAME, this.bloodType.getId());
         tag.putInt(BLOOD_POINTS_NBT_NAME, this.bloodPoints);
+        tag.putInt(MAX_BLOOD_POINTS_NBT_NAME, this.maxBloodPoints);
         tag.putBoolean(REGEN_NBT_NAME, this.naturalRegen);
         tag.putInt(REGEN_TIMER_NBT_NAME, this.naturalRegenTimer);
+        tag.putBoolean(FRESH_ENTITY_NBT_NAME, this.freshEntity);
     }
 
     public void loadNBTData(CompoundTag tag)
@@ -140,7 +209,9 @@ public class BloodEntityStorage
         this.id = tag.getString(ID_NBT_NAME);
         this.bloodType = VampirismTier.fromId(BloodType.class, tag.getInt(BloodType.BLOODTYPE_NBT_NAME));
         this.bloodPoints = tag.getInt(BLOOD_POINTS_NBT_NAME);
+        this.maxBloodPoints = tag.getInt(MAX_BLOOD_POINTS_NBT_NAME);
         this.naturalRegen = tag.getBoolean(REGEN_NBT_NAME);
         this.naturalRegenTimer = tag.getInt(REGEN_TIMER_NBT_NAME);
+        this.freshEntity = tag.getBoolean(FRESH_ENTITY_NBT_NAME);
     }
 }

@@ -56,11 +56,11 @@ public class VampirePlayerEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerCloned(final PlayerEvent.Clone event)
     {
-        if (!event.getEntity().getLevel().isClientSide())
+        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
         {
             event.getOriginal().reviveCaps();
 
-            VampirePlayerData.copyData(event.getOriginal(), event.getEntity(), event.isWasDeath());
+            VampirePlayerData.copyData(event.getOriginal(), player, event.isWasDeath());
 
             event.getOriginal().invalidateCaps();
         }
@@ -78,13 +78,13 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onPlayerTick(final TickEvent.PlayerTickEvent event)
     {
-        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END)
+        if (event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.END && event.player instanceof ServerPlayer player)
         {
-            event.player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (!event.player.isCreative() && !event.player.isSpectator())
+                if (!player.isCreative() && !event.player.isSpectator())
                 {
-                    vampirePlayerData.tick(event.player);
+                    vampirePlayerData.tick(player);
                 }
             });
         }

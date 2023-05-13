@@ -33,7 +33,9 @@ public class FeedingHandler
 
     static void startFeeding()
     {
-        if (Minecraft.getInstance().player.tickCount - lastSentStartRequest >= 10)
+        int delta = Minecraft.getInstance().player.tickCount - lastSentStartRequest;
+
+        if (delta >= 10 || delta < 0)
         {
             ModNetworkDispatcher.sendToServer(new RequestFeedingC2SPacket(FeedingMouseOverHandler.getLastHighlightedEntity()));
 
@@ -43,7 +45,9 @@ public class FeedingHandler
 
     static void stopFeeding()
     {
-        if (Minecraft.getInstance().player.tickCount - lastSentStopRequest >= 10)
+        int delta = Minecraft.getInstance().player.tickCount - lastSentStopRequest;
+
+        if (delta >= 10 || delta < 0)
         {
             ModNetworkDispatcher.sendToServer(new RequestStopFeedingC2SPacket());
 

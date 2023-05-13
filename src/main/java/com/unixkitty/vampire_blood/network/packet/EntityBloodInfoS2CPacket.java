@@ -8,20 +8,20 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class EntityBloodResponseS2CPacket
+public class EntityBloodInfoS2CPacket
 {
     private final int bloodType;
     private final int maxBloodPoints;
     private final int bloodPoints;
 
-    public EntityBloodResponseS2CPacket(int bloodTypeId, int bloodPoints, int maxBloodPoints)
+    public EntityBloodInfoS2CPacket(int bloodTypeId, int bloodPoints, int maxBloodPoints)
     {
         this.bloodType = bloodTypeId;
         this.bloodPoints = bloodPoints;
         this.maxBloodPoints = maxBloodPoints;
     }
 
-    public EntityBloodResponseS2CPacket(FriendlyByteBuf buffer)
+    public EntityBloodInfoS2CPacket(FriendlyByteBuf buffer)
     {
         this.bloodType = buffer.readInt();
         this.bloodPoints = buffer.readInt();
