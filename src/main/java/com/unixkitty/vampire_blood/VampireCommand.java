@@ -94,6 +94,7 @@ public class VampireCommand
                             else if (type == Value.BLOODLUST)
                             {
                                 vampirePlayerData.setBloodlust((float) value);
+                                vampirePlayerData.sync();
 
                                 message = vampirePlayerData.getBloodlust() + "/100";
                             }

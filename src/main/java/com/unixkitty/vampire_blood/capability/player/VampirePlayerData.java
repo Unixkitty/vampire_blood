@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
@@ -99,8 +98,10 @@ public class VampirePlayerData
     //TODO bloodlust and break off attempt chance handling
     public void tryStopFeeding(ServerPlayer player)
     {
-        stopFeeding(player);
-        VampireBlood.log().warn("stopFeeding because player asked");
+        if (player.getRandom().nextFloat() < (1 - (blood.bloodlust / 100)))
+        {
+            stopFeeding(player);
+        }
     }
 
     public void stopFeeding(ServerPlayer player)
@@ -267,7 +268,6 @@ public class VampirePlayerData
             if (!player.isAlive() || !this.feedingEntity.isAlive() || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST)
             {
                 stopFeeding(player);
-                VampireBlood.log().warn("stopFeeding because entity is invalid");
             }
             else if (this.ticksFeeding >= 10)
             {
@@ -287,8 +287,6 @@ public class VampirePlayerData
                 else
                 {
                     stopFeeding(player);
-
-                    VampireBlood.log().debug("stopFeeding because entity has no blood");
                 }
 
                 this.ticksFeeding = 0;
