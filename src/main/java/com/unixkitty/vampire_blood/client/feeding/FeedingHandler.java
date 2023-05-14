@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.client.feeding;
 
+import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.RequestFeedingC2SPacket;
@@ -24,6 +25,11 @@ public class FeedingHandler
     public static void handleKeys(final InputEvent.Key event)
     {
         FeedingKeyHandler.handle(event);
+    }
+
+    public static boolean handleMouseTurn()
+    {
+        return Minecraft.getInstance().mouseHandler.isMouseGrabbed() && Minecraft.getInstance().isWindowActive() && ClientVampirePlayerDataCache.canFeed() && ClientVampirePlayerDataCache.feeding && FeedingMouseOverHandler.isLookingAtEdible();
     }
 
     static void requestUpdateOn(int id)

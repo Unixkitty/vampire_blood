@@ -6,5 +6,8 @@
   "mixins": [
     "MixinLivingEntity"
   ],
+  "client": [
+    "MixinEntity"
+  ],
   "minVersion": "0.8"
 }

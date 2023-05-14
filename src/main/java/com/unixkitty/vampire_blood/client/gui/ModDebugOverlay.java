@@ -125,6 +125,9 @@ public class ModDebugOverlay
 
         addAttributes(player);
 
+        craftLine(ChatFormatting.WHITE, "");
+        craftLine(ChatFormatting.WHITE, "Mouse grabbed: ", Minecraft.getInstance().mouseHandler.isMouseGrabbed());
+
         drawList(poseStack, fontRenderer, screenWidth, screenHeight, true);
     }
 

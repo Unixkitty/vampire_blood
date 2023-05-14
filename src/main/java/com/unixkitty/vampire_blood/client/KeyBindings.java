@@ -28,7 +28,7 @@ public class KeyBindings
 
     public static void handleKeys(final InputEvent.Key event)
     {
-        if (Minecraft.getInstance().player != null)
+        if (Minecraft.getInstance().player != null && Minecraft.getInstance().mouseHandler.isMouseGrabbed() && Minecraft.getInstance().isWindowActive())
         {
             FeedingHandler.handleKeys(event);
         }

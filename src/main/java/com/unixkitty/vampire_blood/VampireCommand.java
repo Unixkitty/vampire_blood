@@ -56,7 +56,7 @@ public class VampireCommand
         vampireCommand.then(Commands.literal(valueType.name().toLowerCase())
                 .then(playerArg()
                         .then(Commands.argument("value", argumentType)
-                                .executes(context -> valueOperation(context, getPlayer(context), valueType.clazz.equals(Integer.class) ? IntegerArgumentType.getInteger(context, "value") : valueType.clazz.equals(Float.class) ? FloatArgumentType.getFloat(context, "value") : null, valueType)))
+                                .executes(context -> valueOperation(context, getPlayer(context), valueType.getValue(context), valueType)))
                         .executes(context -> valueOperation(context, getPlayer(context), null, valueType))));
     }
 
@@ -65,56 +65,63 @@ public class VampireCommand
 
     private static <T extends Number> int valueOperation(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Value type)
     {
-        if (type == Value.HEAL)
+        try
         {
-            if (!player.isCreative() && !player.isSpectator())
+            if (type == Value.HEAL)
             {
-                player.setHealth(value == null ? player.getMaxHealth() : (float) value);
-            }
-        }
-        else if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
-        {
-            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-            {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
+                if (!player.isCreative() && !player.isSpectator())
                 {
-                    String message = "";
-
-                    if (value != null)
+                    player.setHealth(value == null ? player.getMaxHealth() : (float) value);
+                }
+            }
+            else if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
+            {
+                player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                {
+                    if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                     {
-                        if (type == Value.BLOOD)
-                        {
-                            vampirePlayerData.setBlood((int) value);
-                            vampirePlayerData.sync();
+                        String message = "";
 
-                            message = vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST;
-                        }
-                        else if (type == Value.BLOODLUST)
+                        if (value != null)
                         {
-                            vampirePlayerData.setBloodlust((float) value);
+                            if (type == Value.BLOOD)
+                            {
+                                vampirePlayerData.setBlood((int) value);
+                                vampirePlayerData.sync();
 
-                            message = vampirePlayerData.getBloodlust() + "/100";
-                        }
+                                message = vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST;
+                            }
+                            else if (type == Value.BLOODLUST)
+                            {
+                                vampirePlayerData.setBloodlust((float) value);
 
-                        if (message.isEmpty())
-                        {
-                            context.getSource().sendFailure(Component.literal("Unknown value type in command"));
-                        }
-                        else
-                        {
-                            context.getSource().sendSystemMessage(Component.literal(message));
+                                message = vampirePlayerData.getBloodlust() + "/100";
+                            }
+
+                            if (message.isEmpty())
+                            {
+                                context.getSource().sendFailure(Component.literal("Unknown value type in command"));
+                            }
+                            else
+                            {
+                                context.getSource().sendSystemMessage(Component.literal(message));
+                            }
                         }
                     }
-                }
-                else
-                {
-                    playerNotVampire(context, player);
-                }
-            });
+                    else
+                    {
+                        playerNotVampire(context, player);
+                    }
+                });
+            }
+            else
+            {
+                capabilityFail(context, player);
+            }
         }
-        else
+        catch (Exception e)
         {
-            capabilityFail(context, player);
+            VampireBlood.log().error(e);
         }
 
         return 0;
@@ -244,15 +251,20 @@ public class VampireCommand
 
     private enum Value
     {
-        HEAL(Float.class),
-        BLOOD(Integer.class),
-        BLOODLUST(Float.class);
+        HEAL,
+        BLOOD,
+        BLOODLUST;
 
-        private final Class<? extends Number> clazz;
-
-        Value(Class<? extends Number> clazz)
+        Number getValue(CommandContext<CommandSourceStack> context)
         {
-            this.clazz = clazz;
+            if (this == BLOOD)
+            {
+                return IntegerArgumentType.getInteger(context, "value");
+            }
+            else
+            {
+                return FloatArgumentType.getFloat(context, "value");
+            }
         }
     }
 }
