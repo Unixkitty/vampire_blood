@@ -17,14 +17,16 @@ public class PlayerVampireDataS2CPacket
     private final int thirstLevel;
     private final int thirstExhaustion;
     private final float bloodlust;
+    private final float bloodPurity;
 
-    public PlayerVampireDataS2CPacket(VampirismStage vampirismStage, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust)
+    public PlayerVampireDataS2CPacket(VampirismStage vampirismStage, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust, float bloodPurity)
     {
         this.vampireLevel = vampirismStage.getId();
         this.bloodType = bloodType.getId();
         this.thirstLevel = thirstLevel;
         this.thirstExhaustion = thirstExhaustion;
         this.bloodlust = bloodlust;
+        this.bloodPurity = bloodPurity;
     }
 
     public PlayerVampireDataS2CPacket(FriendlyByteBuf buffer)
@@ -34,6 +36,7 @@ public class PlayerVampireDataS2CPacket
         this.thirstLevel = buffer.readInt();
         this.thirstExhaustion = buffer.readInt();
         this.bloodlust = buffer.readFloat();
+        this.bloodPurity = buffer.readFloat();
     }
 
     public void toBytes(FriendlyByteBuf buffer)
@@ -43,6 +46,7 @@ public class PlayerVampireDataS2CPacket
         buffer.writeInt(this.thirstLevel);
         buffer.writeInt(this.thirstExhaustion);
         buffer.writeFloat(this.bloodlust);
+        buffer.writeFloat(this.bloodPurity);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)
@@ -61,6 +65,7 @@ public class PlayerVampireDataS2CPacket
                     ClientVampirePlayerDataCache.thirstLevel = vampirePlayerData.setClientBlood(this.thirstLevel);
                     ClientVampirePlayerDataCache.thirstExhaustion = vampirePlayerData.setClientExhaustion(this.thirstExhaustion);
                     ClientVampirePlayerDataCache.bloodlust = vampirePlayerData.setClientBloodlust(this.bloodlust);
+                    ClientVampirePlayerDataCache.bloodPurity = this.bloodPurity;
                 });
             }
         });

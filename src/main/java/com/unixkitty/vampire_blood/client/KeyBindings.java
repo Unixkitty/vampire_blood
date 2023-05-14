@@ -34,19 +34,28 @@ public class KeyBindings
         }
 
         //TODO remove debug hud toggle
+        //F4 + V toggles debug HUD
+        //Sneak + F4 + V toggles diet HUD (only renders if main debug HUD is rendering)
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && FEED_KEY.isDown())
         {
-            if (Config.renderDebugOverlay.get())
+            if (Minecraft.getInstance().options.keyShift.isDown())
             {
-                ModDebugOverlay.keyEnabled = !ModDebugOverlay.keyEnabled;
+                ModDebugOverlay.keyDietEnabled = !ModDebugOverlay.keyDietEnabled;
             }
             else
             {
-                Config.renderDebugOverlay.set(true);
-                Config.renderDebugOverlay.save();
-                ModDebugOverlay.keyEnabled = true;
+                if (Config.renderDebugOverlay.get())
+                {
+                    ModDebugOverlay.keyEnabled = !ModDebugOverlay.keyEnabled;
+                }
+                else
+                {
+                    Config.renderDebugOverlay.set(true);
+                    Config.renderDebugOverlay.save();
+                    ModDebugOverlay.keyEnabled = true;
 
-                ModDebugOverlay.register();
+                    ModDebugOverlay.register();
+                }
             }
         }
 

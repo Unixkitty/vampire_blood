@@ -13,10 +13,18 @@ import net.minecraft.world.entity.player.Player;
 
 public class VampireUtil
 {
+
     @SuppressWarnings("MalformedFormatString")
-    public static String formatDecimal(Number number, int decimalPoints)
+    public static <T extends Number> String formatDecimal(T number)
     {
-        return String.format("%." + decimalPoints + "f", number);
+        String result = String.format("%.2f", number);
+
+        return result.endsWith(".00") ? result.split("\\.")[0] : result;
+    }
+
+    public static String formatPercent100(double number)
+    {
+        return formatDecimal(number > 1 ? number : number * 100) + "%";
     }
 
     public static boolean isUndead(Player player)

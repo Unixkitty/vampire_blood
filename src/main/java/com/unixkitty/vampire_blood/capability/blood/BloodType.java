@@ -73,16 +73,16 @@ public enum BloodType implements VampirismTier
     }
 
     @Override
-    public int getColor()
+    public ChatFormatting getChatFormatting()
     {
         return switch (this)
         {
-            case NONE -> ChatFormatting.WHITE.getColor();
-            case FRAIL -> ChatFormatting.GRAY.getColor();
-            case CREATURE -> ChatFormatting.LIGHT_PURPLE.getColor();
-            case HUMAN -> ChatFormatting.DARK_RED.getColor();
-            case VAMPIRE -> ChatFormatting.DARK_PURPLE.getColor();
-            case PIGLIN -> ChatFormatting.GOLD.getColor();
+            case NONE -> ChatFormatting.WHITE;
+            case FRAIL -> ChatFormatting.GRAY;
+            case CREATURE -> ChatFormatting.LIGHT_PURPLE;
+            case HUMAN -> ChatFormatting.DARK_RED;
+            case VAMPIRE -> ChatFormatting.DARK_PURPLE;
+            case PIGLIN -> ChatFormatting.GOLD;
         };
     }
 

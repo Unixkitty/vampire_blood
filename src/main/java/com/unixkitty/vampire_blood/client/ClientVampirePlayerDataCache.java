@@ -6,7 +6,7 @@ import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-//Stores copies of some data in this class to go around having to call the capability for every little thing
+//Stores copies of some data in this class to go around having to call the capability for every little thing on the client
 @OnlyIn(Dist.CLIENT)
 public final class ClientVampirePlayerDataCache
 {
@@ -17,14 +17,14 @@ public final class ClientVampirePlayerDataCache
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     public static BloodType bloodType = BloodType.HUMAN;
     public static boolean feeding = false;
-    public static int ticksFeeding = 0;
 
     public static boolean playerJustRespawned = false;
 
     //Blood data
-    public static int thirstLevel = 0;
-    public static int thirstExhaustion = 0;
-    public static float bloodlust = 0;
+    public static int thirstLevel;
+    public static int thirstExhaustion;
+    public static float bloodlust;
+    public static float bloodPurity;
 
     public static boolean canFeed()
     {
@@ -43,11 +43,11 @@ public final class ClientVampirePlayerDataCache
 
     public static final class Debug
     {
-        public static int ticksInSun = 0;
-        public static int thirstExhaustionIncrement = 0;
-        public static int thirstTickTimer = 0;
-        public static int noRegenTicks = 0;
-        public static BloodType lastConsumedBloodType = BloodType.NONE;
-        public static int consecutiveBloodPoints = 0;
+        public static int ticksFeeding;
+        public static int ticksInSun;
+        public static int thirstExhaustionIncrement;
+        public static int thirstTickTimer;
+        public static int noRegenTicks;
+        public static int[] diet = new int[20];
     }
 }

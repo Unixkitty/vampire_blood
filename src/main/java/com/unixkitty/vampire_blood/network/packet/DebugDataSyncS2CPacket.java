@@ -1,10 +1,9 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.function.Supplier;
 
@@ -16,10 +15,9 @@ public class DebugDataSyncS2CPacket
 
     private final int thirstExhaustionIncrement;
     private final int thirstTickTimer;
-    private final int lastConsumedBloodType;
-    private final int consecutiveBloodPoints;
+    private final int[] diet;
 
-    public DebugDataSyncS2CPacket(int ticksInSun, int ticksFeeding, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int lastConsumedBloodType, int consecutiveBloodPoints)
+    public DebugDataSyncS2CPacket(int ticksInSun, int ticksFeeding, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
         this.ticksInSun = ticksInSun;
         this.ticksFeeding = ticksFeeding;
@@ -27,8 +25,7 @@ public class DebugDataSyncS2CPacket
 
         this.thirstExhaustionIncrement = thirstExhaustionIncrement;
         this.thirstTickTimer = thirstTickTimer;
-        this.lastConsumedBloodType = lastConsumedBloodType;
-        this.consecutiveBloodPoints = consecutiveBloodPoints;
+        this.diet = diet;
     }
 
     public DebugDataSyncS2CPacket(FriendlyByteBuf buffer)
@@ -39,8 +36,7 @@ public class DebugDataSyncS2CPacket
 
         this.thirstExhaustionIncrement = buffer.readInt();
         this.thirstTickTimer = buffer.readInt();
-        this.lastConsumedBloodType = buffer.readInt();
-        this.consecutiveBloodPoints = buffer.readInt();
+        this.diet = buffer.readVarIntArray(20);
     }
 
     public void toBytes(FriendlyByteBuf buffer)
@@ -51,8 +47,7 @@ public class DebugDataSyncS2CPacket
 
         buffer.writeInt(this.thirstExhaustionIncrement);
         buffer.writeInt(this.thirstTickTimer);
-        buffer.writeInt(this.lastConsumedBloodType);
-        buffer.writeInt(this.consecutiveBloodPoints);
+        buffer.writeVarIntArray(this.diet);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)
@@ -61,14 +56,15 @@ public class DebugDataSyncS2CPacket
 
         context.enqueueWork(() ->
         {
-            ClientVampirePlayerDataCache.ticksFeeding = this.ticksFeeding;
+            ClientVampirePlayerDataCache.Debug.ticksFeeding = this.ticksFeeding;
             ClientVampirePlayerDataCache.Debug.ticksInSun = this.ticksInSun;
             ClientVampirePlayerDataCache.Debug.noRegenTicks = this.noRegenTicks;
 
             ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = this.thirstExhaustionIncrement;
             ClientVampirePlayerDataCache.Debug.thirstTickTimer = this.thirstTickTimer;
-            ClientVampirePlayerDataCache.Debug.lastConsumedBloodType = VampirismTier.fromId(BloodType.class, this.lastConsumedBloodType);
-            ClientVampirePlayerDataCache.Debug.consecutiveBloodPoints = this.consecutiveBloodPoints;
+
+            ArrayUtils.reverse(this.diet);
+            System.arraycopy(this.diet, 0, ClientVampirePlayerDataCache.Debug.diet, 0, this.diet.length);
         });
 
         context.setPacketHandled(true);

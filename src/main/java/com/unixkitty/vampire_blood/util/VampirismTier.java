@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.util;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
 public interface VampirismTier
@@ -11,7 +12,7 @@ public interface VampirismTier
 
     float getBloodlustMultiplier(boolean bloodPointGained);
 
-    int getColor();
+    ChatFormatting getChatFormatting();
 
     Component getTranslation();
 

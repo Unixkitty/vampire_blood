@@ -16,14 +16,15 @@ public class VampirePlayerBloodData
 
     VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     BloodType bloodType = BloodType.HUMAN;
+    float bloodPurity = 1.0F;
     int thirstLevel = 1;
     int thirstExhaustion; //This is somewhat similar to vanilla's in FoodData.java, decrease thirst level if this gets up to some limit, and change this back to 0
     int thirstExhaustionIncrement; //This helps make thirstExhaustion more dynamic based on configs and player actions
     int thirstTickTimer; //This is used for healing and starvation
     int noRegenTicks;
     float bloodlust;
-    BloodType lastConsumedBloodtype = bloodType;
-    int consecutiveBloodtypePoints;
+
+    final VampirePlayerDiet diet = new VampirePlayerDiet(this.bloodType);
 
     private boolean needsSync = false;
 
@@ -31,14 +32,49 @@ public class VampirePlayerBloodData
     {
     }
 
-    private void syncData(ServerPlayer player)
+    void tick(ServerPlayer player)
     {
-        if (this.needsSync)
-        {
-            this.needsSync = false;
+        player.level.getProfiler().push("vampire_blood_tick");
 
-            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust), player);
+        boolean isPeaceful = player.level.getDifficulty() == Difficulty.PEACEFUL;
+
+        float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
+
+        //Keep vanilla food level in the middle
+        player.getFoodData().setFoodLevel(10);
+        player.getFoodData().setSaturation(0);
+        player.getFoodData().setExhaustion(0);
+
+        if (this.thirstExhaustion >= 100)
+        {
+            this.thirstExhaustion -= 100;
+
+            if (!isPeaceful)
+            {
+                decreaseBlood(player, 1);
+            }
         }
+
+        if (vanillaExhaustionDelta > 0)
+        {
+            exhaustionIncrementFromVanilla(vanillaExhaustionDelta);
+        }
+
+        exhaustionIncrement();
+
+        handleRegenAndStarvation(player, isPeaceful);
+
+        if (this.thirstExhaustionIncrement >= Config.bloodUsageRate.get())
+        {
+            this.thirstExhaustionIncrement -= Config.bloodUsageRate.get();
+            this.thirstExhaustion++;
+
+            sync();
+        }
+
+        this.syncData(player);
+
+        player.level.getProfiler().pop();
     }
 
     void sync()
@@ -50,22 +86,54 @@ public class VampirePlayerBloodData
     {
         this.thirstLevel = Math.min(this.thirstLevel + points, VampirePlayerBloodData.MAX_THIRST);
 
-        updateBloodType(bloodType);
+        updateDiet(bloodType);
 
         updateBloodlust(player, true);
 
         notifyAndUpdate(player);
     }
 
-    void decreaseBlood(ServerPlayer player, int points, BloodType bloodType)
+    void decreaseBlood(ServerPlayer player, int points)
     {
         this.thirstLevel = Math.max(this.thirstLevel - points, 0);
-
-        updateBloodType(bloodType);
 
         updateBloodlust(player, false);
 
         notifyAndUpdate(player);
+    }
+
+    void updateDiet(BloodType bloodType)
+    {
+        var result = diet.updateWith(bloodType);
+
+        this.bloodType = result.getKey();
+
+        this.bloodPurity = result.getValue();
+    }
+
+    void checkOriginal(ServerPlayer player)
+    {
+        if (this.vampireLevel == VampirismStage.ORIGINAL && !player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
+        {
+            this.vampireLevel = VampirismStage.MATURE;
+        }
+    }
+
+    void notifyAndUpdate(ServerPlayer player)
+    {
+        checkOriginal(player);
+        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity);
+        sync();
+    }
+
+    private void syncData(ServerPlayer player)
+    {
+        if (this.needsSync)
+        {
+            this.needsSync = false;
+
+            ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust, this.bloodPurity), player);
+        }
     }
 
     private void updateBloodlust(ServerPlayer player, boolean bloodPointGained)
@@ -94,87 +162,6 @@ public class VampirePlayerBloodData
 //                            + " bloodType (" + this.bloodType.name().toLowerCase() + "): " + this.bloodType.getBloodlustMultiplier(bloodPointGained)
 //            ));
 //        }
-    }
-
-    private void updateBloodType(BloodType bloodType)
-    {
-        if (this.lastConsumedBloodtype != bloodType)
-        {
-            this.lastConsumedBloodtype = bloodType;
-            this.consecutiveBloodtypePoints = 1;
-        }
-        else
-        {
-            if (this.bloodType != bloodType && this.consecutiveBloodtypePoints >= MAX_THIRST / 2)
-            {
-                this.bloodType = bloodType;
-            }
-
-            if (this.consecutiveBloodtypePoints < MAX_THIRST / 2)
-            {
-                ++this.consecutiveBloodtypePoints;
-            }
-        }
-    }
-
-    void checkOriginal(ServerPlayer player)
-    {
-        if (this.vampireLevel == VampirismStage.ORIGINAL && !player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
-        {
-            this.vampireLevel = VampirismStage.MATURE;
-        }
-    }
-
-    void notifyAndUpdate(ServerPlayer player)
-    {
-        checkOriginal(player);
-        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType);
-        sync();
-    }
-
-    void tick(ServerPlayer player)
-    {
-        player.level.getProfiler().push("vampire_blood_tick");
-
-        boolean isPeaceful = player.level.getDifficulty() == Difficulty.PEACEFUL;
-
-        float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
-
-        //Keep vanilla food level in the middle
-        player.getFoodData().setFoodLevel(10);
-        player.getFoodData().setSaturation(0);
-        player.getFoodData().setExhaustion(0);
-
-        if (this.thirstExhaustion >= 100)
-        {
-            this.thirstExhaustion -= 100;
-
-            if (!isPeaceful)
-            {
-                decreaseBlood(player, 1, this.bloodType);
-            }
-        }
-
-        if (vanillaExhaustionDelta > 0)
-        {
-            exhaustionIncrementFromVanilla(vanillaExhaustionDelta);
-        }
-
-        exhaustionIncrement();
-
-        handleRegenAndStarvation(player, isPeaceful);
-
-        if (this.thirstExhaustionIncrement >= Config.bloodUsageRate.get())
-        {
-            this.thirstExhaustionIncrement -= Config.bloodUsageRate.get();
-            this.thirstExhaustion++;
-
-            sync();
-        }
-
-        this.syncData(player);
-
-        player.level.getProfiler().pop();
     }
 
     private void handleRegenAndStarvation(ServerPlayer player, boolean isPeaceful)

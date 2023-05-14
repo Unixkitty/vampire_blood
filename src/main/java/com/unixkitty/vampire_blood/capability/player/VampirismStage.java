@@ -70,9 +70,17 @@ public enum VampirismStage implements VampirismTier
     }
 
     @Override
-    public int getColor()
+    public ChatFormatting getChatFormatting()
     {
-        return ChatFormatting.DARK_PURPLE.getColor();
+        return switch (this)
+        {
+            case NOT_VAMPIRE -> ChatFormatting.WHITE;
+            case IN_TRANSITION -> ChatFormatting.GRAY;
+            case FLEDGLING -> ChatFormatting.RED;
+            case VAMPIRE -> ChatFormatting.LIGHT_PURPLE;
+            case MATURE -> ChatFormatting.DARK_PURPLE;
+            case ORIGINAL -> ChatFormatting.DARK_RED;
+        };
     }
 
     @Override

@@ -22,8 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.server.command.EnumArgument;
 
-import java.util.function.BiFunction;
-
 public class VampireCommand
 {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
@@ -31,12 +29,12 @@ public class VampireCommand
         LiteralArgumentBuilder<CommandSourceStack> vampireCommand = Commands.literal("vampire")
                 .requires(commandSourceStack -> commandSourceStack.hasPermission(4));
 
-        registerTierCommand("level", vampireCommand, VampirismStage.class, VampireCommand::vampireTier);
-        registerTierCommand("blood_type", vampireCommand, BloodType.class, VampireCommand::vampireTier);
+        registerTierCommand("level", vampireCommand, VampirismStage.class, VampireCommand::tierOperation);
+        registerTierCommand("blood_type", vampireCommand, BloodType.class, VampireCommand::tierOperation);
 
-        registerCommand("blood", vampireCommand, IntegerArgumentType.integer(0, VampirePlayerBloodData.MAX_THIRST), IntegerArgumentType::getInteger, VampireCommand::setBloodLevel);
-        registerCommand("bloodlust", vampireCommand, FloatArgumentType.floatArg(0F, 100F), FloatArgumentType::getFloat, VampireCommand::setBloodlust);
-        registerCommand("heal", vampireCommand, FloatArgumentType.floatArg(0), FloatArgumentType::getFloat, VampireCommand::setPlayerHealth);
+        registerCommand(Value.BLOOD, vampireCommand, IntegerArgumentType.integer(0, VampirePlayerBloodData.MAX_THIRST));
+        registerCommand(Value.BLOODLUST, vampireCommand, FloatArgumentType.floatArg(0F, 100F));
+        registerCommand(Value.HEAL, vampireCommand, FloatArgumentType.floatArg(0));
 
         dispatcher.register(vampireCommand);
     }
@@ -53,43 +51,60 @@ public class VampireCommand
                         .executes(context -> VampireCommand.list(context, (Class<? extends VampirismTier>) clazz))));
     }
 
-    private static <T> void registerCommand(String name, LiteralArgumentBuilder<CommandSourceStack> vampireCommand, ArgumentType<T> argumentType, BiFunction<CommandContext<CommandSourceStack>, String, T> argumentGetter, CommandExecutor<T> commandExecutor)
+    private static <T> void registerCommand(Value valueType, LiteralArgumentBuilder<CommandSourceStack> vampireCommand, ArgumentType<T> argumentType)
     {
-        vampireCommand.then(Commands.literal(name)
+        vampireCommand.then(Commands.literal(valueType.name().toLowerCase())
                 .then(playerArg()
                         .then(Commands.argument("value", argumentType)
-                                .executes(context -> commandExecutor.execute(context, getPlayer(context), argumentGetter.apply(context, "value"))))
-                        .executes(context -> commandExecutor.execute(context, getPlayer(context), null))));
+                                .executes(context -> valueOperation(context, getPlayer(context), valueType.clazz.equals(Integer.class) ? IntegerArgumentType.getInteger(context, "value") : valueType.clazz.equals(Float.class) ? FloatArgumentType.getFloat(context, "value") : null, valueType)))
+                        .executes(context -> valueOperation(context, getPlayer(context), null, valueType))));
     }
 
 
     //===========================================================================
 
-    private static int setPlayerHealth(CommandContext<CommandSourceStack> context, ServerPlayer player, Float value)
+    private static <T extends Number> int valueOperation(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Value type)
     {
-        if (!player.isCreative() && !player.isSpectator())
+        if (type == Value.HEAL)
         {
-            player.setHealth(value == null ? player.getMaxHealth() : value);
+            if (!player.isCreative() && !player.isSpectator())
+            {
+                player.setHealth(value == null ? player.getMaxHealth() : (float) value);
+            }
         }
-
-        return 0;
-    }
-
-    private static int setBloodLevel(CommandContext<CommandSourceStack> context, ServerPlayer player, Integer value)
-    {
-        if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
+        else if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                 {
+                    String message = "";
+
                     if (value != null)
                     {
-                        vampirePlayerData.setBlood(value);
-                        vampirePlayerData.sync();
-                    }
+                        if (type == Value.BLOOD)
+                        {
+                            vampirePlayerData.setBlood((int) value);
+                            vampirePlayerData.sync();
 
-                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST));
+                            message = vampirePlayerData.getThirstLevel() + "/" + VampirePlayerBloodData.MAX_THIRST;
+                        }
+                        else if (type == Value.BLOODLUST)
+                        {
+                            vampirePlayerData.setBloodlust((float) value);
+
+                            message = vampirePlayerData.getBloodlust() + "/100";
+                        }
+
+                        if (message.isEmpty())
+                        {
+                            context.getSource().sendFailure(Component.literal("Unknown value type in command"));
+                        }
+                        else
+                        {
+                            context.getSource().sendSystemMessage(Component.literal(message));
+                        }
+                    }
                 }
                 else
                 {
@@ -105,49 +120,7 @@ public class VampireCommand
         return 0;
     }
 
-    private static int setBloodlust(CommandContext<CommandSourceStack> context, ServerPlayer player, Float value)
-    {
-        if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
-        {
-            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-            {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
-                {
-                    if (value != null)
-                    {
-                        vampirePlayerData.setBloodlust(value);
-                        vampirePlayerData.sync();
-                    }
-
-                    context.getSource().sendSystemMessage(Component.literal(vampirePlayerData.getBloodlust() + "/100"));
-                }
-                else
-                {
-                    playerNotVampire(context, player);
-                }
-            });
-        }
-        else
-        {
-            capabilityFail(context, player);
-        }
-
-        return 0;
-    }
-
-    private static int list(CommandContext<CommandSourceStack> context, Class<? extends VampirismTier> clazz)
-    {
-        for (var type : clazz.getEnumConstants())
-        {
-            context.getSource().sendSystemMessage(
-                    Component.literal(type.getId() + "     ").append(type.getTranslation())
-            );
-        }
-
-        return 0;
-    }
-
-    private static <T> int vampireTier(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Class<? extends VampirismTier> clazz)
+    private static <T> int tierOperation(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Class<? extends VampirismTier> clazz)
     {
         if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
         {
@@ -177,11 +150,18 @@ public class VampireCommand
                 }
                 else
                 {
-                    if (value instanceof BloodType)
+                    if (value instanceof BloodType type)
                     {
                         if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
                         {
-                            vampirePlayerData.setBloodType(player, (BloodType) value);
+                            if (type == BloodType.NONE)
+                            {
+                                context.getSource().sendFailure(Component.literal("bloodtype: " + type.name()));
+
+                                return;
+                            }
+
+                            vampirePlayerData.setBloodType(player, type);
 
                             context.getSource().sendSuccess(
                                     Component.translatable(
@@ -197,11 +177,11 @@ public class VampireCommand
                             playerNotVampire(context, player);
                         }
                     }
-                    else if (value instanceof VampirismStage)
+                    else if (value instanceof VampirismStage stage)
                     {
-                        if (vampirePlayerData.getVampireLevel() != value)
+                        if (vampirePlayerData.getVampireLevel() != stage)
                         {
-                            vampirePlayerData.updateLevel(player, (VampirismStage) value);
+                            vampirePlayerData.updateLevel(player, stage);
                         }
 
                         context.getSource().sendSuccess(
@@ -219,6 +199,18 @@ public class VampireCommand
         else
         {
             capabilityFail(context, player);
+        }
+
+        return 0;
+    }
+
+    private static int list(CommandContext<CommandSourceStack> context, Class<? extends VampirismTier> clazz)
+    {
+        for (var type : clazz.getEnumConstants())
+        {
+            context.getSource().sendSystemMessage(
+                    Component.literal(type.getId() + "     ").append(type.getTranslation())
+            );
         }
 
         return 0;
@@ -245,14 +237,22 @@ public class VampireCommand
     }
 
     @FunctionalInterface
-    private interface CommandExecutor<T>
-    {
-        int execute(CommandContext<CommandSourceStack> context, ServerPlayer player, T value) throws CommandSyntaxException;
-    }
-
-    @FunctionalInterface
     private interface TierCommandExecutor<T, E>
     {
         int execute(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Class<E> clazz);
+    }
+
+    private enum Value
+    {
+        HEAL(Float.class),
+        BLOOD(Integer.class),
+        BLOODLUST(Float.class);
+
+        private final Class<? extends Number> clazz;
+
+        Value(Class<? extends Number> clazz)
+        {
+            this.clazz = clazz;
+        }
     }
 }

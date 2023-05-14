@@ -38,12 +38,12 @@ public class EntityBloodOverlay
                 {
                     renderStartY -= gui.getFont().lineHeight * 1.5;
 
-                    ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui.getFont(), renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getColor());
+                    ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui.getFont(), renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
                     ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, poseStack, gui.getFont(), renderStartX, renderStartY + gui.getFont().lineHeight, ChatFormatting.DARK_RED);
 
                     if (Config.entityBloodHUDshowHP.get())
                     {
-                        ModDebugOverlay.drawLine("HP: " + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getHealth(), 2) + "/" + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getMaxHealth(), 2), poseStack, gui.getFont(), renderStartX, renderStartY + (gui.getFont().lineHeight * 2), ChatFormatting.RED);
+                        ModDebugOverlay.drawLine("HP: " + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getHealth()) + "/" + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getMaxHealth()), poseStack, gui.getFont(), renderStartX, renderStartY + (gui.getFont().lineHeight * 2), ChatFormatting.RED);
                     }
                 }
                 else

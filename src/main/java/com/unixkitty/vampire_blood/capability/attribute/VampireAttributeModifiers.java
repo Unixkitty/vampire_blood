@@ -2,6 +2,8 @@ package com.unixkitty.vampire_blood.capability.attribute;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
+import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
+import com.unixkitty.vampire_blood.network.packet.PlayerAvoidHurtAnimS2CPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -12,7 +14,7 @@ import java.util.UUID;
 
 public class VampireAttributeModifiers
 {
-    public static void updateAttributes(ServerPlayer player, VampirismStage vampirismStage, BloodType bloodType)
+    public static void updateAttributes(ServerPlayer player, VampirismStage vampirismStage, BloodType bloodType, float bloodPurity)
     {
         for (Modifier modifier : Modifier.values())
         {
@@ -31,7 +33,7 @@ public class VampireAttributeModifiers
                 }
 
                 //2. Calculate actual value to use
-                final double modifierValue = modifier.getValue(attribute.getBaseValue(), vampirismStage, bloodType);
+                final double modifierValue = modifier.getValue(attribute.getBaseValue(), vampirismStage, bloodType, bloodPurity);
 
                 //3. Add modifier to player
                 if (modifierValue != -1)
@@ -41,7 +43,14 @@ public class VampireAttributeModifiers
 
                 if (lastHealth != -1)
                 {
-                    player.setHealth(Math.min(lastHealth, player.getMaxHealth()));
+                    float health = Math.min(lastHealth, player.getMaxHealth());
+
+                    if (health < player.getHealth())
+                    {
+                        ModNetworkDispatcher.sendToClient(new PlayerAvoidHurtAnimS2CPacket(health), player);
+                    }
+
+                    player.setHealth(health);
                 }
             }
         }
@@ -81,14 +90,14 @@ public class VampireAttributeModifiers
             return uuid;
         }
 
-        public double getValue(double baseValue, VampirismStage vampirismStage, BloodType bloodType)
+        public double getValue(double baseValue, VampirismStage vampirismStage, BloodType bloodType, float bloodPurity)
         {
             if (isApplicableStage(vampirismStage))
             {
                 return switch (this.modifierOperation)
                 {
-                    case MULTIPLY_BASE -> (vampirismStage.getAttributeMultiplier(this) * bloodType.getAttributeMultiplier(this)) - 1.0D;
-                    case ADDITION -> Math.round(((baseValue * vampirismStage.getAttributeMultiplier(this) * bloodType.getAttributeMultiplier(this)) - baseValue) / 2) * 2;
+                    case MULTIPLY_BASE -> (vampirismStage.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - 1.0D;
+                    case ADDITION -> Math.round(((baseValue * vampirismStage.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
                     case MULTIPLY_TOTAL -> -1;
                 };
             }

@@ -142,7 +142,7 @@ public class BloodEntityStorage
                 }
                 else
                 {
-                    victim.setLastHurtByMob(attacker);
+                    attacker.doHurtTarget(victim);
                     victim.hurt(ModRegistry.BLOOD_LOSS, (float) this.bloodType.getBloodSaturationModifier());
                 }
 
@@ -165,7 +165,7 @@ public class BloodEntityStorage
                 }
                 else
                 {
-                    victim.setLastHurtByMob(attacker);
+                    attacker.doHurtTarget(victim);
                     victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
                 }
 

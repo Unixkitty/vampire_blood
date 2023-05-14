@@ -72,6 +72,12 @@ public class ModNetworkDispatcher
                 .encoder(EntityBloodInfoS2CPacket::toBytes)
                 .consumerMainThread(EntityBloodInfoS2CPacket::handle)
                 .add();
+
+        INSTANCE.messageBuilder(PlayerAvoidHurtAnimS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(PlayerAvoidHurtAnimS2CPacket::new)
+                .encoder(PlayerAvoidHurtAnimS2CPacket::toBytes)
+                .consumerMainThread(PlayerAvoidHurtAnimS2CPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message)

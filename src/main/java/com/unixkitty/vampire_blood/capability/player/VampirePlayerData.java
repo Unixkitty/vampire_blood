@@ -28,14 +28,13 @@ public class VampirePlayerData
 {
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
+    private static final String BLOOD_PURITY_NBT_NAME = "bloodPurity";
     private static final String THIRST_NBT_NAME = "thirstLevel";
     private static final String THIRST_EXHAUSTION_NBT_NAME = "thirstExhaustion";
     private static final String THIRST_TIMER_NBT_NAME = "thirstTickTimer";
     private static final String THIRST_EXHAUSTION_INCREMENT_NBT_NAME = "thirstExhaustionIncrement";
     private static final String NO_REGEN_TICKS = "noRegenTicks";
     private static final String BLOODLUST_NBT_NAME = "bloodlust";
-    private static final String LAST_CONSUMED_BLOOD_TYPE_NBT_NAME = "lastConsumedBloodtype";
-    private static final String CONSECUTIVE_BLOOD_POINTS_NBT_NAME = "consecutiveBloodtypePoints";
 
     private int ticksInSun;
     private boolean catchingUV = false;
@@ -146,7 +145,9 @@ public class VampirePlayerData
 
     public void setBloodType(ServerPlayer player, BloodType type)
     {
-        blood.bloodType = type;
+        blood.diet.reset(type);
+
+        blood.updateDiet(type);
 
         blood.notifyAndUpdate(player);
     }
@@ -186,9 +187,9 @@ public class VampirePlayerData
         blood.addBlood(player, points, bloodType);
     }
 
-    public void decreaseBlood(ServerPlayer player, int points, BloodType bloodType)
+    public void decreaseBlood(ServerPlayer player, int points)
     {
-        blood.decreaseBlood(player, points, bloodType);
+        blood.decreaseBlood(player, points);
     }
 
     public void sync()
@@ -300,14 +301,15 @@ public class VampirePlayerData
         tag.putInt(LEVEL_NBT_NAME, blood.vampireLevel.getId());
         tag.putInt(SUNTICKS_NBT_NAME, this.ticksInSun);
         tag.putInt(BloodType.BLOODTYPE_NBT_NAME, blood.bloodType.getId());
+        tag.putFloat(BLOOD_PURITY_NBT_NAME, blood.bloodPurity);
         tag.putInt(THIRST_NBT_NAME, blood.thirstLevel);
         tag.putInt(THIRST_EXHAUSTION_NBT_NAME, blood.thirstExhaustion);
         tag.putInt(THIRST_TIMER_NBT_NAME, blood.thirstTickTimer);
         tag.putInt(THIRST_EXHAUSTION_INCREMENT_NBT_NAME, blood.thirstExhaustionIncrement);
         tag.putInt(NO_REGEN_TICKS, blood.noRegenTicks);
         tag.putFloat(BLOODLUST_NBT_NAME, blood.bloodlust);
-        tag.putInt(LAST_CONSUMED_BLOOD_TYPE_NBT_NAME, blood.lastConsumedBloodtype.getId());
-        tag.putInt(CONSECUTIVE_BLOOD_POINTS_NBT_NAME, blood.consecutiveBloodtypePoints);
+
+        blood.diet.saveNBT(tag);
     }
 
     public void loadNBTData(CompoundTag tag)
@@ -315,14 +317,15 @@ public class VampirePlayerData
         blood.vampireLevel = VampirismTier.fromId(VampirismStage.class, tag.getInt(LEVEL_NBT_NAME));
         this.ticksInSun = tag.getInt(SUNTICKS_NBT_NAME);
         blood.bloodType = VampirismTier.fromId(BloodType.class, tag.getInt(BloodType.BLOODTYPE_NBT_NAME));
+        blood.bloodPurity = tag.getFloat(BLOOD_PURITY_NBT_NAME);
         blood.thirstLevel = tag.getInt(THIRST_NBT_NAME);
         blood.thirstExhaustion = tag.getInt(THIRST_EXHAUSTION_NBT_NAME);
         blood.thirstTickTimer = tag.getInt(THIRST_TIMER_NBT_NAME);
         blood.thirstExhaustionIncrement = tag.getInt(THIRST_EXHAUSTION_INCREMENT_NBT_NAME);
         blood.noRegenTicks = tag.getInt(NO_REGEN_TICKS);
         blood.bloodlust = tag.getFloat(BLOODLUST_NBT_NAME);
-        blood.lastConsumedBloodtype = VampirismTier.fromId(BloodType.class, tag.getInt(LAST_CONSUMED_BLOOD_TYPE_NBT_NAME));
-        blood.consecutiveBloodtypePoints = tag.getInt(CONSECUTIVE_BLOOD_POINTS_NBT_NAME);
+
+        blood.diet.loadNBT(tag);
     }
 
     public static void copyData(Player oldPlayer, ServerPlayer newPlayer, boolean isDeathEvent)
@@ -423,8 +426,7 @@ public class VampirePlayerData
                 blood.noRegenTicks,
                 blood.thirstExhaustionIncrement,
                 blood.thirstTickTimer,
-                blood.lastConsumedBloodtype.getId(),
-                blood.consecutiveBloodtypePoints
+                blood.diet.toIntArray()
         ), player);
     }
     //===============================================
