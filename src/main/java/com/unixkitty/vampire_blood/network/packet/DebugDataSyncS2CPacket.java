@@ -7,7 +7,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.function.Supplier;
 
-public class DebugDataSyncS2CPacket
+public class DebugDataSyncS2CPacket extends BasePacket
 {
     private final int ticksInSun;
     private final int ticksFeeding;

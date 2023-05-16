@@ -4,15 +4,15 @@ import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
-import com.unixkitty.vampire_blood.network.packet.EntityBloodInfoS2CPacket;
-import com.unixkitty.vampire_blood.network.packet.PlayerFeedingStatusS2CPacket;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 
 public class VampireUtil
 {
+    public static <E extends Enum<E>> String getEnumName(E e)
+    {
+        return e.name().toLowerCase();
+    }
 
     @SuppressWarnings("MalformedFormatString")
     public static <T extends Number> String formatDecimal(T number)
@@ -70,15 +70,5 @@ public class VampireUtil
     public static float clampFloat(float min, float value, float max)
     {
         return Math.max(min, Math.min(value, max));
-    }
-
-    public static void sendPlayerEntityBlood(ServerPlayer player, BloodType bloodType, int bloodPoints, int maxBloodPoints)
-    {
-        ModNetworkDispatcher.sendToClient(new EntityBloodInfoS2CPacket(bloodType.getId(), bloodPoints, maxBloodPoints), player);
-    }
-
-    public static void notifyPlayerFeeding(ServerPlayer player, boolean value)
-    {
-        ModNetworkDispatcher.sendToClient(new PlayerFeedingStatusS2CPacket(value), player);
     }
 }

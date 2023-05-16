@@ -73,7 +73,7 @@ public class VampirePlayerData
             {
                 target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
                 {
-                    if (bloodEntityStorage.isEdible())
+                    if (bloodEntityStorage.isEdible() && blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST)
                     {
                         this.feedingEntity = target;
                         this.feedingEntityBlood = bloodEntityStorage;
@@ -82,7 +82,7 @@ public class VampirePlayerData
 
                         this.feeding = true;
 
-                        VampireUtil.notifyPlayerFeeding(player, true);
+                        ModNetworkDispatcher.notifyPlayerFeeding(player, true);
 
                         sync();
                     }
@@ -95,7 +95,6 @@ public class VampirePlayerData
         }
     }
 
-    //TODO bloodlust and break off attempt chance handling
     public void tryStopFeeding(ServerPlayer player)
     {
         if (player.getRandom().nextFloat() < (1 - (blood.bloodlust / 100)))
@@ -110,7 +109,7 @@ public class VampirePlayerData
         this.feedingEntity = null;
         this.feedingEntityBlood = null;
 
-        VampireUtil.notifyPlayerFeeding(player, false);
+        ModNetworkDispatcher.notifyPlayerFeeding(player, false);
 
         sync();
     }
@@ -129,14 +128,14 @@ public class VampirePlayerData
     {
         if (blood.vampireLevel == VampirismStage.IN_TRANSITION && level.getId() > VampirismStage.IN_TRANSITION.getId())
         {
-            this.setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
+            setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
         }
 
         blood.vampireLevel = level;
 
-        if (blood.vampireLevel == VampirismStage.IN_TRANSITION)
+        if (blood.vampireLevel.getId() <= VampirismStage.IN_TRANSITION.getId())
         {
-            this.setBlood(1);
+            setBlood(1);
 
             blood.bloodType = BloodType.HUMAN;
         }
@@ -280,7 +279,7 @@ public class VampirePlayerData
                         this.feedingEntity.setLastHurtByMob(player);
                     }
 
-                    VampireUtil.sendPlayerEntityBlood(player, this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints());
+                    ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints());
 
                     addBlood(player, 1, this.feedingEntityBlood.getBloodType());
                 }

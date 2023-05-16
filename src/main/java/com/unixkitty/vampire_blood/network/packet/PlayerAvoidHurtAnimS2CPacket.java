@@ -6,9 +6,10 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PlayerAvoidHurtAnimS2CPacket
+public class PlayerAvoidHurtAnimS2CPacket extends BasePacket
 {
     private final float health;
+
     public PlayerAvoidHurtAnimS2CPacket(float health)
     {
         this.health = health;

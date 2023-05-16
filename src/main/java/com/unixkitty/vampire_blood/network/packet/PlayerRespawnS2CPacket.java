@@ -9,7 +9,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PlayerRespawnS2CPacket
+public class PlayerRespawnS2CPacket extends BasePacket
 {
     private final int vampireLevel;
     private final int bloodType;

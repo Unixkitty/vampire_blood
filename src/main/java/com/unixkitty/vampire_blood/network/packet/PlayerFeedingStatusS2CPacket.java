@@ -8,7 +8,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PlayerFeedingStatusS2CPacket
+public class PlayerFeedingStatusS2CPacket extends BasePacket
 {
     private final boolean feeding;
 

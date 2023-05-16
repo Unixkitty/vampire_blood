@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.network.packet;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,7 +14,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class RequestEntityBloodC2SPacket
+public class RequestEntityBloodC2SPacket extends BasePacket
 {
     private final int id;
 
@@ -46,7 +47,7 @@ public class RequestEntityBloodC2SPacket
 
                 if (entity instanceof PathfinderMob)
                 {
-                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> VampireUtil.sendPlayerEntityBlood(player, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()));
+                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()));
                 }
                 else if (entity instanceof Player otherPlayer)
                 {
@@ -54,7 +55,7 @@ public class RequestEntityBloodC2SPacket
                     {
                         BloodType bloodType = vampirePlayerData.getBloodTypeIdForFeeding();
 
-                        VampireUtil.sendPlayerEntityBlood(player, bloodType, VampireUtil.healthToBlood(otherPlayer.getHealth(), bloodType), VampireUtil.healthToBlood(otherPlayer.getMaxHealth(), bloodType));
+                        ModNetworkDispatcher.sendPlayerEntityBlood(player, bloodType, VampireUtil.healthToBlood(otherPlayer.getHealth(), bloodType), VampireUtil.healthToBlood(otherPlayer.getMaxHealth(), bloodType));
                     });
                 }
             }

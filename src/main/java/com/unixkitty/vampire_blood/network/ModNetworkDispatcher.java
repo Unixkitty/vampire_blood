@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.network;
 
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.packet.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,67 +17,39 @@ public class ModNetworkDispatcher
     private static SimpleChannel INSTANCE;
 
     private static int packetId = 0;
-    private static int id()
-    {
-        return packetId++;
-    }
 
     public static void register()
     {
         INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID + ":messages"), () -> PROTOCOL_VERSION, s -> true, s -> true);
 
-        INSTANCE.messageBuilder(RequestFeedingC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(RequestFeedingC2SPacket::new)
-                .encoder(RequestFeedingC2SPacket::toBytes)
-                .consumerMainThread(RequestFeedingC2SPacket::handle)
-                .add();
+        //================================================================================================
 
-        INSTANCE.messageBuilder(RequestStopFeedingC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(RequestStopFeedingC2SPacket::new)
-                .encoder(RequestStopFeedingC2SPacket::toBytes)
-                .consumerMainThread(RequestStopFeedingC2SPacket::handle)
-                .add();
+        registerPacket(RequestFeedingC2SPacket.class, true);
+        registerPacket(RequestStopFeedingC2SPacket.class, true);
+        registerPacket(PlayerVampireDataS2CPacket.class, false);
+        registerPacket(DebugDataSyncS2CPacket.class, false);
+        registerPacket(PlayerFeedingStatusS2CPacket.class, false);
+        registerPacket(PlayerRespawnS2CPacket.class, false);
+        registerPacket(RequestEntityBloodC2SPacket.class, true);
+        registerPacket(EntityBloodInfoS2CPacket.class, false);
+        registerPacket(PlayerAvoidHurtAnimS2CPacket.class, false);
+    }
 
-        INSTANCE.messageBuilder(PlayerVampireDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(PlayerVampireDataS2CPacket::new)
-                .encoder(PlayerVampireDataS2CPacket::toBytes)
-                .consumerMainThread(PlayerVampireDataS2CPacket::handle)
-                .add();
-
-        INSTANCE.messageBuilder(DebugDataSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(DebugDataSyncS2CPacket::new)
-                .encoder(DebugDataSyncS2CPacket::toBytes)
-                .consumerMainThread(DebugDataSyncS2CPacket::handle)
-                .add();
-
-        INSTANCE.messageBuilder(PlayerFeedingStatusS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(PlayerFeedingStatusS2CPacket::new)
-                .encoder(PlayerFeedingStatusS2CPacket::toBytes)
-                .consumerMainThread(PlayerFeedingStatusS2CPacket::handle)
-                .add();
-
-        INSTANCE.messageBuilder(PlayerRespawnS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(PlayerRespawnS2CPacket::new)
-                .encoder(PlayerRespawnS2CPacket::toBytes)
-                .consumerMainThread(PlayerRespawnS2CPacket::handle)
-                .add();
-
-        INSTANCE.messageBuilder(RequestEntityBloodC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(RequestEntityBloodC2SPacket::new)
-                .encoder(RequestEntityBloodC2SPacket::toBytes)
-                .consumerMainThread(RequestEntityBloodC2SPacket::handle)
-                .add();
-
-        INSTANCE.messageBuilder(EntityBloodInfoS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(EntityBloodInfoS2CPacket::new)
-                .encoder(EntityBloodInfoS2CPacket::toBytes)
-                .consumerMainThread(EntityBloodInfoS2CPacket::handle)
-                .add();
-
-        INSTANCE.messageBuilder(PlayerAvoidHurtAnimS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(PlayerAvoidHurtAnimS2CPacket::new)
-                .encoder(PlayerAvoidHurtAnimS2CPacket::toBytes)
-                .consumerMainThread(PlayerAvoidHurtAnimS2CPacket::handle)
+    private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)
+    {
+        INSTANCE.messageBuilder(packetClass, packetId++, toServer ? NetworkDirection.PLAY_TO_SERVER : NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(buf -> {
+                    try
+                    {
+                        return packetClass.getDeclaredConstructor(buf.getClass()).newInstance(buf);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new RuntimeException("Failed to decode packet", e);
+                    }
+                })
+                .encoder(BasePacket::toBytes)
+                .consumerMainThread(BasePacket::handle)
                 .add();
     }
 
@@ -88,5 +61,17 @@ public class ModNetworkDispatcher
     public static <MSG> void sendToClient(MSG message, ServerPlayer player)
     {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
+    }
+
+    //========================================
+
+    public static void sendPlayerEntityBlood(ServerPlayer player, BloodType bloodType, int bloodPoints, int maxBloodPoints)
+    {
+        sendToClient(new EntityBloodInfoS2CPacket(bloodType.getId(), bloodPoints, maxBloodPoints), player);
+    }
+
+    public static void notifyPlayerFeeding(ServerPlayer player, boolean value)
+    {
+        sendToClient(new PlayerFeedingStatusS2CPacket(value), player);
     }
 }

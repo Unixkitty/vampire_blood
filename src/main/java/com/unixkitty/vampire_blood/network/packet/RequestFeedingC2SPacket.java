@@ -11,7 +11,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class RequestFeedingC2SPacket
+public class RequestFeedingC2SPacket extends BasePacket
 {
     private final int entityId;
 

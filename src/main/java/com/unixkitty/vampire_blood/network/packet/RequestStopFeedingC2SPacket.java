@@ -7,7 +7,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class RequestStopFeedingC2SPacket
+public class RequestStopFeedingC2SPacket extends BasePacket
 {
     public RequestStopFeedingC2SPacket()
     {

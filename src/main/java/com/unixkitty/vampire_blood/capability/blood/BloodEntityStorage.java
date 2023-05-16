@@ -110,7 +110,7 @@ public class BloodEntityStorage
 
     public boolean isEdible()
     {
-        return this.bloodType != BloodType.NONE && this.maxBloodPoints > 0;
+        return this.bloodType != BloodType.NONE && this.maxBloodPoints > 0 && this.bloodPoints > 0;
     }
 
     public BloodType getBloodType()

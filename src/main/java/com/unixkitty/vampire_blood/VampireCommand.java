@@ -12,6 +12,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -29,8 +30,8 @@ public class VampireCommand
         LiteralArgumentBuilder<CommandSourceStack> vampireCommand = Commands.literal("vampire")
                 .requires(commandSourceStack -> commandSourceStack.hasPermission(4));
 
-        registerTierCommand("level", vampireCommand, VampirismStage.class, VampireCommand::tierOperation);
-        registerTierCommand("blood_type", vampireCommand, BloodType.class, VampireCommand::tierOperation);
+        registerTierCommand(VampirismStage.class, vampireCommand);
+        registerTierCommand(BloodType.class, vampireCommand);
 
         registerCommand(Value.BLOOD, vampireCommand, IntegerArgumentType.integer(0, VampirePlayerBloodData.MAX_THIRST));
         registerCommand(Value.BLOODLUST, vampireCommand, FloatArgumentType.floatArg(0F, 100F));
@@ -39,21 +40,20 @@ public class VampireCommand
         dispatcher.register(vampireCommand);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <T, E extends Enum<E>> void registerTierCommand(String name, LiteralArgumentBuilder<CommandSourceStack> vampireCommand, Class<E> clazz, TierCommandExecutor<T, E> commandExecutor)
+    private static <E extends Enum<E> & VampirismTier<E>> void registerTierCommand(Class<E> tierClass, LiteralArgumentBuilder<CommandSourceStack> vampireCommand)
     {
-        vampireCommand.then(Commands.literal(name)
+        vampireCommand.then(command(tierClass)
                 .then(playerArg()
-                        .then(Commands.argument("value", EnumArgument.enumArgument(clazz))
-                                .executes(context -> commandExecutor.execute(context, getPlayer(context), (T) context.getArgument("value", clazz), clazz)))
-                        .executes(context -> commandExecutor.execute(context, getPlayer(context), null, clazz)))
+                        .then(Commands.argument("value", enumArgument(tierClass))
+                                .executes(context -> tierOperation(context, getPlayer(context), context.getArgument("value", tierClass), tierClass)))
+                        .executes(context -> tierOperation(context, getPlayer(context), null, tierClass)))
                 .then(Commands.literal("list")
-                        .executes(context -> VampireCommand.list(context, (Class<? extends VampirismTier>) clazz))));
+                        .executes(context -> VampireCommand.list(context, tierClass))));
     }
 
     private static <T> void registerCommand(Value valueType, LiteralArgumentBuilder<CommandSourceStack> vampireCommand, ArgumentType<T> argumentType)
     {
-        vampireCommand.then(Commands.literal(valueType.name().toLowerCase())
+        vampireCommand.then(valueType.getCommand()
                 .then(playerArg()
                         .then(Commands.argument("value", argumentType)
                                 .executes(context -> valueOperation(context, getPlayer(context), valueType.getValue(context), valueType)))
@@ -128,7 +128,7 @@ public class VampireCommand
         return 0;
     }
 
-    private static <T> int tierOperation(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Class<? extends VampirismTier> clazz)
+    private static <T> int tierOperation(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Class<? extends VampirismTier<?>> clazz)
     {
         if (player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
         {
@@ -164,7 +164,7 @@ public class VampireCommand
                         {
                             if (type == BloodType.NONE)
                             {
-                                context.getSource().sendFailure(Component.literal("bloodtype: " + type.name()));
+                                context.getSource().sendFailure(Component.literal(VampirismTier.getName(clazz) + ": " + type.name()));
 
                                 return;
                             }
@@ -212,7 +212,7 @@ public class VampireCommand
         return 0;
     }
 
-    private static int list(CommandContext<CommandSourceStack> context, Class<? extends VampirismTier> clazz)
+    private static int list(CommandContext<CommandSourceStack> context, Class<? extends VampirismTier<?>> clazz)
     {
         for (var type : clazz.getEnumConstants())
         {
@@ -244,10 +244,14 @@ public class VampireCommand
         return Commands.argument("player", EntityArgument.player());
     }
 
-    @FunctionalInterface
-    private interface TierCommandExecutor<T, E>
+    private static LiteralArgumentBuilder<CommandSourceStack> command(Class<? extends VampirismTier<?>> tierClass)
     {
-        int execute(CommandContext<CommandSourceStack> context, ServerPlayer player, T value, Class<E> clazz);
+        return Commands.literal(VampirismTier.getName(tierClass));
+    }
+
+    public static <E extends Enum<E> & VampirismTier<E>> EnumArgument<E> enumArgument(Class<E> clazz)
+    {
+        return EnumArgument.enumArgument(clazz);
     }
 
     private enum Value
@@ -256,7 +260,7 @@ public class VampireCommand
         BLOOD,
         BLOODLUST;
 
-        Number getValue(CommandContext<CommandSourceStack> context)
+        private Number getValue(CommandContext<CommandSourceStack> context)
         {
             if (this == BLOOD)
             {
@@ -266,6 +270,11 @@ public class VampireCommand
             {
                 return FloatArgumentType.getFloat(context, "value");
             }
+        }
+
+        LiteralArgumentBuilder<CommandSourceStack> getCommand()
+        {
+            return Commands.literal(VampireUtil.getEnumName(this));
         }
     }
 }

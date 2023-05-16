@@ -3,9 +3,8 @@ package com.unixkitty.vampire_blood.capability.blood;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 
-public enum BloodType implements VampirismTier
+public enum BloodType implements VampirismTier<BloodType>
 {
     NONE(0, 0, 0, 0, 0),
     FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333),
@@ -84,11 +83,5 @@ public enum BloodType implements VampirismTier
             case VAMPIRE -> ChatFormatting.DARK_PURPLE;
             case PIGLIN -> ChatFormatting.GOLD;
         };
-    }
-
-    @Override
-    public Component getTranslation()
-    {
-        return this.getTranslation("blood_type");
     }
 }

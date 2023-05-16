@@ -1,10 +1,13 @@
 package com.unixkitty.vampire_blood.util;
 
+import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
-public interface VampirismTier
+public interface VampirismTier<E extends Enum<E> & VampirismTier<E>>
 {
     int getId();
 
@@ -14,14 +17,29 @@ public interface VampirismTier
 
     ChatFormatting getChatFormatting();
 
-    Component getTranslation();
-
-    default Component getTranslation(String name)
+    @SuppressWarnings("unchecked")
+    default Component getTranslation()
     {
-        return Component.translatable("vampire_blood." + name + "." + this.toString().toLowerCase());
+        return Component.translatable(VampireBlood.MODID + "." + getName((Class<? extends VampirismTier<?>>) this.getClass()) + "." + VampireUtil.getEnumName((E)this));
     }
 
-    static <E extends Enum<E> & VampirismTier> E fromId(Class<E> clazz, int id)
+    static String getName(Class<? extends VampirismTier<?>> tierClass)
+    {
+        if (tierClass.equals(VampirismStage.class))
+        {
+            return "level";
+        }
+        else if (tierClass.equals(BloodType.class))
+        {
+            return "blood_type";
+        }
+        else
+        {
+            return "vampirism_tier";
+        }
+    }
+
+    static <E extends Enum<E> & VampirismTier<E>> E fromId(Class<E> clazz, int id)
     {
         for (E stage : clazz.getEnumConstants())
         {

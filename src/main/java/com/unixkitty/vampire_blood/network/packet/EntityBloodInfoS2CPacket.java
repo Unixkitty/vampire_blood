@@ -8,7 +8,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class EntityBloodInfoS2CPacket
+public class EntityBloodInfoS2CPacket extends BasePacket
 {
     private final int bloodType;
     private final int maxBloodPoints;

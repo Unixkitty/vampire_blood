@@ -3,9 +3,8 @@ package com.unixkitty.vampire_blood.capability.player;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
 
-public enum VampirismStage implements VampirismTier
+public enum VampirismStage implements VampirismTier<VampirismStage>
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0),
     IN_TRANSITION(0, 1, 2, 1, 0),
@@ -81,11 +80,5 @@ public enum VampirismStage implements VampirismTier
             case MATURE -> ChatFormatting.DARK_PURPLE;
             case ORIGINAL -> ChatFormatting.DARK_RED;
         };
-    }
-
-    @Override
-    public Component getTranslation()
-    {
-        return this.getTranslation("vampire_level");
     }
 }
