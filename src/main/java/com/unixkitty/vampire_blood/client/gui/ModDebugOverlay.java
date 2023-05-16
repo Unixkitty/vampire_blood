@@ -192,14 +192,8 @@ public class ModDebugOverlay
         }
     }
 
-    public static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
+    private static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
     {
         fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, color, false);
-    }
-
-    @SuppressWarnings("DataFlowIssue")
-    public static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, ChatFormatting format)
-    {
-        fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, format.getColor(), false);
     }
 }

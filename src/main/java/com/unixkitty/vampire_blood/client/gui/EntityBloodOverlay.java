@@ -10,7 +10,6 @@ import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,13 +36,14 @@ public class EntityBloodOverlay
                 if (Config.detailedEntityBloodHUD.get())
                 {
                     renderStartY -= gui.getFont().lineHeight * 1.5;
+                    int lineNum = 0;
 
-                    ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui.getFont(), renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
-                    ModDebugOverlay.drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, poseStack, gui.getFont(), renderStartX, renderStartY + gui.getFont().lineHeight, ChatFormatting.DARK_RED);
+                    drawLine(FeedingMouseOverHandler.bloodType.getTranslation().getString(), poseStack, gui, renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
+                    drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, poseStack, gui, renderStartX, nextLine(gui, renderStartY, ++lineNum), ChatFormatting.DARK_RED);
 
                     if (Config.entityBloodHUDshowHP.get())
                     {
-                        ModDebugOverlay.drawLine("HP: " + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getHealth()) + "/" + VampireUtil.formatDecimal(((LivingEntity) ((EntityHitResult) Minecraft.getInstance().hitResult).getEntity()).getMaxHealth()), poseStack, gui.getFont(), renderStartX, renderStartY + (gui.getFont().lineHeight * 2), ChatFormatting.RED);
+                        drawLine("HP: " + VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getHealth()) + "/" + VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getMaxHealth()), poseStack, gui, renderStartX, nextLine(gui, renderStartY, ++lineNum), ChatFormatting.RED);
                     }
                 }
                 else
@@ -85,5 +85,16 @@ public class EntityBloodOverlay
                                 healthPercentage <= 90 ? 3 : 4;
 
         return iconIndex * 9;
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private static void drawLine(String text, PoseStack poseStack, ForgeGui gui, int renderStartX, int renderStartY, ChatFormatting format)
+    {
+        gui.getFont().drawShadow(poseStack, text, renderStartX, renderStartY, format.getColor(), false);
+    }
+
+    private static int nextLine(ForgeGui gui, int renderStartY, int line)
+    {
+        return renderStartY + (gui.getFont().lineHeight * line);
     }
 }

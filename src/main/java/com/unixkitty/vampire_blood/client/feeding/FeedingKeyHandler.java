@@ -19,7 +19,7 @@ public class FeedingKeyHandler
         //Just pressed the key, if not feeding need to request server to start feeding
         if (feedKeyTouched && event.getAction() == InputConstants.PRESS)
         {
-            if (!ClientVampirePlayerDataCache.feeding && ClientVampirePlayerDataCache.canFeed() && FeedingMouseOverHandler.isLookingAtEdible())
+            if (!ClientVampirePlayerDataCache.feeding && FeedingHandler.canFeed())
             {
                 FeedingHandler.startFeeding();
             }
@@ -35,7 +35,7 @@ public class FeedingKeyHandler
         }
 
         //No movement during feeding
-        if (ClientVampirePlayerDataCache.feeding && ClientVampirePlayerDataCache.canFeed() && FeedingMouseOverHandler.isLookingAtEdible() && movementKeysTouched)
+        if (FeedingHandler.isFeeding() && movementKeysTouched)
         {
             Minecraft.getInstance().options.keyUp.setDown(false);
             Minecraft.getInstance().options.keyDown.setDown(false);
@@ -43,6 +43,8 @@ public class FeedingKeyHandler
             Minecraft.getInstance().options.keyRight.setDown(false);
             Minecraft.getInstance().options.keyJump.setDown(false);
             Minecraft.getInstance().options.keyShift.setDown(false);
+            Minecraft.getInstance().options.keyAttack.setDown(false);
+            Minecraft.getInstance().options.keyUse.setDown(false);
         }
     }
 }

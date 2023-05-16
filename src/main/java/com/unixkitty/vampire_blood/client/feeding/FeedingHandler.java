@@ -27,9 +27,14 @@ public class FeedingHandler
         FeedingKeyHandler.handle(event);
     }
 
-    public static boolean handleMouseTurn()
+    public static boolean canFeed()
     {
-        return Minecraft.getInstance().mouseHandler.isMouseGrabbed() && Minecraft.getInstance().isWindowActive() && ClientVampirePlayerDataCache.canFeed() && ClientVampirePlayerDataCache.feeding && FeedingMouseOverHandler.isLookingAtEdible();
+        return ClientVampirePlayerDataCache.canFeed() && FeedingMouseOverHandler.isCloseEnough();
+    }
+
+    public static boolean isFeeding()
+    {
+        return canFeed() && ClientVampirePlayerDataCache.feeding;
     }
 
     static void requestUpdateOn(int id)
@@ -43,7 +48,7 @@ public class FeedingHandler
 
         if (delta >= 10 || delta < 0)
         {
-            ModNetworkDispatcher.sendToServer(new RequestFeedingC2SPacket(FeedingMouseOverHandler.getLastHighlightedEntity()));
+            ModNetworkDispatcher.sendToServer(new RequestFeedingC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
 
             lastSentStartRequest = Minecraft.getInstance().player.tickCount;
         }

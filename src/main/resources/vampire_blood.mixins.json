@@ -7,7 +7,7 @@
     "MixinLivingEntity"
   ],
   "client": [
-    "MixinEntity"
+    "MixinMouseHandler"
   ],
   "minVersion": "0.8"
 }

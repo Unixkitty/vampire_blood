@@ -15,7 +15,8 @@ public class FeedingMouseOverHandler
     public static int maxBloodPoints = 0;
     public static int bloodPoints = 0;
 
-    private static int lastEntityId = -1;
+    private static LivingEntity lastEntity = null;
+    private static boolean closeEnough = false;
     private static int lastTick = 0;
     private static boolean hasData = false;
 
@@ -27,9 +28,11 @@ public class FeedingMouseOverHandler
 
             if (entity.isAlive())
             {
-                if (lastEntityId != entity.getId())
+                closeEnough = Minecraft.getInstance().player.isCloseEnough(entity, 1.0D);
+
+                if (lastEntity != entity)
                 {
-                    lastEntityId = entity.getId();
+                    lastEntity = entity;
 
                     FeedingHandler.requestUpdateOn(entity.getId());
                 }
@@ -38,7 +41,7 @@ public class FeedingMouseOverHandler
                     FeedingHandler.requestUpdateOn(entity.getId());
                 }
             }
-            else if (lastEntityId == entity.getId())
+            else if (lastEntity == entity)
             {
                 reset();
             }
@@ -47,19 +50,20 @@ public class FeedingMouseOverHandler
         }
     }
 
-    public static int getLastHighlightedEntity()
+    public static LivingEntity getLastEntity()
     {
-        return lastEntityId;
+        return lastEntity;
     }
 
     public static void reset()
     {
-        lastEntityId = -1;
+        lastEntity = null;
         bloodType = BloodType.NONE;
         maxBloodPoints = 0;
         bloodPoints = 0;
 
         hasData = false;
+        closeEnough = false;
     }
 
     public static void setHasData()
@@ -75,5 +79,10 @@ public class FeedingMouseOverHandler
     public static boolean isLookingAtEdible()
     {
         return hasData && maxBloodPoints > 0 && bloodType != BloodType.NONE;
+    }
+
+    public static boolean isCloseEnough()
+    {
+        return isLookingAtEdible() && closeEnough;
     }
 }
