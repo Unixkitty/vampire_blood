@@ -13,11 +13,13 @@ import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -65,6 +67,11 @@ public class VampirePlayerData
         player.level.getProfiler().pop();
     }
 
+    public boolean isFeeding()
+    {
+        return this.feeding && this.feedingEntity != null;
+    }
+
     public void beginFeeding(@Nonnull LivingEntity target, ServerPlayer player)
     {
         if (blood.vampireLevel != VampirismStage.NOT_VAMPIRE && !feeding && target.isAlive())
@@ -73,7 +80,7 @@ public class VampirePlayerData
             {
                 target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
                 {
-                    if (bloodEntityStorage.isEdible() && blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST)
+                    if (blood.noRegenTicks <= 0 && isLookingAtEntity(player, target) && bloodEntityStorage.isEdible() && blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST)
                     {
                         this.feedingEntity = target;
                         this.feedingEntityBlood = bloodEntityStorage;
@@ -95,9 +102,22 @@ public class VampirePlayerData
         }
     }
 
+    public void tryStopFeeding(ServerPlayer player, float damage)
+    {
+        //Factors from 0 to 1F are part of the whole stop chance
+        float healthFactor = Math.max(player.getHealth() / player.getMaxHealth(), 1.0F); //Factor from 0 to 1, 1 being maximum health and thus highest chance to break off feeding
+        float damageFactor = Math.max(damage / player.getMaxHealth(), 1.0F); //Damage factor from 0 to 1, 1 being damage equal to player's health
+
+        if (player.getRandom().nextFloat() <= (healthFactor * 0.3f) + (damageFactor * 0.4f) + (getBloodlustFactor() * 0.3f))
+        {
+            stopFeeding(player);
+        }
+    }
+
     public void tryStopFeeding(ServerPlayer player)
     {
-        if (player.getRandom().nextFloat() < (1 - (blood.bloodlust / 100)))
+        //When player is attempting to stop feeding of their own will, only factor in bloodlust
+        if (player.getRandom().nextFloat() < getBloodlustFactor())
         {
             stopFeeding(player);
         }
@@ -258,13 +278,25 @@ public class VampirePlayerData
         player.level.getProfiler().pop();
     }
 
+    private float getBloodlustFactor()
+    {
+        return (1 - (blood.bloodlust / 100));
+    }
+
+    private boolean isLookingAtEntity(ServerPlayer player, LivingEntity target)
+    {
+        Vec3 eyePos2 = player.getEyePosition();
+
+        return target.getBoundingBox().clip(eyePos2, eyePos2.add(player.getLookAngle().scale(1.1D))).isPresent();
+    }
+
     private void handleFeeding(ServerPlayer player)
     {
         if (this.feeding && this.feedingEntity != null && this.feedingEntityBlood != null)
         {
             ++this.ticksFeeding;
 
-            if (!player.isAlive() || !this.feedingEntity.isAlive() || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST)
+            if (!player.isAlive() || !this.feedingEntity.isAlive() || !isLookingAtEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST)
             {
                 stopFeeding(player);
             }

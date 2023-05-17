@@ -9,12 +9,14 @@ import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
@@ -93,24 +95,45 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingHurt(final LivingHurtEvent event)
     {
-        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof Player player)
+        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.NOT_VAMPIRE.getId())
                 {
-                    if (Config.increasedDamageFromWood.get() && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getSource().getEntity() instanceof LivingEntity attacker && event.getAmount() > 0 && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
+                    boolean specialDamage = false;
+
+                    if (event.getSource().getEntity() instanceof LivingEntity attacker && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
                     {
                         event.setAmount(event.getAmount() * 1.25F);
 
                         vampirePlayerData.addPreventRegenTicks(60);
-                    }
 
-                    if (event.getSource().isFire())
+                        specialDamage = true;
+                    }
+                    else if (event.getSource().isFire())
                     {
                         event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
 
                         vampirePlayerData.addPreventRegenTicks(20);
+
+                        specialDamage = true;
+                    }
+                    else if (event.getSource() == ModRegistry.SUN_DAMAGE)
+                    {
+                        specialDamage = true;
+                    }
+
+                    if (vampirePlayerData.isFeeding())
+                    {
+                        if (specialDamage)
+                        {
+                            vampirePlayerData.stopFeeding(player);
+                        }
+                        else
+                        {
+                            vampirePlayerData.tryStopFeeding(player, 1);
+                        }
                     }
                 }
             });
