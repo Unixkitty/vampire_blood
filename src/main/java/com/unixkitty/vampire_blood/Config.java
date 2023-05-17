@@ -29,7 +29,6 @@ public class Config
     public static ForgeConfigSpec.IntValue noRegenTicksLimit;
 
     public static ForgeConfigSpec.IntValue bloodUsageRate;
-    public static ForgeConfigSpec.IntValue playerBloodPoints;
     public static ForgeConfigSpec.BooleanValue healthOrBloodPoints;
     public static ForgeConfigSpec.BooleanValue entityRegen;
     public static ForgeConfigSpec.IntValue entityRegenTime;
@@ -56,7 +55,7 @@ public class Config
 
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
 
-                vampireDustDropAmount = commonConfig.comment("How much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
+                vampireDustDropAmount = commonConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
 
                 sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList("sunnyDimensions"), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
             }
@@ -64,17 +63,16 @@ public class Config
 
             commonConfig.push("Health regen");
             {
-                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate 1 health when above 1/6th blood").defineInRange("naturalHealingRate", 20, 1, Integer.MAX_VALUE);
+                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate health when above 1/6th blood").defineInRange("naturalHealingRate", 20, 1, Integer.MAX_VALUE);
                 naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange("naturalHealingMultiplier", 1.0D, 0.001, 100.0D);
-                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange("noRegenTicksLimit", 60, 1, Integer.MAX_VALUE);
+                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange("noRegenTicksLimit", 100, 1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 
             commonConfig.push("Blood");
             {
                 bloodUsageRate = commonConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange("bloodUsageRate", 720, 1, Integer.MAX_VALUE);
-                playerBloodPoints = commonConfig.comment("Amount of blood points players have").defineInRange("playerBloodPoints", 40, 1, Integer.MAX_VALUE);
-                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
+                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points, and non-vampire players who always use health").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
                 entityRegen = commonConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", true);
                 entityRegenTime = commonConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
             }

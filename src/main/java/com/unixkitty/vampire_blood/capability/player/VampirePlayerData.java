@@ -13,7 +13,6 @@ import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,6 +47,7 @@ public class VampirePlayerData
     private LivingEntity feedingEntity = null;
     private BloodEntityStorage feedingEntityBlood = null;
     private int ticksFeeding;
+    private int totalTicksFeeding = 0;
 
     public void tick(ServerPlayer player)
     {
@@ -128,15 +128,21 @@ public class VampirePlayerData
         this.feeding = false;
         this.feedingEntity = null;
         this.feedingEntityBlood = null;
+        this.totalTicksFeeding = 0;
 
         ModNetworkDispatcher.notifyPlayerFeeding(player, false);
 
         sync();
     }
 
+    public int getNoRegenTicks()
+    {
+        return blood.noRegenTicks;
+    }
+
     public void addPreventRegenTicks(int amount)
     {
-        blood.noRegenTicks = Math.min((blood.noRegenTicks + amount), Config.noRegenTicksLimit.get());
+        blood.addPreventRegenTicks(amount);
     }
 
     public VampirismStage getVampireLevel()
@@ -160,7 +166,7 @@ public class VampirePlayerData
             blood.bloodType = BloodType.HUMAN;
         }
 
-        blood.notifyAndUpdate(player);
+        blood.updateWithAttributes(player);
     }
 
     public void setBloodType(ServerPlayer player, BloodType type)
@@ -169,7 +175,7 @@ public class VampirePlayerData
 
         blood.updateDiet(type);
 
-        blood.notifyAndUpdate(player);
+        blood.updateWithAttributes(player);
     }
 
     public BloodType getBloodType()
@@ -295,8 +301,9 @@ public class VampirePlayerData
         if (this.feeding && this.feedingEntity != null && this.feedingEntityBlood != null)
         {
             ++this.ticksFeeding;
+            ++this.totalTicksFeeding;
 
-            if (!player.isAlive() || !this.feedingEntity.isAlive() || !isLookingAtEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST)
+            if (!player.isAlive() || !this.feedingEntity.isAlive() || !isLookingAtEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST || blood.noRegenTicks > 0 || this.totalTicksFeeding >= 550)
             {
                 stopFeeding(player);
             }
@@ -357,9 +364,9 @@ public class VampirePlayerData
         blood.diet.loadNBT(tag);
     }
 
-    public static void copyData(Player oldPlayer, ServerPlayer newPlayer, boolean isDeathEvent)
+    public static void copyData(Player oldPlayer, ServerPlayer player, boolean isDeathEvent)
     {
-        newPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(newVampData ->
+        player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(newVampData ->
         {
             oldPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(oldVampData ->
             {
@@ -375,20 +382,36 @@ public class VampirePlayerData
                     if (newVampData.blood.vampireLevel != VampirismStage.NOT_VAMPIRE)
                     {
                         newVampData.blood.bloodType = BloodType.FRAIL;
-                        newVampData.blood.thirstLevel = VampirePlayerBloodData.MAX_THIRST / 2; //Respawn with half thirst
+                        newVampData.blood.diet.reset(newVampData.blood.bloodType);
+                        newVampData.blood.bloodlust = 50F;
+                        newVampData.blood.thirstLevel = VampirePlayerBloodData.MAX_THIRST / 4; //Don't respawn with full thirst
                     }
                 }
                 else if (newVampData.blood.vampireLevel != VampirismStage.IN_TRANSITION && newVampData.blood.vampireLevel != VampirismStage.NOT_VAMPIRE)
                 {
                     newVampData.blood.bloodType = oldVampData.blood.bloodType;
+                    newVampData.blood.bloodPurity = oldVampData.blood.bloodPurity;
 
                     newVampData.blood.thirstLevel = oldVampData.blood.thirstLevel;
                     newVampData.blood.thirstExhaustion = oldVampData.blood.thirstExhaustion;
                     newVampData.blood.thirstExhaustionIncrement = oldVampData.blood.thirstExhaustionIncrement;
+                    newVampData.blood.thirstTickTimer = oldVampData.blood.thirstTickTimer;
+                    newVampData.blood.noRegenTicks = oldVampData.blood.noRegenTicks;
+                    newVampData.blood.bloodlust = oldVampData.blood.bloodlust;
                 }
             });
 
-            ModNetworkDispatcher.sendToClient(new PlayerRespawnS2CPacket(newVampData.blood.vampireLevel.getId(), newVampData.blood.bloodType.getId(), newVampData.blood.thirstLevel), newPlayer);
+            float lastHealthFactor = player.getHealth() / player.getMaxHealth();
+
+            newVampData.blood.updateWithAttributes(player);
+
+            float healthFactor = player.getHealth() / player.getMaxHealth();
+
+            //If player was of a higher level they may end up lacking HP out of max after updating attributes
+            if (healthFactor < lastHealthFactor)
+            {
+                player.setHealth(Math.max(player.getMaxHealth() * healthFactor, player.getMaxHealth()));
+            }
         });
     }
 

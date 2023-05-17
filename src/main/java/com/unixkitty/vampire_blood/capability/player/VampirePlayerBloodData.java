@@ -90,7 +90,7 @@ public class VampirePlayerBloodData
 
         updateBloodlust(player, true);
 
-        notifyAndUpdate(player);
+        updateWithAttributes(player);
     }
 
     void decreaseBlood(ServerPlayer player, int points)
@@ -99,7 +99,7 @@ public class VampirePlayerBloodData
 
         updateBloodlust(player, false);
 
-        notifyAndUpdate(player);
+        updateWithAttributes(player);
     }
 
     void updateDiet(BloodType bloodType)
@@ -119,11 +119,16 @@ public class VampirePlayerBloodData
         }
     }
 
-    void notifyAndUpdate(ServerPlayer player)
+    void updateWithAttributes(ServerPlayer player)
     {
         checkOriginal(player);
         VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity);
         sync();
+    }
+
+    void addPreventRegenTicks(int amount)
+    {
+        this.noRegenTicks = Math.min((this.noRegenTicks + amount), Config.noRegenTicksLimit.get());
     }
 
     private void syncData(ServerPlayer player)
@@ -138,8 +143,6 @@ public class VampirePlayerBloodData
 
     private void updateBloodlust(ServerPlayer player, boolean bloodPointGained)
     {
-//        float lastBloodlust = this.bloodlust;
-
         float thirstMultiplier = (float) thirstLevel / MAX_THIRST;
 
         if (bloodPointGained)
@@ -152,16 +155,6 @@ public class VampirePlayerBloodData
             this.bloodlust += vampireLevel.getBloodlustMultiplier(false) * bloodType.getBloodlustMultiplier(false) * (1.0F - thirstMultiplier);
             this.bloodlust = Math.min(this.bloodlust, 100.0F);
         }
-
-        //TODO remove debug
-//        if (lastBloodlust != this.bloodlust)
-//        {
-//            player.sendSystemMessage(Component.literal(
-//                    "Bloodlust: " + lastBloodlust + " -> " + this.bloodlust + " (" + (this.bloodlust - lastBloodlust) + ")"
-//                            + " level (" + this.vampireLevel.name().toLowerCase() + "): " + this.vampireLevel.getBloodlustMultiplier(bloodPointGained)
-//                            + " bloodType (" + this.bloodType.name().toLowerCase() + "): " + this.bloodType.getBloodlustMultiplier(bloodPointGained)
-//            ));
-//        }
     }
 
     private void handleRegenAndStarvation(ServerPlayer player, boolean isPeaceful)
@@ -169,9 +162,9 @@ public class VampirePlayerBloodData
         //Check if we should do natural regen
         if (player.isHurt())
         {
-            if (noRegenTicks > 0)
+            if (this.noRegenTicks > 0)
             {
-                --noRegenTicks;
+                --this.noRegenTicks;
             }
             else
             {
@@ -219,6 +212,7 @@ public class VampirePlayerBloodData
                 if (player.getHealth() > 10.0F || player.level.getDifficulty() == Difficulty.HARD || player.getHealth() > 1.0F && player.level.getDifficulty() == Difficulty.NORMAL)
                 {
                     player.hurt(DamageSource.STARVE, 1.0F);
+                    addPreventRegenTicks(100);
                 }
 
                 this.thirstTickTimer = 0;

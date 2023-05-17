@@ -32,16 +32,6 @@ public class VampireUtil
         return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismStage.NOT_VAMPIRE.getId()).orElse(false);
     }
 
-    public static boolean isVampire(Player player)
-    {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId()).orElse(false);
-    }
-
-    public static boolean isTransitioning(Player player)
-    {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismStage.IN_TRANSITION).orElse(false);
-    }
-
     public static float getHealthRegenRate(Player player)
     {
         return (float) ((player.getMaxHealth() / player.getAttributeBaseValue(Attributes.MAX_HEALTH) / (20.0F / Config.naturalHealingRate.get())) * Config.naturalHealingMultiplier.get());

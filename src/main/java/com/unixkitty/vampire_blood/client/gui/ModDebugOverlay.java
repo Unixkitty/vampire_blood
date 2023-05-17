@@ -183,6 +183,7 @@ public class ModDebugOverlay
 
                 if (attributeInstance != null)
                 {
+                    //mod: currentValue ( vampireLevelMod ( BloodTypeMod * BloodTypePurity ) )
                     craftLine(ChatFormatting.DARK_AQUA, modifier.name(), ": ", VampireUtil.formatDecimal(attributeInstance.getValue()), " ( ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier)), " * ( ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier)), " * ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodPurity), " ) )");
                 }
             }

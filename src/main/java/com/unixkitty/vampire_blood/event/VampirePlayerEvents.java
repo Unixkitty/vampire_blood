@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.EntityDamageSource;
@@ -71,9 +72,25 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingDeath(final LivingDeathEvent event)
     {
-        if (!event.getEntity().level.isClientSide() && event.getEntity() instanceof Player player && VampireUtil.isVampire(player) && event.getSource() != DamageSource.LAVA && Config.vampireDustDropAmount.get() > 0)
+        if (!event.getEntity().level.isClientSide() && event.getEntity() instanceof Player player)
         {
-            player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModRegistry.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
+            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+            {
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
+                {
+                    if (Config.vampireDustDropAmount.get() > 0 && event.getSource() != DamageSource.LAVA)
+                    {
+                        player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModRegistry.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
+                    }
+
+                    //TODO replace with knockout mechanic in the future
+                    if (vampirePlayerData.getNoRegenTicks() <= 0)
+                    {
+                        player.setHealth(1);
+                        event.setCanceled(true);
+                    }
+                }
+            });
         }
     }
 
@@ -101,39 +118,22 @@ public class VampirePlayerEvents
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.NOT_VAMPIRE.getId())
                 {
-                    boolean specialDamage = false;
-
                     if (event.getSource().getEntity() instanceof LivingEntity attacker && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
                     {
                         event.setAmount(event.getAmount() * 1.25F);
 
                         vampirePlayerData.addPreventRegenTicks(60);
-
-                        specialDamage = true;
                     }
                     else if (event.getSource().isFire())
                     {
                         event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
 
                         vampirePlayerData.addPreventRegenTicks(20);
-
-                        specialDamage = true;
-                    }
-                    else if (event.getSource() == ModRegistry.SUN_DAMAGE)
-                    {
-                        specialDamage = true;
                     }
 
-                    if (vampirePlayerData.isFeeding())
+                    if (event.getAmount() > 0 && vampirePlayerData.isFeeding())
                     {
-                        if (specialDamage)
-                        {
-                            vampirePlayerData.stopFeeding(player);
-                        }
-                        else
-                        {
-                            vampirePlayerData.tryStopFeeding(player, 1);
-                        }
+                        vampirePlayerData.tryStopFeeding(player, event.getAmount());
                     }
                 }
             });
