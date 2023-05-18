@@ -36,12 +36,12 @@ public class BloodEntityStorage
 
         entity.level.getProfiler().push("entity_blood_tick");
 
-        if (Config.healthOrBloodPoints.get())
+        if (Config.healthOrBloodPoints.get() && entity.getMobType() != MobType.UNDEAD)
         {
             updateBloodHealth(entity);
         }
 
-        if (this.bloodType != BloodType.FRAIL && Config.entityRegen.get() && naturalRegen && entity.tickCount % this.ticksPerRegen == 0)
+        if (this.bloodType != BloodType.FRAIL && entity.getMobType() != MobType.UNDEAD && Config.entityRegen.get() && naturalRegen && entity.tickCount % this.ticksPerRegen == 0)
         {
             if (Config.healthOrBloodPoints.get())
             {
@@ -78,7 +78,7 @@ public class BloodEntityStorage
             this.bloodType = bloodConfig.getBloodType();
             this.naturalRegen = bloodConfig.isNaturalRegen();
 
-            if (Config.healthOrBloodPoints.get())
+            if (Config.healthOrBloodPoints.get() && entity.getMobType() != MobType.UNDEAD)
             {
                 updateBloodHealth(entity);
             }
@@ -130,11 +130,11 @@ public class BloodEntityStorage
 
     public boolean decreaseBlood(LivingEntity attacker, LivingEntity victim)
     {
-        if (isEdible() && this.bloodPoints > 0)
+        if (isEdible())
         {
             if (Config.healthOrBloodPoints.get() && victim.getMobType() != MobType.UNDEAD)
             {
-                float resultingHealth = victim.getHealth() - (float) this.bloodType.getBloodSaturationModifier();
+                float resultingHealth = victim.getHealth() - (1F / this.bloodType.getBloodSaturationModifier());
 
                 if (resultingHealth > 0)
                 {
@@ -143,10 +143,8 @@ public class BloodEntityStorage
                 else
                 {
                     attacker.doHurtTarget(victim);
-                    victim.hurt(ModRegistry.BLOOD_LOSS, (float) this.bloodType.getBloodSaturationModifier());
+                    victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
                 }
-
-                return true;
             }
             else
             {
@@ -158,6 +156,7 @@ public class BloodEntityStorage
                     {
                         --this.bloodPoints;
                     }
+                    else return false;
                 }
                 else if (resultingBloodPoints > 0)
                 {
@@ -168,9 +167,9 @@ public class BloodEntityStorage
                     attacker.doHurtTarget(victim);
                     victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
                 }
-
-                return true;
             }
+
+            return true;
         }
 
         return false;

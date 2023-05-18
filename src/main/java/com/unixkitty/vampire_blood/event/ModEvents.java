@@ -33,7 +33,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingTick(final LivingEvent.LivingTickEvent event)
     {
-        if (!event.getEntity().level.isClientSide())
+        if (!event.getEntity().level.isClientSide() && !(event.getEntity() instanceof Player))
         {
             event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tick(event.getEntity()));
         }
