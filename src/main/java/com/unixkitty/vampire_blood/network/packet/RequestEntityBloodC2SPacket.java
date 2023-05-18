@@ -1,14 +1,11 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
-import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -43,20 +40,16 @@ public class RequestEntityBloodC2SPacket extends BasePacket
 
             if (player != null)
             {
-                Entity entity = player.level.getEntity(this.id);
-
-                if (entity instanceof PathfinderMob)
+                if (player.level.getEntity(this.id) instanceof LivingEntity livingEntity)
                 {
-                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()));
-                }
-                else if (entity instanceof Player otherPlayer)
-                {
-                    entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                    if (livingEntity instanceof Player otherPlayer)
                     {
-                        BloodType bloodType = vampirePlayerData.getBloodTypeIdForFeeding();
-
-                        ModNetworkDispatcher.sendPlayerEntityBlood(player, bloodType, VampireUtil.healthToBlood(otherPlayer.getHealth(), bloodType), VampireUtil.healthToBlood(otherPlayer.getMaxHealth(), bloodType));
-                    });
+                        livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> ModNetworkDispatcher.sendPlayerEntityBlood(player, vampirePlayerData.getBloodType(), vampirePlayerData.getBloodPoints(), vampirePlayerData.getMaxBloodPoints()));
+                    }
+                    else
+                    {
+                        livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()));
+                    }
                 }
             }
         });

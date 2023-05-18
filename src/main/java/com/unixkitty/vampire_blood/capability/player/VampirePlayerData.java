@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.Config;
-import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.init.ModRegistry;
@@ -15,15 +15,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class VampirePlayerData
+public class VampirePlayerData implements IBloodVessel
 {
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
@@ -44,9 +43,13 @@ public class VampirePlayerData
     private final VampirePlayerBloodData blood = new VampirePlayerBloodData();
 
     private LivingEntity feedingEntity = null;
-    private BloodEntityStorage feedingEntityBlood = null;
+    private IBloodVessel feedingEntityBlood = null;
     private int ticksFeeding;
     private int totalTicksFeeding = 0;
+
+    //This is for being fed on
+    private int maxBloodPoints = 0;
+    private int bloodPoints = 0;
 
     public void tick(ServerPlayer player)
     {
@@ -63,6 +66,11 @@ public class VampirePlayerData
             blood.tick(player);
         }
 
+        if (blood.vampireLevel != VampirismStage.IN_TRANSITION)
+        {
+            updateBloodForFeeding(player, getBloodType());
+        }
+
         player.level.getProfiler().pop();
     }
 
@@ -75,28 +83,41 @@ public class VampirePlayerData
     {
         if (blood.vampireLevel != VampirismStage.NOT_VAMPIRE && !feeding && target.isAlive())
         {
-            if (target instanceof PathfinderMob)
+            if (blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST && VampireUtil.isLookingAtEntity(player, target))
             {
-                target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
+                if (target instanceof Player)
                 {
-                    if (blood.noRegenTicks <= 0 && isLookingAtEntity(player, target) && bloodEntityStorage.isEdible() && blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST)
+                    target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                     {
-                        this.feedingEntity = target;
-                        this.feedingEntityBlood = bloodEntityStorage;
-
-                        bloodEntityStorage.preventMovement(target);
-
-                        this.feeding = true;
-
-                        ModNetworkDispatcher.notifyPlayerFeeding(player, true);
-
-                        sync();
-                    }
-                });
+                        if (vampirePlayerData.isEdible())
+                        {
+                            this.feedingEntityBlood = vampirePlayerData;
+                        }
+                    });
+                }
+                else
+                {
+                    target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
+                    {
+                        if (bloodEntityStorage.isEdible())
+                        {
+                            this.feedingEntityBlood = bloodEntityStorage;
+                        }
+                    });
+                }
             }
-            else if (target instanceof Player)
+
+            if (this.feedingEntityBlood != null)
             {
-                //TODO player
+                this.feedingEntity = target;
+
+                VampireUtil.preventMovement(target);
+
+                this.feeding = true;
+
+                ModNetworkDispatcher.notifyPlayerFeeding(player, true);
+
+                sync();
             }
         }
     }
@@ -139,8 +160,13 @@ public class VampirePlayerData
         return blood.noRegenTicks;
     }
 
-    public void addPreventRegenTicks(int amount)
+    public void addPreventRegenTicks(ServerPlayer player, int amount)
     {
+        if (this.feeding)
+        {
+            stopFeeding(player);
+        }
+
         blood.addPreventRegenTicks(amount);
     }
 
@@ -149,11 +175,13 @@ public class VampirePlayerData
         return blood.vampireLevel;
     }
 
-    public void updateLevel(ServerPlayer player, VampirismStage level)
+    public void updateLevel(ServerPlayer player, VampirismStage level, boolean force)
     {
-        if (blood.vampireLevel == VampirismStage.IN_TRANSITION && level.getId() > VampirismStage.IN_TRANSITION.getId())
+        if (blood.vampireLevel.getId() <= VampirismStage.IN_TRANSITION.getId() && level.getId() > VampirismStage.IN_TRANSITION.getId())
         {
             setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
+
+            player.setHealth(player.getMaxHealth());
         }
 
         blood.vampireLevel = level;
@@ -165,24 +193,86 @@ public class VampirePlayerData
             blood.bloodType = BloodType.HUMAN;
         }
 
-        blood.updateWithAttributes(player);
+        blood.updateWithAttributes(player, force);
     }
 
-    public void setBloodType(ServerPlayer player, BloodType type)
+    public void setBloodType(ServerPlayer player, BloodType type, boolean force)
     {
         blood.diet.reset(type);
 
         blood.updateDiet(type);
 
-        blood.updateWithAttributes(player);
+        blood.updateWithAttributes(player, force);
     }
 
-    public BloodType getBloodType()
+    @Override
+    public boolean isEdible()
+    {
+        return getBloodType() != BloodType.NONE && blood.vampireLevel != VampirismStage.IN_TRANSITION;
+    }
+
+    @Override
+    public int getBloodPoints()
+    {
+        return this.bloodPoints;
+    }
+
+    @Override
+    public int getMaxBloodPoints()
+    {
+        return this.maxBloodPoints;
+    }
+
+    private void updateBloodForFeeding(ServerPlayer player, BloodType bloodType)
+    {
+        if (blood.vampireLevel == VampirismStage.NOT_VAMPIRE)
+        {
+            this.maxBloodPoints = VampireUtil.healthToBlood(player.getMaxHealth(), bloodType);
+            this.bloodPoints = VampireUtil.healthToBlood(player.getHealth(), bloodType);
+        }
+        else
+        {
+            this.maxBloodPoints = VampirePlayerBloodData.MAX_THIRST;
+            this.bloodPoints = blood.thirstLevel;
+        }
+    }
+
+    public BloodType getDietBloodType()
     {
         return blood.bloodType;
     }
 
-    public BloodType getBloodTypeIdForFeeding()
+    @Override
+    public boolean decreaseBlood(@NotNull LivingEntity attacker, @NotNull LivingEntity victim)
+    {
+        if (isEdible())
+        {
+            //Non-vampire player
+            if (blood.vampireLevel == VampirismStage.NOT_VAMPIRE)
+            {
+                drinkFromHealth(attacker, victim, getBloodType());
+
+                return true;
+            }
+            else //Vampire, because isEdible() checks for transitioning stage
+            {
+                int resultingThirstLevel = blood.thirstLevel - 1;
+
+                if (resultingThirstLevel >= 0)
+                {
+                    blood.decreaseBlood(false);
+
+                    return true;
+                }
+                else return false;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public BloodType getBloodType()
     {
         return blood.vampireLevel == VampirismStage.NOT_VAMPIRE ? BloodType.HUMAN : blood.vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
     }
@@ -212,17 +302,12 @@ public class VampirePlayerData
         blood.addBlood(player, points, bloodType);
     }
 
-    public void decreaseBlood(ServerPlayer player, int points)
-    {
-        blood.decreaseBlood(player, points);
-    }
-
     public void sync()
     {
         blood.sync();
     }
 
-    private void handleSunlight(Player player)
+    private void handleSunlight(ServerPlayer player)
     {
         player.level.getProfiler().push("vampire_catching_sun_logic");
 
@@ -264,7 +349,7 @@ public class VampirePlayerData
                         player.hurt(ModRegistry.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
                         player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
 
-                        addPreventRegenTicks(Config.ticksToSunDamage.get());
+                        addPreventRegenTicks(player, Config.ticksToSunDamage.get());
                     }
 
                     this.ticksInSun = 0;
@@ -288,13 +373,6 @@ public class VampirePlayerData
         return (1 - (blood.bloodlust / 100));
     }
 
-    private boolean isLookingAtEntity(ServerPlayer player, LivingEntity target)
-    {
-        Vec3 eyePos2 = player.getEyePosition();
-
-        return target.getBoundingBox().clip(eyePos2, eyePos2.add(player.getLookAngle().scale(1.1D))).isPresent();
-    }
-
     private void handleFeeding(ServerPlayer player)
     {
         if (this.feeding && this.feedingEntity != null && this.feedingEntityBlood != null)
@@ -302,7 +380,7 @@ public class VampirePlayerData
             ++this.ticksFeeding;
             ++this.totalTicksFeeding;
 
-            if (!player.isAlive() || !this.feedingEntity.isAlive() || !isLookingAtEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST || blood.noRegenTicks > 0 || this.totalTicksFeeding >= 550)
+            if (!player.isAlive() || !this.feedingEntity.isAlive() || !VampireUtil.isLookingAtEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST || this.totalTicksFeeding >= 550)
             {
                 stopFeeding(player);
             }
@@ -310,9 +388,9 @@ public class VampirePlayerData
             {
                 if (this.feedingEntityBlood.decreaseBlood(player, this.feedingEntity))
                 {
-                    this.feedingEntityBlood.preventMovement(this.feedingEntity);
+                    VampireUtil.preventMovement(this.feedingEntity);
 
-                    if (!this.feedingEntity.isSleeping())
+                    if (!this.feedingEntity.isSleeping() && this.feedingEntity.getLastHurtByMob() != player)
                     {
                         this.feedingEntity.setLastHurtByMob(player);
                     }
@@ -402,7 +480,7 @@ public class VampirePlayerData
 
             float lastHealthFactor = player.getHealth() / player.getMaxHealth();
 
-            newVampData.blood.updateWithAttributes(player);
+            newVampData.blood.updateWithAttributes(player, true);
 
             float healthFactor = player.getHealth() / player.getMaxHealth();
 

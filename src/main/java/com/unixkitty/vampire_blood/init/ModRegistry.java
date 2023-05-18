@@ -28,7 +28,7 @@ public final class ModRegistry
         {
             return Component.translatable("vampire_blood.death.attack.sunlight_" + victim.getRandom().nextIntBetweenInclusive(1, 9), victim.getDisplayName());
         }
-    }.bypassArmor().setMagic();
+    }.bypassArmor().bypassMagic();
 
     public static final DamageSource BLOOD_LOSS = new DamageSource("bloodloss")
     {
@@ -49,7 +49,7 @@ public final class ModRegistry
                 return Component.translatable(message + victim.getRandom().nextIntBetweenInclusive(1, 6), victim.getDisplayName(), attacker.getDisplayName());
             }
         }
-    }.bypassArmor();
+    }.bypassArmor().bypassMagic();
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, VampireBlood.MODID);
 

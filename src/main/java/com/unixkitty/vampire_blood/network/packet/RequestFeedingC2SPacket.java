@@ -5,8 +5,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -42,9 +40,9 @@ public class RequestFeedingC2SPacket extends BasePacket
             {
                 Entity entity = player.level.getEntity(this.entityId);
 
-                if (entity instanceof PathfinderMob || entity instanceof Player)
+                if (entity instanceof LivingEntity victim)
                 {
-                    player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.beginFeeding((LivingEntity) entity, player));
+                    player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.beginFeeding(victim, player));
                 }
             }
         });

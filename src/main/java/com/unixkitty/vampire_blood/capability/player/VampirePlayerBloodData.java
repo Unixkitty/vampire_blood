@@ -51,7 +51,7 @@ public class VampirePlayerBloodData
 
             if (!isPeaceful)
             {
-                decreaseBlood(player, 1);
+                decreaseBlood(true);
             }
         }
 
@@ -88,18 +88,21 @@ public class VampirePlayerBloodData
 
         updateDiet(bloodType);
 
-        updateBloodlust(player, true);
+        updateBloodlust(true);
 
-        updateWithAttributes(player);
+        updateWithAttributes(player, false);
     }
 
-    void decreaseBlood(ServerPlayer player, int points)
+    void decreaseBlood(boolean natural)
     {
-        this.thirstLevel = Math.max(this.thirstLevel - points, 0);
+        this.thirstLevel = Math.max(this.thirstLevel - 1, 0);
 
-        updateBloodlust(player, false);
+        if (natural)
+        {
+            updateBloodlust(false);
+        }
 
-        updateWithAttributes(player);
+        sync();
     }
 
     void updateDiet(BloodType bloodType)
@@ -119,11 +122,25 @@ public class VampirePlayerBloodData
         }
     }
 
-    void updateWithAttributes(ServerPlayer player)
+    void updateWithAttributes(ServerPlayer player, boolean force)
     {
         checkOriginal(player);
+
+        float lastHealthFactor = player.getHealth() / player.getMaxHealth();
+
         VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity);
+
+        if (player.getHealth() / player.getMaxHealth() < lastHealthFactor)
+        {
+            player.setHealth(player.getMaxHealth() * lastHealthFactor);
+        }
+
         sync();
+
+        if (force)
+        {
+            this.syncData(player);
+        }
     }
 
     void addPreventRegenTicks(int amount)
@@ -141,7 +158,7 @@ public class VampirePlayerBloodData
         }
     }
 
-    private void updateBloodlust(ServerPlayer player, boolean bloodPointGained)
+    private void updateBloodlust(boolean bloodPointGained)
     {
         float thirstMultiplier = (float) thirstLevel / MAX_THIRST;
 
@@ -160,7 +177,7 @@ public class VampirePlayerBloodData
     private void handleRegenAndStarvation(ServerPlayer player, boolean isPeaceful)
     {
         //Check if we should do natural regen
-        if (player.isHurt())
+        if (player.isHurt() && this.thirstLevel > 0)
         {
             if (this.noRegenTicks > 0)
             {
@@ -212,7 +229,6 @@ public class VampirePlayerBloodData
                 if (player.getHealth() > 10.0F || player.level.getDifficulty() == Difficulty.HARD || player.getHealth() > 1.0F && player.level.getDifficulty() == Difficulty.NORMAL)
                 {
                     player.hurt(DamageSource.STARVE, 1.0F);
-                    addPreventRegenTicks(100);
                 }
 
                 this.thirstTickTimer = 0;

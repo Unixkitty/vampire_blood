@@ -11,7 +11,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -50,7 +49,7 @@ public class ModEvents
                 {
                     entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::sync);
                 }
-                else if (entity instanceof PathfinderMob && entity.getEncodeId() != null)
+                else if (entity.getEncodeId() != null)
                 {
                     entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.updateBlood(entity));
                 }
@@ -95,11 +94,14 @@ public class ModEvents
     {
         if (event.getObject() instanceof LivingEntity)
         {
-            if (event.getObject() instanceof Player && !event.getObject().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
+            if (event.getObject() instanceof Player)
             {
-                event.addCapability(new ResourceLocation(VampireBlood.MODID, "vampirism"), new VampirePlayerProvider());
+                if (!event.getObject().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
+                {
+                    event.addCapability(new ResourceLocation(VampireBlood.MODID, "vampirism"), new VampirePlayerProvider());
+                }
             }
-            else if (event.getObject() instanceof PathfinderMob && !event.getObject().getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
+            else if (!event.getObject().getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
             {
                 event.addCapability(new ResourceLocation(VampireBlood.MODID, "blood"), new BloodProvider());
             }

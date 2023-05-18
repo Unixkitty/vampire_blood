@@ -5,12 +5,12 @@ import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 
-public class BloodEntityStorage
+import javax.annotation.Nonnull;
+
+public class BloodEntityStorage implements IBloodVessel
 {
     private static final String ID_NBT_NAME = "id";
     private static final String BLOOD_POINTS_NBT_NAME = "bloodPoints";
@@ -108,43 +108,38 @@ public class BloodEntityStorage
         this.freshEntity = false;
     }
 
+    @Override
     public boolean isEdible()
     {
         return this.bloodType != BloodType.NONE && this.maxBloodPoints > 0 && this.bloodPoints > 0;
     }
 
+    @Override
     public BloodType getBloodType()
     {
         return this.bloodType;
     }
 
+    @Override
     public int getBloodPoints()
     {
         return this.bloodPoints;
     }
 
+    @Override
     public int getMaxBloodPoints()
     {
         return this.maxBloodPoints;
     }
 
-    public boolean decreaseBlood(LivingEntity attacker, LivingEntity victim)
+    @Override
+    public boolean decreaseBlood(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim)
     {
         if (isEdible())
         {
             if (Config.healthOrBloodPoints.get() && victim.getMobType() != MobType.UNDEAD)
             {
-                float resultingHealth = victim.getHealth() - (1F / this.bloodType.getBloodSaturationModifier());
-
-                if (resultingHealth > 0)
-                {
-                    victim.setHealth(resultingHealth);
-                }
-                else
-                {
-                    attacker.doHurtTarget(victim);
-                    victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
-                }
+                drinkFromHealth(attacker, victim, this.bloodType);
             }
             else
             {
@@ -164,7 +159,7 @@ public class BloodEntityStorage
                 }
                 else
                 {
-                    attacker.doHurtTarget(victim);
+                    victim.setLastHurtByMob(attacker);
                     victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
                 }
             }
@@ -175,21 +170,11 @@ public class BloodEntityStorage
         return false;
     }
 
-    public void preventMovement(LivingEntity entity)
-    {
-        entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 9, false, false, true));
-    }
-
     private void updateBloodHealth(LivingEntity entity)
     {
-        this.maxBloodPoints = healthToBlood(entity.getMaxHealth());
-        this.bloodPoints = healthToBlood(entity.getHealth());
+        this.maxBloodPoints = VampireUtil.healthToBlood(entity.getMaxHealth(), this.bloodType);
+        this.bloodPoints = VampireUtil.healthToBlood(entity.getHealth(), this.bloodType);
         this.ticksPerRegen = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
-    }
-
-    private int healthToBlood(float health)
-    {
-        return VampireUtil.healthToBlood(health, this.bloodType);
     }
 
     public void saveNBTData(CompoundTag tag)

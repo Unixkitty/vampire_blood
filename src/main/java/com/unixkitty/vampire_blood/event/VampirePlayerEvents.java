@@ -119,13 +119,13 @@ public class VampirePlayerEvents
                     {
                         event.setAmount(event.getAmount() * 1.25F);
 
-                        vampirePlayerData.addPreventRegenTicks(60);
+                        vampirePlayerData.addPreventRegenTicks(player, 60);
                     }
                     else if (event.getSource().isFire())
                     {
                         event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
 
-                        vampirePlayerData.addPreventRegenTicks(20);
+                        vampirePlayerData.addPreventRegenTicks(player, 20);
                     }
 
                     if (event.getAmount() > 0 && vampirePlayerData.isFeeding())

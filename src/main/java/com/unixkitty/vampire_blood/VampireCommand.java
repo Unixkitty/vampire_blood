@@ -140,7 +140,7 @@ public class VampireCommand
 
                     if (clazz.equals(BloodType.class))
                     {
-                        message = vampirePlayerData.getBloodType().getTranslation();
+                        message = vampirePlayerData.getDietBloodType().getTranslation();
                     }
                     else if (clazz.equals(VampirismStage.class))
                     {
@@ -169,7 +169,7 @@ public class VampireCommand
                                 return;
                             }
 
-                            vampirePlayerData.setBloodType(player, type);
+                            vampirePlayerData.setBloodType(player, type, true);
 
                             context.getSource().sendSuccess(
                                     Component.translatable(
@@ -189,7 +189,7 @@ public class VampireCommand
                     {
                         if (vampirePlayerData.getVampireLevel() != stage)
                         {
-                            vampirePlayerData.updateLevel(player, stage);
+                            vampirePlayerData.updateLevel(player, stage, true);
                         }
 
                         context.getSource().sendSuccess(

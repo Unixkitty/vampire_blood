@@ -10,7 +10,7 @@ public enum BloodType implements VampirismTier<BloodType>
     FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.33F),
     CREATURE(2, 0.5, 0.5, 0.5, 1F),
     HUMAN(3, 1, 1, 1, 2F),
-    VAMPIRE(4, 1.25, 1, 1.25, 0.75F),
+    VAMPIRE(4, 1.25, 1, 1.25, 1F),
     PIGLIN(5, 0.75, 0.75, 0.75, 1.5F);
 
     public static final String BLOODTYPE_NBT_NAME = "bloodType";
