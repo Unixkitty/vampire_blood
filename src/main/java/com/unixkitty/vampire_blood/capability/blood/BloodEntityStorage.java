@@ -4,7 +4,7 @@ import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.config.BloodEntityConfig;
 import com.unixkitty.vampire_blood.config.BloodManager;
 import com.unixkitty.vampire_blood.config.Config;
-import com.unixkitty.vampire_blood.init.ModRegistry;
+import com.unixkitty.vampire_blood.init.ModDamageSources;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
@@ -165,7 +165,7 @@ public class BloodEntityStorage implements IBloodVessel
                 else
                 {
                     victim.setLastHurtByMob(attacker);
-                    victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
+                    victim.hurt(ModDamageSources.BLOOD_LOSS, Float.MAX_VALUE);
                 }
             }
 

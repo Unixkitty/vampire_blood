@@ -5,7 +5,7 @@ import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
-import com.unixkitty.vampire_blood.init.ModRegistry;
+import com.unixkitty.vampire_blood.init.ModDamageSources;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
@@ -73,7 +73,7 @@ public class VampirePlayerData implements IBloodVessel
         player.level.getProfiler().pop();
     }
 
-    public void toggleAbility(ServerPlayer player, VampireActiveAbilities ability)
+    public void toggleAbility(ServerPlayer player, VampireActiveAbility ability)
     {
         if (ability != null && blood.vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId())
         {
@@ -365,7 +365,7 @@ public class VampirePlayerData implements IBloodVessel
                 {
                     if (blood.vampireLevel != VampirismStage.IN_TRANSITION)
                     {
-                        player.hurt(ModRegistry.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
+                        player.hurt(ModDamageSources.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
                         player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
 
                         addPreventRegenTicks(player, Config.ticksToSunDamage.get());
@@ -443,7 +443,7 @@ public class VampirePlayerData implements IBloodVessel
 
         blood.diet.saveNBT(tag);
 
-        VampireActiveAbilities.saveNBT(blood.activeAbilities, tag);
+        VampireActiveAbility.saveNBT(blood.activeAbilities, tag);
     }
 
     public void loadNBTData(CompoundTag tag)
@@ -461,7 +461,7 @@ public class VampirePlayerData implements IBloodVessel
 
         blood.diet.loadNBT(tag);
 
-        VampireActiveAbilities.loadNBT(blood.activeAbilities, tag);
+        VampireActiveAbility.loadNBT(blood.activeAbilities, tag);
     }
 
     public static void copyData(Player oldPlayer, ServerPlayer player, boolean isDeathEvent)

@@ -2,7 +2,6 @@ package com.unixkitty.vampire_blood.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.client.ability.AbilityKeyHandler;
 import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.config.Config;
@@ -22,6 +21,10 @@ public class KeyBindings
 
     public static final KeyMapping FEED_KEY = key("feed", InputConstants.KEY_V);
     public static final KeyMapping NIGHT_VISION_KEY = key("night_vision", InputConstants.KEY_N);
+    public static final KeyMapping BLOOD_VISION_KEY = key("blood_vision", InputConstants.KEY_B);
+    public static final KeyMapping SPEED_KEY = key("enhanced_speed", InputConstants.KEY_X);
+    public static final KeyMapping SENSES_KEY = key("enhanced_senses", InputConstants.KEY_H);
+    public static final KeyMapping CHARM_KEY = key("charm", InputConstants.KEY_G);
 
     public static void init(final RegisterKeyMappingsEvent event)
     {
@@ -39,7 +42,7 @@ public class KeyBindings
         {
             FeedingHandler.handleKeys(event);
 
-            AbilityKeyHandler.handleKeys(event);
+            KeyAction.handleKeys();
         }
 
         //TODO remove debug hud toggle

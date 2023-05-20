@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
-import com.unixkitty.vampire_blood.init.ModRegistry;
+import com.unixkitty.vampire_blood.init.ModDamageSources;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ public interface IBloodVessel
         else
         {
             victim.setLastHurtByMob(attacker);
-            victim.hurt(ModRegistry.BLOOD_LOSS, Float.MAX_VALUE);
+            victim.hurt(ModDamageSources.BLOOD_LOSS, Float.MAX_VALUE);
         }
     }
 

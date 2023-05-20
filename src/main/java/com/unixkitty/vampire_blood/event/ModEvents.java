@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +21,9 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -29,6 +33,18 @@ import java.util.function.Predicate;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class ModEvents
 {
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
+    {
+        if (!event.getEntity().getLevel().isClientSide())
+        {
+            if (event.getEffectInstance().getEffect() instanceof BasicStatusEffect)
+            {
+                event.setResult(Event.Result.DENY);
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onLivingTick(final LivingEvent.LivingTickEvent event)
     {

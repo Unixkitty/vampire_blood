@@ -5,7 +5,8 @@ import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
-import com.unixkitty.vampire_blood.init.ModRegistry;
+import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
+import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -41,7 +42,7 @@ public class VampirePlayerEvents
 
             if (VampireUtil.isUndead(player))
             {
-                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE || effect == MobEffects.NIGHT_VISION)
+                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE || effect == MobEffects.NIGHT_VISION || effect instanceof BasicStatusEffect)
                 {
                     event.setResult(Event.Result.DENY);
                 }
@@ -77,7 +78,7 @@ public class VampirePlayerEvents
                 {
                     if (Config.vampireDustDropAmount.get() > 0 && event.getSource() != DamageSource.LAVA)
                     {
-                        player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModRegistry.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
+                        player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModItems.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
                     }
 
                     //TODO replace with knockout mechanic in the future

@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.client.cache;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampireActiveAbilities;
+import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +18,7 @@ public final class ClientVampirePlayerDataCache
     public static VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
     public static BloodType bloodType = BloodType.HUMAN;
     public static boolean feeding = false;
-    public static List<VampireActiveAbilities> activeAbilities = new ArrayList<>();
+    public static List<VampireActiveAbility> activeAbilities = new ArrayList<>();
 
     //Blood data
     public static int thirstLevel;

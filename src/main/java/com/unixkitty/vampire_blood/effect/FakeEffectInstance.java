@@ -1,18 +1,18 @@
-package com.unixkitty.vampire_blood.capability.player.effect;
+package com.unixkitty.vampire_blood.effect;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
-public class VampireNightVision extends MobEffectInstance
+public class FakeEffectInstance extends MobEffectInstance
 {
-    public VampireNightVision()
+    public FakeEffectInstance(MobEffect effect)
     {
-        super(MobEffects.NIGHT_VISION, Short.MAX_VALUE, 0, false, false);
+        super(effect, Short.MAX_VALUE, 0, false, false);
 
         setCurativeItems(new ArrayList<>());
     }

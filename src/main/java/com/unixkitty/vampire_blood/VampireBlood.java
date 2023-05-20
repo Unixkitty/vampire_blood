@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood;
 
 import com.unixkitty.vampire_blood.config.BloodManager;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import net.minecraft.world.item.alchemy.PotionBrewing;
@@ -31,7 +32,7 @@ public class VampireBlood
 
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        ModRegistry.ITEMS.register(modEventBus);
+        ModRegistry.register(modEventBus);
 
         modEventBus.addListener(this::onCommonSetup);
     }
@@ -41,7 +42,7 @@ public class VampireBlood
         event.enqueueWork(() ->
         {
             ModNetworkDispatcher.register();
-            PotionBrewing.addMix(Potions.AWKWARD, ModRegistry.VAMPIRE_DUST.get(), Potions.INVISIBILITY);
+            PotionBrewing.addMix(Potions.AWKWARD, ModItems.VAMPIRE_DUST.get(), Potions.INVISIBILITY);
         });
 
         BloodManager.loadConfig();

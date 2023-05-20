@@ -2,7 +2,7 @@ package com.unixkitty.vampire_blood.network;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampireActiveAbilities;
+import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.network.packet.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +35,7 @@ public class ModNetworkDispatcher
         registerPacket(RequestEntityBloodC2SPacket.class, true);
         registerPacket(EntityBloodInfoS2CPacket.class, false);
         registerPacket(PlayerAvoidHurtAnimS2CPacket.class, false);
-        registerPacket(UseAbilityC2SPacket.class, true);
+        registerPacket(ToggleActiveAbilityC2SPacket.class, true);
         registerPacket(SyncAbilitiesS2CPacket.class, false);
     }
 
@@ -79,7 +79,7 @@ public class ModNetworkDispatcher
         sendToClient(new PlayerFeedingStatusS2CPacket(value), player);
     }
 
-    public static void syncPlayerVampireAbilities(ServerPlayer player, Set<VampireActiveAbilities> activeAbilities)
+    public static void syncPlayerVampireAbilities(ServerPlayer player, Set<VampireActiveAbility> activeAbilities)
     {
         sendToClient(new SyncAbilitiesS2CPacket(activeAbilities), player);
     }

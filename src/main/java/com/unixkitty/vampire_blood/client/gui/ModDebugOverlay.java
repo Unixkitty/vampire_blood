@@ -3,7 +3,7 @@ package com.unixkitty.vampire_blood.client.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampireActiveAbilities;
+import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.client.ClientEvents;
@@ -117,7 +117,7 @@ public class ModDebugOverlay
             }
             case ABILITIES ->
             {
-                for (VampireActiveAbilities ability : VampireActiveAbilities.values())
+                for (VampireActiveAbility ability : VampireActiveAbility.values())
                 {
                     craftLine(ChatFormatting.GRAY, ability.getSimpleName(), ": ", String.valueOf(ClientVampirePlayerDataCache.activeAbilities.contains(ability)));
                 }

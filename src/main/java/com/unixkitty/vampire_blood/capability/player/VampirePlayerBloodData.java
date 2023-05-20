@@ -27,7 +27,7 @@ public class VampirePlayerBloodData
     int noRegenTicks;
     float bloodlust;
 
-    final Set<VampireActiveAbilities> activeAbilities = new HashSet<>();
+    final Set<VampireActiveAbility> activeAbilities = new HashSet<>();
 
     final VampirePlayerDiet diet = new VampirePlayerDiet(this.bloodType);
 
