@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.ChatFormatting;
 
 public enum VampirismStage implements VampirismTier<VampirismStage>

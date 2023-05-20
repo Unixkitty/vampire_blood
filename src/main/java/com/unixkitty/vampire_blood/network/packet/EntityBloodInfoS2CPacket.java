@@ -2,7 +2,6 @@ package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -10,27 +9,27 @@ import java.util.function.Supplier;
 
 public class EntityBloodInfoS2CPacket extends BasePacket
 {
-    private final int bloodType;
+    private final BloodType bloodType;
     private final int maxBloodPoints;
     private final int bloodPoints;
 
-    public EntityBloodInfoS2CPacket(int bloodTypeId, int bloodPoints, int maxBloodPoints)
+    public EntityBloodInfoS2CPacket(BloodType bloodType, int bloodPoints, int maxBloodPoints)
     {
-        this.bloodType = bloodTypeId;
+        this.bloodType = bloodType;
         this.bloodPoints = bloodPoints;
         this.maxBloodPoints = maxBloodPoints;
     }
 
     public EntityBloodInfoS2CPacket(FriendlyByteBuf buffer)
     {
-        this.bloodType = buffer.readInt();
+        this.bloodType = buffer.readEnum(BloodType.class);
         this.bloodPoints = buffer.readInt();
         this.maxBloodPoints = buffer.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buffer)
     {
-        buffer.writeInt(this.bloodType);
+        buffer.writeEnum(this.bloodType);
         buffer.writeInt(this.bloodPoints);
         buffer.writeInt(this.maxBloodPoints);
     }
@@ -41,7 +40,7 @@ public class EntityBloodInfoS2CPacket extends BasePacket
 
         context.enqueueWork(() ->
         {
-            FeedingMouseOverHandler.bloodType = VampirismTier.fromId(BloodType.class, this.bloodType);
+            FeedingMouseOverHandler.bloodType = this.bloodType;
             FeedingMouseOverHandler.bloodPoints = this.bloodPoints;
             FeedingMouseOverHandler.maxBloodPoints = this.maxBloodPoints;
 

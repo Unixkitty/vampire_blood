@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.client.feeding;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;

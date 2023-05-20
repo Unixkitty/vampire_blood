@@ -1,4 +1,4 @@
-package com.unixkitty.vampire_blood.capability.blood;
+package com.unixkitty.vampire_blood.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -85,7 +85,7 @@ public class BloodManager
     {
         bloodMap.clear();
 
-        for (BloodEntityConfig config : holder.entities)
+        for (BloodEntityConfig config : holder.getEntities())
         {
             ResourceLocation resourceLocation = config.getResourceId();
 
@@ -144,16 +144,5 @@ public class BloodManager
         list.add(new BloodEntityConfig("minecraft:zombified_piglin", "frail", 7, false));
 
         return new BloodEntityListHolder(list);
-    }
-
-    @SuppressWarnings("FieldMayBeFinal")
-    public static class BloodEntityListHolder
-    {
-        private List<BloodEntityConfig> entities;
-
-        private BloodEntityListHolder(List<BloodEntityConfig> entities)
-        {
-            this.entities = entities;
-        }
     }
 }

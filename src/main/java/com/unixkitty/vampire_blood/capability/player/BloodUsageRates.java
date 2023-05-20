@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.config.Config;
 
 public enum BloodUsageRates
 {

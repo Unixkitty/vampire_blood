@@ -96,8 +96,10 @@ public class VampireAttributeModifiers
             {
                 return switch (this.modifierOperation)
                 {
-                    case MULTIPLY_BASE -> (vampirismStage.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - 1.0D;
-                    case ADDITION -> Math.round(((baseValue * vampirismStage.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
+                    case MULTIPLY_BASE ->
+                            (vampirismStage.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - 1.0D;
+                    case ADDITION ->
+                            Math.round(((baseValue * vampirismStage.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
                     case MULTIPLY_TOTAL -> -1;
                 };
             }

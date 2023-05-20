@@ -1,9 +1,11 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
-import com.unixkitty.vampire_blood.Config;
+import com.unixkitty.vampire_blood.capability.player.VampirismTier;
+import com.unixkitty.vampire_blood.config.BloodEntityConfig;
+import com.unixkitty.vampire_blood.config.BloodManager;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
@@ -151,7 +153,10 @@ public class BloodEntityStorage implements IBloodVessel
                     {
                         --this.bloodPoints;
                     }
-                    else return false;
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else if (resultingBloodPoints > 0)
                 {

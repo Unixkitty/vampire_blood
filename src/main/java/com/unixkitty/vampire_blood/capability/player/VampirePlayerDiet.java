@@ -2,7 +2,6 @@ package com.unixkitty.vampire_blood.capability.player;
 
 import com.google.common.collect.EvictingQueue;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;

@@ -2,10 +2,10 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.client.ClientEvents;
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.util.RandomSource;
@@ -118,7 +118,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             EntityBloodOverlay.render(gui, poseStack, partialTick, screenWidth, screenHeight);
         }
     }
-
 
 
 }

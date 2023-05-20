@@ -1,9 +1,9 @@
-package com.unixkitty.vampire_blood.util;
+package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -20,7 +20,7 @@ public interface VampirismTier<E extends Enum<E> & VampirismTier<E>>
     @SuppressWarnings("unchecked")
     default Component getTranslation()
     {
-        return Component.translatable(VampireBlood.MODID + "." + getName((Class<? extends VampirismTier<?>>) this.getClass()) + "." + VampireUtil.getEnumName((E)this));
+        return Component.translatable(VampireBlood.MODID + "." + getName((Class<? extends VampirismTier<?>>) this.getClass()) + "." + VampireUtil.getEnumName((E) this));
     }
 
     static String getName(Class<? extends VampirismTier<?>> tierClass)

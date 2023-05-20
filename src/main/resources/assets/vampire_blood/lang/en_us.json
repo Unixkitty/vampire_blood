@@ -19,6 +19,7 @@
   "vampire_blood.blood_type.piglin" : "Piglin",
   "key.category.vampire_blood.main": "Vampire Blood",
   "key.vampire_blood.feed": "Feed",
+  "key.vampire_blood.night_vision": "Night Vision",
   "vampire_blood.death.attack.sunlight_1": "%1$s forgot to apply sunscreen",
   "vampire_blood.death.attack.sunlight_2": "Looks like %1$s was allergic to sunshine",
   "vampire_blood.death.attack.sunlight_3": "For %1$s, death came with the dawn",

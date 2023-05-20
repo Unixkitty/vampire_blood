@@ -1,14 +1,17 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class VampirePlayerBloodData
 {
@@ -23,6 +26,8 @@ public class VampirePlayerBloodData
     int thirstTickTimer; //This is used for healing and starvation
     int noRegenTicks;
     float bloodlust;
+
+    final Set<VampireActiveAbilities> activeAbilities = new HashSet<>();
 
     final VampirePlayerDiet diet = new VampirePlayerDiet(this.bloodType);
 
@@ -155,6 +160,7 @@ public class VampirePlayerBloodData
             this.needsSync = false;
 
             ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust, this.bloodPurity), player);
+            ModNetworkDispatcher.syncPlayerVampireAbilities(player, this.activeAbilities);
         }
     }
 

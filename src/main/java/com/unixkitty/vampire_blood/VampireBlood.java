@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood;
 
-import com.unixkitty.vampire_blood.capability.blood.BloodManager;
+import com.unixkitty.vampire_blood.config.BloodManager;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import net.minecraft.world.item.alchemy.PotionBrewing;

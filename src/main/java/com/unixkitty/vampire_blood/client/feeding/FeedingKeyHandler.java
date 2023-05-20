@@ -1,8 +1,9 @@
 package com.unixkitty.vampire_blood.client.feeding;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.KeyAction;
 import com.unixkitty.vampire_blood.client.KeyBindings;
+import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,7 +29,7 @@ public class FeedingKeyHandler
         {
             if (!ClientVampirePlayerDataCache.feeding && FeedingHandler.canFeed())
             {
-                FeedingHandler.startFeeding();
+                KeyAction.FEED_START.handle();
             }
         }
         else if (ClientVampirePlayerDataCache.feeding)
@@ -36,7 +37,7 @@ public class FeedingKeyHandler
             //Do not stop feeding if holding the key
             if (lastFeedKeyAction != InputConstants.REPEAT && (movementKeysTouched || lastFeedKeyAction == InputConstants.RELEASE))
             {
-                FeedingHandler.stopFeeding();
+                KeyAction.FEED_STOP.handle();
             }
         }
 

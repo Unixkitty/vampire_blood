@@ -16,7 +16,7 @@ public class MixinLivingEntity
     @Inject(at = @At("HEAD"), method = "getMobType()Lnet/minecraft/world/entity/MobType;", cancellable = true)
     public void vampire$getMobType(CallbackInfoReturnable<MobType> result)
     {
-        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide() && VampireUtil.isUndead((ServerPlayer) player))
+        if ((LivingEntity) (Object) this instanceof Player player && !player.getLevel().isClientSide() && VampireUtil.isUndead((ServerPlayer) player))
         {
             result.setReturnValue(MobType.UNDEAD);
         }
@@ -25,7 +25,7 @@ public class MixinLivingEntity
     @Inject(at = @At("HEAD"), method = "canBreatheUnderwater()Z", cancellable = true)
     public void vampire$canBreatheUnderwater(CallbackInfoReturnable<Boolean> result)
     {
-        if ((LivingEntity)(Object)this instanceof Player player && !player.getLevel().isClientSide())
+        if ((LivingEntity) (Object) this instanceof Player player && !player.getLevel().isClientSide())
         {
             //TODO does this conflict with enchantments or other external effects?
             result.setReturnValue(false);

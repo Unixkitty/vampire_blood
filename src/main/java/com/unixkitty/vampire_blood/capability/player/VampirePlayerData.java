@@ -1,16 +1,15 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -72,6 +71,23 @@ public class VampirePlayerData implements IBloodVessel
         }
 
         player.level.getProfiler().pop();
+    }
+
+    public void toggleAbility(ServerPlayer player, VampireActiveAbilities ability)
+    {
+        if (ability != null && blood.vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId())
+        {
+            if (blood.activeAbilities.contains(ability))
+            {
+                blood.activeAbilities.remove(ability);
+            }
+            else
+            {
+                blood.activeAbilities.add(ability);
+            }
+
+            blood.updateWithAttributes(player, true);
+        }
     }
 
     public boolean isFeeding()
@@ -264,7 +280,10 @@ public class VampirePlayerData implements IBloodVessel
 
                     return true;
                 }
-                else return false;
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -423,6 +442,8 @@ public class VampirePlayerData implements IBloodVessel
         tag.putFloat(BLOODLUST_NBT_NAME, blood.bloodlust);
 
         blood.diet.saveNBT(tag);
+
+        VampireActiveAbilities.saveNBT(blood.activeAbilities, tag);
     }
 
     public void loadNBTData(CompoundTag tag)
@@ -439,6 +460,8 @@ public class VampirePlayerData implements IBloodVessel
         blood.bloodlust = tag.getFloat(BLOODLUST_NBT_NAME);
 
         blood.diet.loadNBT(tag);
+
+        VampireActiveAbilities.loadNBT(blood.activeAbilities, tag);
     }
 
     public static void copyData(Player oldPlayer, ServerPlayer player, boolean isDeathEvent)
@@ -478,17 +501,17 @@ public class VampirePlayerData implements IBloodVessel
                 }
             });
 
-            float lastHealthFactor = player.getHealth() / player.getMaxHealth();
+//            float lastHealthFactor = player.getHealth() / player.getMaxHealth();
 
             newVampData.blood.updateWithAttributes(player, true);
 
-            float healthFactor = player.getHealth() / player.getMaxHealth();
-
-            //If player was of a higher level they may end up lacking HP out of max after updating attributes
-            if (healthFactor < lastHealthFactor)
-            {
-                player.setHealth(Math.max(player.getMaxHealth() * healthFactor, player.getMaxHealth()));
-            }
+//            float healthFactor = player.getHealth() / player.getMaxHealth();
+//
+//            //If player was of a higher level they may end up lacking HP out of max after updating attributes
+//            if (healthFactor < lastHealthFactor)
+//            {
+//                player.setHealth(Math.max(player.getMaxHealth() * healthFactor, player.getMaxHealth()));
+//            }
         });
     }
 
@@ -504,17 +527,17 @@ public class VampirePlayerData implements IBloodVessel
     }
 
     @OnlyIn(Dist.CLIENT)
-    public VampirismStage setVampireLevel(int level)
+    public VampirismStage setClientVampireLevel(VampirismStage vampireLevel)
     {
-        blood.vampireLevel = VampirismTier.fromId(VampirismStage.class, level);
+        blood.vampireLevel = vampireLevel;
 
         return blood.vampireLevel;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public BloodType setBloodType(int id)
+    public BloodType setClientBloodType(BloodType bloodType)
     {
-        blood.bloodType = VampirismTier.fromId(BloodType.class, id);
+        blood.bloodType = bloodType;
 
         return blood.bloodType;
     }

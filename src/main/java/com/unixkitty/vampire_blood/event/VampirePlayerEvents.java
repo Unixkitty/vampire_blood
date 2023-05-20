@@ -1,10 +1,10 @@
 package com.unixkitty.vampire_blood.event;
 
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,7 +41,7 @@ public class VampirePlayerEvents
 
             if (VampireUtil.isUndead(player))
             {
-                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE)
+                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE || effect == MobEffects.NIGHT_VISION)
                 {
                     event.setResult(Event.Result.DENY);
                 }

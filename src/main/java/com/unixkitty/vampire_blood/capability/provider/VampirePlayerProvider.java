@@ -14,7 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class VampirePlayerProvider implements ICapabilityProvider, INBTSerializable<CompoundTag>
 {
-    public static Capability<VampirePlayerData> VAMPIRE_PLAYER = CapabilityManager.get(new CapabilityToken<>() {});
+    public static Capability<VampirePlayerData> VAMPIRE_PLAYER = CapabilityManager.get(new CapabilityToken<>()
+    {
+    });
 
     private VampirePlayerData vampirePlayerData = null;
     private final LazyOptional<VampirePlayerData> optional = LazyOptional.of(this::createCap);

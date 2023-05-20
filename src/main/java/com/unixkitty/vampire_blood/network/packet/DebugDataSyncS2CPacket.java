@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 import org.apache.commons.lang3.ArrayUtils;
@@ -32,10 +32,10 @@ public class DebugDataSyncS2CPacket extends BasePacket
     {
         this.ticksInSun = buffer.readInt();
         this.ticksFeeding = buffer.readInt();
-        this.noRegenTicks = buffer.readInt();
+        this.noRegenTicks = buffer.readVarInt();
 
         this.thirstExhaustionIncrement = buffer.readInt();
-        this.thirstTickTimer = buffer.readInt();
+        this.thirstTickTimer = buffer.readVarInt();
         this.diet = buffer.readVarIntArray(20);
     }
 
@@ -43,10 +43,10 @@ public class DebugDataSyncS2CPacket extends BasePacket
     {
         buffer.writeInt(this.ticksInSun);
         buffer.writeInt(this.ticksFeeding);
-        buffer.writeInt(this.noRegenTicks);
+        buffer.writeVarInt(this.noRegenTicks);
 
         buffer.writeInt(this.thirstExhaustionIncrement);
-        buffer.writeInt(this.thirstTickTimer);
+        buffer.writeVarInt(this.thirstTickTimer);
         buffer.writeVarIntArray(this.diet);
     }
 

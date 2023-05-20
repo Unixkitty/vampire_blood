@@ -14,7 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class BloodProvider implements ICapabilityProvider, INBTSerializable<CompoundTag>
 {
-    public static Capability<BloodEntityStorage> BLOOD_STORAGE = CapabilityManager.get(new CapabilityToken<>() {});
+    public static Capability<BloodEntityStorage> BLOOD_STORAGE = CapabilityManager.get(new CapabilityToken<>()
+    {
+    });
 
     private BloodEntityStorage blood_storage = null;
     private final LazyOptional<BloodEntityStorage> optional = LazyOptional.of(this::createCap);

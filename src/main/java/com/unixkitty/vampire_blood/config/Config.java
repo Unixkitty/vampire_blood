@@ -1,6 +1,7 @@
-package com.unixkitty.vampire_blood;
+package com.unixkitty.vampire_blood.config;
 
 import com.google.common.collect.Lists;
+import com.unixkitty.vampire_blood.VampireBlood;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraftforge.common.ForgeConfigSpec;

@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.network;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampireActiveAbilities;
 import com.unixkitty.vampire_blood.network.packet.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,6 +10,8 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+
+import java.util.Set;
 
 public class ModNetworkDispatcher
 {
@@ -29,10 +32,11 @@ public class ModNetworkDispatcher
         registerPacket(PlayerVampireDataS2CPacket.class, false);
         registerPacket(DebugDataSyncS2CPacket.class, false);
         registerPacket(PlayerFeedingStatusS2CPacket.class, false);
-        registerPacket(PlayerRespawnS2CPacket.class, false);
         registerPacket(RequestEntityBloodC2SPacket.class, true);
         registerPacket(EntityBloodInfoS2CPacket.class, false);
         registerPacket(PlayerAvoidHurtAnimS2CPacket.class, false);
+        registerPacket(UseAbilityC2SPacket.class, true);
+        registerPacket(SyncAbilitiesS2CPacket.class, false);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)
@@ -67,11 +71,16 @@ public class ModNetworkDispatcher
 
     public static void sendPlayerEntityBlood(ServerPlayer player, BloodType bloodType, int bloodPoints, int maxBloodPoints)
     {
-        sendToClient(new EntityBloodInfoS2CPacket(bloodType.getId(), bloodPoints, maxBloodPoints), player);
+        sendToClient(new EntityBloodInfoS2CPacket(bloodType, bloodPoints, maxBloodPoints), player);
     }
 
     public static void notifyPlayerFeeding(ServerPlayer player, boolean value)
     {
         sendToClient(new PlayerFeedingStatusS2CPacket(value), player);
+    }
+
+    public static void syncPlayerVampireAbilities(ServerPlayer player, Set<VampireActiveAbilities> activeAbilities)
+    {
+        sendToClient(new SyncAbilitiesS2CPacket(activeAbilities), player);
     }
 }

@@ -2,10 +2,10 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.client.ClientEvents;
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -20,7 +20,9 @@ import static com.unixkitty.vampire_blood.client.ClientEvents.MARGIN_PX;
 @OnlyIn(Dist.CLIENT)
 public class EntityBloodOverlay
 {
-    private EntityBloodOverlay() {}
+    private EntityBloodOverlay()
+    {
+    }
 
     public static void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
     {

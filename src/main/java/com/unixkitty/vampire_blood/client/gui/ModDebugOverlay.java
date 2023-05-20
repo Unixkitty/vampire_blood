@@ -1,16 +1,17 @@
 package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.unixkitty.vampire_blood.Config;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampireActiveAbilities;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
+import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.client.ClientEvents;
-import com.unixkitty.vampire_blood.client.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
+import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.StringCrafter;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import com.unixkitty.vampire_blood.util.VampirismTier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -33,24 +34,36 @@ public class ModDebugOverlay
     private static final StringCrafter crafter = new StringCrafter();
     private static final List<Pair<String, Integer>> drawList = new ArrayList<>();
 
-    public static boolean keyEnabled = false;
-    public static boolean keyDietEnabled = false;
+    public static boolean mainEnabled = false;
+    public static SecondaryElement secondaryElement = SecondaryElement.OFF;
 
-    private static boolean isRegistered = false;
+    private static boolean registered = false;
 
     public static void register()
     {
-        if (!isRegistered && Config.renderDebugOverlay.get())
+        if (!registered && Config.renderDebugOverlay.get())
         {
             MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::render);
 
-            isRegistered = true;
+            registered = true;
         }
+    }
+
+    public static void nextSecondaryElement()
+    {
+        SecondaryElement[] values = SecondaryElement.values();
+
+        secondaryElement = values[(secondaryElement.ordinal() + 1) % values.length];
+    }
+
+    public static boolean isMainOverlayEnabled()
+    {
+        return Config.renderDebugOverlay.get() && mainEnabled;
     }
 
     public static void render(final RenderGuiOverlayEvent event)
     {
-        if (Config.renderDebugOverlay.get() && keyEnabled && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
+        if (Config.renderDebugOverlay.get() && (mainEnabled || secondaryElement != SecondaryElement.OFF) && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
         {
             if (Minecraft.getInstance().options.hideGui || Minecraft.getInstance().options.renderDebug) return;
 
@@ -63,11 +76,14 @@ public class ModDebugOverlay
 
             poseStack.pushPose();
 
-            renderDebugText(poseStack, Minecraft.getInstance().font, screenWidth, screenHeight, player);
-
-            if (keyDietEnabled)
+            if (mainEnabled)
             {
-                renderDietHistory(poseStack, Minecraft.getInstance().font, screenWidth, screenHeight);
+                renderDebugText(poseStack, Minecraft.getInstance().font, screenWidth, screenHeight, player);
+            }
+
+            if (secondaryElement != SecondaryElement.OFF)
+            {
+                renderSecondary(poseStack, Minecraft.getInstance().font, screenWidth, screenHeight);
             }
 
             poseStack.popPose();
@@ -76,20 +92,35 @@ public class ModDebugOverlay
         }
     }
 
-    private static void renderDietHistory(PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight)
+    private static void renderSecondary(PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight)
     {
         drawList.clear();
         crafter.clear();
 
-        BloodType type;
+        craftLine(ChatFormatting.WHITE, secondaryElement.name(), ":");
 
-        for (int i = 0; i < ClientVampirePlayerDataCache.Debug.diet.length; i++)
+        switch (secondaryElement)
         {
-            type = VampirismTier.fromId(BloodType.class, ClientVampirePlayerDataCache.Debug.diet[i]);
-
-            if (type != null)
+            case DIET ->
             {
-                craftLine(type.getChatFormatting(), i + 1, i < 9 ? ".   " : ".  ", type.getTranslation().getString());
+                BloodType type;
+
+                for (int i = 0; i < ClientVampirePlayerDataCache.Debug.diet.length; i++)
+                {
+                    type = VampirismTier.fromId(BloodType.class, ClientVampirePlayerDataCache.Debug.diet[i]);
+
+                    if (type != null)
+                    {
+                        craftLine(type.getChatFormatting(), i + 1, i < 9 ? ".   " : ".  ", type.getTranslation().getString());
+                    }
+                }
+            }
+            case ABILITIES ->
+            {
+                for (VampireActiveAbilities ability : VampireActiveAbilities.values())
+                {
+                    craftLine(ChatFormatting.GRAY, ability.getSimpleName(), ": ", String.valueOf(ClientVampirePlayerDataCache.activeAbilities.contains(ability)));
+                }
             }
         }
 
@@ -112,7 +143,8 @@ public class ModDebugOverlay
             craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
             craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.bloodlust));
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.thirstExhaustion));
-            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get());
+            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get(), " | Rate: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrementRate), "/s");
+            craftLine(ChatFormatting.DARK_GRAY, "highestThirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.highestThirstExhaustionIncrement);
             craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
 
             craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth()), "/", VampireUtil.formatDecimal(player.getMaxHealth()), " | Rate: ", VampireUtil.formatDecimal(VampireUtil.getHealthRegenRate(player)), "/", ClientVampirePlayerDataCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
@@ -196,5 +228,12 @@ public class ModDebugOverlay
     private static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
     {
         fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, color, false);
+    }
+
+    public enum SecondaryElement
+    {
+        OFF,
+        DIET,
+        ABILITIES
     }
 }

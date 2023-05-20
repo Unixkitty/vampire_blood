@@ -1,6 +1,7 @@
-package com.unixkitty.vampire_blood.capability.blood;
+package com.unixkitty.vampire_blood.config;
 
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
