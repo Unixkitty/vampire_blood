@@ -5,16 +5,24 @@ import com.unixkitty.vampire_blood.config.Config;
 public enum BloodUsageRates
 {
     IDLE,
-    HEALING_SLOW,
     HEALING;
 
-    public int get()
+    int get()
     {
         return switch (this)
         {
+            case HEALING -> (Config.bloodUsageRate.get() / 2) * Config.naturalHealingRate.get();
             case IDLE -> 1;
-            case HEALING_SLOW -> Config.bloodUsageRate.get() / 4;
-            case HEALING -> Config.bloodUsageRate.get() / 2;
+        };
+    }
+
+    static int getForAbility(VampireActiveAbility ability)
+    {
+        return switch (ability)
+        {
+            case SPEED -> Config.bloodUsageRate.get() / 18;
+            case SENSES -> Config.bloodUsageRate.get() / 36;
+            default -> 0;
         };
     }
 }

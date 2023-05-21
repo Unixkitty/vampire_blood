@@ -12,7 +12,7 @@ public class FakeEffectInstance extends MobEffectInstance
 {
     public FakeEffectInstance(MobEffect effect)
     {
-        super(effect, Short.MAX_VALUE, 0, false, false);
+        super(effect, Short.MAX_VALUE, 0, false, false, true);
 
         setCurativeItems(new ArrayList<>());
     }

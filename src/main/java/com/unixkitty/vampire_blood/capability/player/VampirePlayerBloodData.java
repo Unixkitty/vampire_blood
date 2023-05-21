@@ -65,9 +65,11 @@ public class VampirePlayerBloodData
             exhaustionIncrementFromVanilla(vanillaExhaustionDelta);
         }
 
-        exhaustionIncrement();
+        exhaustionIncrement(BloodUsageRates.IDLE);
 
         handleRegenAndStarvation(player, isPeaceful);
+
+        handleAbilityExhaustion();
 
         if (this.thirstExhaustionIncrement >= Config.bloodUsageRate.get())
         {
@@ -198,7 +200,7 @@ public class VampirePlayerBloodData
                 {
                     player.heal(VampireUtil.getHealthRegenRate(player));
 
-                    exhaustionIncrement(BloodUsageRates.HEALING, Config.naturalHealingRate.get());
+                    exhaustionIncrement(BloodUsageRates.HEALING);
 
                     this.thirstTickTimer = 0;
                 }
@@ -207,7 +209,7 @@ public class VampirePlayerBloodData
                 {
                     player.heal(VampireUtil.getHealthRegenRate(player));
 
-                    exhaustionIncrement(BloodUsageRates.HEALING_SLOW, Config.naturalHealingRate.get());
+                    exhaustionIncrement(BloodUsageRates.HEALING);
 
                     this.thirstTickTimer = 0;
                 }
@@ -246,18 +248,21 @@ public class VampirePlayerBloodData
         }
     }
 
+    private void handleAbilityExhaustion()
+    {
+        for (VampireActiveAbility ability : this.activeAbilities)
+        {
+            this.thirstExhaustionIncrement += BloodUsageRates.getForAbility(ability);
+        }
+    }
+
     private void exhaustionIncrementFromVanilla(float vanillaExhaustionDelta)
     {
         this.thirstExhaustionIncrement += vanillaExhaustionDelta < 1.0F ? 1 : vanillaExhaustionDelta;
     }
 
-    private void exhaustionIncrement()
+    private void exhaustionIncrement(BloodUsageRates rate)
     {
-        this.thirstExhaustionIncrement += BloodUsageRates.IDLE.get();
-    }
-
-    private void exhaustionIncrement(BloodUsageRates rate, int ticks)
-    {
-        this.thirstExhaustionIncrement += rate.get() * ticks;
+        this.thirstExhaustionIncrement += rate.get();
     }
 }
