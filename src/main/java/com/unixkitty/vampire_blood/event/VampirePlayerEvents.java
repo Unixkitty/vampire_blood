@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
@@ -14,6 +15,9 @@ import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +37,22 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class VampirePlayerEvents
 {
+    @SubscribeEvent
+    public static void onPlayerGetBreakSpeed(final PlayerEvent.BreakSpeed event)
+    {
+        AttributeInstance attributeInstance = event.getEntity().getAttribute(Attributes.ATTACK_SPEED);
+
+        if (attributeInstance != null)
+        {
+            AttributeModifier modifier = attributeInstance.getModifier(VampireAttributeModifiers.Modifier.ATTACK_SPEED.getUUID());
+
+            if (modifier != null)
+            {
+                event.setNewSpeed(event.getOriginalSpeed() * ((float) modifier.getAmount() * 2F));
+            }
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
     {

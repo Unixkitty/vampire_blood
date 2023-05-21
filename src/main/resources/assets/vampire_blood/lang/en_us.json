@@ -21,8 +21,8 @@
   "key.vampire_blood.feed": "Feed",
   "key.vampire_blood.night_vision": "Night Vision",
   "key.vampire_blood.blood_vision": "Blood Vision",
-  "key.vampire_blood.enhanced_senses": "Enhanced Senses",
-  "key.vampire_blood.enhanced_speed": "Enhanced Speed",
+  "key.vampire_blood.enhanced_senses": "Vampiric Senses",
+  "key.vampire_blood.enhanced_speed": "Vampiric Speed",
   "key.vampire_blood.charm": "Charm",
   "vampire_blood.death.attack.sunlight_1": "%1$s forgot to apply sunscreen",
   "vampire_blood.death.attack.sunlight_2": "Looks like %1$s was allergic to sunshine",
@@ -45,7 +45,7 @@
   "vampire_blood.death.attack.bloodloss_6": "%1$s became a human juice box for %2$s",
   "item.vampire_blood.vampire_dust": "Vampire Dust",
   "effect.vampire_blood.blood_vision": "Blood Vision",
-  "effect.vampire_blood.enhanced_senses": "Enhanced Senses",
-  "effect.vampire_blood.enhanced_speed": "Enhanced Speed",
+  "effect.vampire_blood.enhanced_senses": "Vampiric Senses",
+  "effect.vampire_blood.enhanced_speed": "Vampiric Speed",
   "effect.vampire_blood.charmed": "Enthralled"
 }

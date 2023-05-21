@@ -6,19 +6,19 @@ import net.minecraft.ChatFormatting;
 public enum VampirismStage implements VampirismTier<VampirismStage>
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0),
-    IN_TRANSITION(0, 1, 2, 1, 0),
-    FLEDGLING(1, 3, 3, 2, 1.75F),
-    VAMPIRE(2, 4, 4, 3, 1.5F),
-    MATURE(3, 5, 5, 4, 1.25F),
-    ORIGINAL(999, 10, 6, 5, 1.0F);
+    IN_TRANSITION(0, 1, 2, 1.25, 0),
+    FLEDGLING(1, 3, 3, 3, 1.25F),
+    VAMPIRE(2, 4, 4, 4, 1.0F),
+    MATURE(3, 5, 5, 5, 0.75F),
+    ORIGINAL(999, 10, 6, 6, 0.5F);
 
     private final int id;
     private final double healthMultiplier;
     private final double strengthMultiplier;
-    private final float speedBoostMultiplier;
+    private final double speedBoostMultiplier;
     private final float bloodUsageMultiplier;
 
-    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, float speedBoostMultiplier, float bloodUsageMultiplier)
+    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, double speedBoostMultiplier, float bloodUsageMultiplier)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;
@@ -31,11 +31,6 @@ public enum VampirismStage implements VampirismTier<VampirismStage>
     public int getId()
     {
         return id;
-    }
-
-    public float getSpeedBoostMultiplier()
-    {
-        return speedBoostMultiplier;
     }
 
     public float getBloodUsageMultiplier()
@@ -63,7 +58,7 @@ public enum VampirismStage implements VampirismTier<VampirismStage>
         {
             case HEALTH -> healthMultiplier;
             case STRENGTH -> strengthMultiplier;
-            case BASE_SPEED -> this == IN_TRANSITION ? 1.25 : 1;
+            case BASE_SPEED, ATTACK_SPEED -> speedBoostMultiplier;
         };
     }
 

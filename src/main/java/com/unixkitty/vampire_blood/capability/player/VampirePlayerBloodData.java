@@ -135,7 +135,7 @@ public class VampirePlayerBloodData
 
         float lastHealthFactor = player.getHealth() / player.getMaxHealth();
 
-        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity);
+        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity, this.activeAbilities);
 
         if (player.getHealth() / player.getMaxHealth() < lastHealthFactor)
         {
@@ -258,11 +258,11 @@ public class VampirePlayerBloodData
 
     private void exhaustionIncrementFromVanilla(float vanillaExhaustionDelta)
     {
-        this.thirstExhaustionIncrement += vanillaExhaustionDelta < 1.0F ? 1 : vanillaExhaustionDelta;
+        this.thirstExhaustionIncrement += (vanillaExhaustionDelta < 1.0F ? 1 : vanillaExhaustionDelta) * this.vampireLevel.getBloodUsageMultiplier();
     }
 
     private void exhaustionIncrement(BloodUsageRates rate)
     {
-        this.thirstExhaustionIncrement += rate.get();
+        this.thirstExhaustionIncrement += rate.get() * this.vampireLevel.getBloodUsageMultiplier();
     }
 }

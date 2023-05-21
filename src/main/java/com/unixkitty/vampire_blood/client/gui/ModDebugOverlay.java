@@ -143,7 +143,7 @@ public class ModDebugOverlay
             craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
             craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.bloodlust));
             craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.thirstExhaustion));
-            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get(), " | Rate: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrementRate), "/s");
+            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get(), " | Rate: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrementRate), "/t");
             craftLine(ChatFormatting.DARK_GRAY, "highestThirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.highestThirstExhaustionIncrement);
             craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
 
@@ -212,7 +212,7 @@ public class ModDebugOverlay
 
         for (VampireAttributeModifiers.Modifier modifier : VampireAttributeModifiers.Modifier.values())
         {
-            if (modifier.isApplicableStage(ClientVampirePlayerDataCache.vampireLevel))
+            if (modifier.isApplicable(ClientVampirePlayerDataCache.vampireLevel, ClientVampirePlayerDataCache.activeAbilities))
             {
                 attributeInstance = player.getAttribute(modifier.getBaseAttribute());
 
@@ -233,7 +233,7 @@ public class ModDebugOverlay
     public enum SecondaryElement
     {
         OFF,
+        ABILITIES,
         DIET,
-        ABILITIES
     }
 }
