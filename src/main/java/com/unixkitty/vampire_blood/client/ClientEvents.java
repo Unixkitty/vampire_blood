@@ -1,15 +1,17 @@
 package com.unixkitty.vampire_blood.client;
 
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
+import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -33,7 +35,7 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onRenderGuiOverlay(final RenderGuiOverlayEvent.Pre event)
         {
-            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && Minecraft.getInstance().player != null && ClientVampirePlayerDataCache.canFeed() && Minecraft.getInstance().player.isAlive() && Minecraft.getInstance().gameMode != null && Minecraft.getInstance().gameMode.hasExperience())
+            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && Minecraft.getInstance().player != null && ClientCache.canFeed() && Minecraft.getInstance().player.isAlive() && Minecraft.getInstance().gameMode != null && Minecraft.getInstance().gameMode.hasExperience())
             {
                 event.setCanceled(true);
             }
@@ -87,9 +89,9 @@ public final class ClientEvents
                     }
                     case END ->
                     {
-                        if (ModDebugOverlay.isMainOverlayEnabled() && ClientVampirePlayerDataCache.isVampire())
+                        if (Config.debug.get() && Config.renderDebugOverlay.get() && ModDebugOverlay.mainEnabled && ClientCache.isVampire())
                         {
-                            ClientVampirePlayerDataCache.Debug.updateThirstExhaustionIncrementRate(event.player.tickCount);
+                            ClientCache.getDebugVars().updateThirstExhaustionIncrementRate(event.player.tickCount);
                         }
                     }
                 }
@@ -97,15 +99,9 @@ public final class ClientEvents
         }
 
         @SubscribeEvent
-        public static void onClientLoggedIn(final ClientPlayerNetworkEvent.LoggingIn event)
-        {
-            //TODO cache reinit
-        }
-
-        @SubscribeEvent
         public static void onClientLoggedOut(final ClientPlayerNetworkEvent.LoggingOut event)
         {
-            //TODO cache reset
+            ClientCache.reset();
         }
     }
 
@@ -115,7 +111,10 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event)
         {
-            ModDebugOverlay.register();
+            if (Config.debug.get() && Config.renderDebugOverlay.get())
+            {
+                MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::render);
+            }
         }
 
         @SubscribeEvent
@@ -127,7 +126,7 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onRegisterGuiOverlays(final RegisterGuiOverlaysEvent event)
         {
-            event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "bloodbar", BloodBarOverlay.INSTANCE);
+            event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "blood", BloodBarOverlay.INSTANCE);
         }
     }
 }

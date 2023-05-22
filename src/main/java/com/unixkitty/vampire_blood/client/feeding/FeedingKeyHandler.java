@@ -3,7 +3,7 @@ package com.unixkitty.vampire_blood.client.feeding;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.unixkitty.vampire_blood.client.KeyAction;
 import com.unixkitty.vampire_blood.client.KeyBindings;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,12 +27,12 @@ public class FeedingKeyHandler
         //Just pressed the key, if not feeding need to request server to start feeding
         if (feedKeyTouched && lastFeedKeyAction == InputConstants.PRESS)
         {
-            if (!ClientVampirePlayerDataCache.feeding && FeedingHandler.canFeed())
+            if (!ClientCache.getVampireVars().feeding && FeedingHandler.canFeed())
             {
                 KeyAction.FEED_START.handle();
             }
         }
-        else if (ClientVampirePlayerDataCache.feeding)
+        else if (ClientCache.getVampireVars().feeding)
         {
             //Do not stop feeding if holding the key
             if (lastFeedKeyAction != InputConstants.REPEAT && (movementKeysTouched || lastFeedKeyAction == InputConstants.RELEASE))

@@ -50,21 +50,16 @@ public class KeyBindings
         //Sneak + F4 + V toggles diet HUD (only renders if main debug HUD is rendering)
         if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && FEED_KEY.isDown())
         {
-            if (!Config.renderDebugOverlay.get())
+            if (Config.debug.get() && Config.renderDebugOverlay.get())
             {
-                Config.renderDebugOverlay.set(true);
-                Config.renderDebugOverlay.save();
-
-                ModDebugOverlay.register();
-            }
-
-            if (Minecraft.getInstance().options.keyShift.isDown())
-            {
-                ModDebugOverlay.nextSecondaryElement();
-            }
-            else
-            {
-                ModDebugOverlay.mainEnabled = !ModDebugOverlay.mainEnabled;
+                if (Minecraft.getInstance().options.keyShift.isDown())
+                {
+                    ModDebugOverlay.nextSecondaryElement();
+                }
+                else
+                {
+                    ModDebugOverlay.mainEnabled = !ModDebugOverlay.mainEnabled;
+                }
             }
         }
 

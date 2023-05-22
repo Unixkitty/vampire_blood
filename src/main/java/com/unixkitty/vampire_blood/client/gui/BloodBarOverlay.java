@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.client.ClientEvents;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -33,7 +33,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isAlive() && !Minecraft.getInstance().options.hideGui && gui.shouldDrawSurvivalElements())
         {
             //Thirst level bar
-            if (ClientVampirePlayerDataCache.isVampire() && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity))
+            if (ClientCache.isVampire() && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity))
             {
                 Minecraft.getInstance().getProfiler().push("blood_bar_overlay");
 
@@ -45,7 +45,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
                 if (Config.showBloodbarExhaustionUnderlay.get())
                 {
-                    int width = (int) (Math.min(1F, Math.max(0F, ClientVampirePlayerDataCache.thirstExhaustion / 100F)) * 81);
+                    int width = (int) (Math.min(1F, Math.max(0F, ClientCache.getVampireVars().thirstExhaustion / 100F)) * 81);
 
                     RenderSystem.enableBlend();
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.625F);
@@ -67,7 +67,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     int backgroundOffsetY = 0;
 
                     //If feeding, instead of jitter at low blood, play wave animation similar to health regeneration
-                    if (ClientVampirePlayerDataCache.feeding)
+                    if (ClientCache.getVampireVars().feeding)
                     {
                         //Alternate dancing-like animation
                         if (Config.alternateBloodbarFeedingAnimation.get())
@@ -81,7 +81,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                         }
                     }
                     //Bar jitter that gets faster with lower blood when below 1/6
-                    else if (ClientVampirePlayerDataCache.isHungry() && gui.getGuiTicks() % (ClientVampirePlayerDataCache.thirstLevel * 9 + 1) == 0)
+                    else if (ClientCache.isHungry() && gui.getGuiTicks() % (ClientCache.getVampireVars().thirstLevel * 9 + 1) == 0)
                     {
                         offsetY -= random.nextInt(3) - 1;
                         backgroundOffsetY = offsetY;
@@ -91,19 +91,19 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     blit(poseStack, x, startY + backgroundOffsetY, 0, 0, 9, 9);
 
                     //Power of Canada
-                    if (idx2 < ClientVampirePlayerDataCache.thirstLevel)
+                    if (idx2 < ClientCache.getVampireVars().thirstLevel)
                     {
                         blit(poseStack, x, startY + offsetY, 36, 0, 9, 9); //Double full
                     }
-                    else if (idx2 == ClientVampirePlayerDataCache.thirstLevel)
+                    else if (idx2 == ClientCache.getVampireVars().thirstLevel)
                     {
                         blit(poseStack, x, startY + offsetY, 27, 0, 9, 9); //Double half full
                     }
-                    else if (idx < ClientVampirePlayerDataCache.thirstLevel)
+                    else if (idx < ClientCache.getVampireVars().thirstLevel)
                     {
                         blit(poseStack, x, startY + offsetY, 18, 0, 9, 9); //Full
                     }
-                    else if (idx == ClientVampirePlayerDataCache.thirstLevel)
+                    else if (idx == ClientCache.getVampireVars().thirstLevel)
                     {
                         blit(poseStack, x, startY + offsetY, 9, 0, 9, 9); //Half
                     }

@@ -25,7 +25,7 @@ public interface VampirismTier<E extends Enum<E> & VampirismTier<E>>
 
     static String getName(Class<? extends VampirismTier<?>> tierClass)
     {
-        if (tierClass.equals(VampirismStage.class))
+        if (tierClass.equals(VampirismLevel.class))
         {
             return "level";
         }

@@ -7,7 +7,7 @@ import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.client.ClientEvents;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.StringCrafter;
@@ -22,7 +22,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
-import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -31,39 +30,20 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public class ModDebugOverlay
 {
+    public static boolean mainEnabled = false;
+
     private static final StringCrafter crafter = new StringCrafter();
     private static final List<Pair<String, Integer>> drawList = new ArrayList<>();
-
-    public static boolean mainEnabled = false;
-    public static SecondaryElement secondaryElement = SecondaryElement.OFF;
-
-    private static boolean registered = false;
-
-    public static void register()
-    {
-        if (!registered && Config.renderDebugOverlay.get())
-        {
-            MinecraftForge.EVENT_BUS.addListener(ModDebugOverlay::render);
-
-            registered = true;
-        }
-    }
+    private static SecondaryElement secondaryElement = SecondaryElement.OFF;
 
     public static void nextSecondaryElement()
     {
-        SecondaryElement[] values = SecondaryElement.values();
-
-        secondaryElement = values[(secondaryElement.ordinal() + 1) % values.length];
-    }
-
-    public static boolean isMainOverlayEnabled()
-    {
-        return Config.renderDebugOverlay.get() && mainEnabled;
+        secondaryElement = SecondaryElement.values[(secondaryElement.ordinal() + 1) % SecondaryElement.values.length];
     }
 
     public static void render(final RenderGuiOverlayEvent event)
     {
-        if (Config.renderDebugOverlay.get() && (mainEnabled || secondaryElement != SecondaryElement.OFF) && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
+        if ((mainEnabled || secondaryElement != SecondaryElement.OFF) && event.getOverlay().id().equals(VanillaGuiOverlay.CROSSHAIR.id()) && Minecraft.getInstance().getCameraEntity() instanceof Player player && !player.isSpectator() && !player.isCreative())
         {
             if (Minecraft.getInstance().options.hideGui || Minecraft.getInstance().options.renderDebug) return;
 
@@ -105,9 +85,9 @@ public class ModDebugOverlay
             {
                 BloodType type;
 
-                for (int i = 0; i < ClientVampirePlayerDataCache.Debug.diet.length; i++)
+                for (int i = 0; i < ClientCache.getDebugVars().diet.length; i++)
                 {
-                    type = VampirismTier.fromId(BloodType.class, ClientVampirePlayerDataCache.Debug.diet[i]);
+                    type = VampirismTier.fromId(BloodType.class, ClientCache.getDebugVars().diet[i]);
 
                     if (type != null)
                     {
@@ -119,7 +99,7 @@ public class ModDebugOverlay
             {
                 for (VampireActiveAbility ability : VampireActiveAbility.values())
                 {
-                    craftLine(ChatFormatting.GRAY, ability.getSimpleName(), ": ", String.valueOf(ClientVampirePlayerDataCache.activeAbilities.contains(ability)));
+                    craftLine(ChatFormatting.GRAY, ability.getSimpleName(), ": ", String.valueOf(ClientCache.getVampireVars().activeAbilities.contains(ability)));
                 }
             }
         }
@@ -133,29 +113,29 @@ public class ModDebugOverlay
         crafter.clear();
 
         craftLine(ChatFormatting.GRAY, "player.tickCount: ", player.tickCount);
-        craftLine(ChatFormatting.DARK_PURPLE, "vampireLevel: ", ClientVampirePlayerDataCache.vampireLevel);
+        craftLine(ChatFormatting.DARK_PURPLE, "vampireLevel: ", ClientCache.getVampireVars().getVampireLevel());
 
-        if (ClientVampirePlayerDataCache.isVampire())
+        if (ClientCache.isVampire())
         {
-            craftLine(ChatFormatting.RED, "bloodType: ", ClientVampirePlayerDataCache.bloodType.getTranslation().getString());
-            craftLine(ChatFormatting.GRAY, "bloodPurity: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.bloodPurity));
+            craftLine(ChatFormatting.RED, "bloodType: ", ClientCache.getVampireVars().getBloodType().getTranslation().getString());
+            craftLine(ChatFormatting.GRAY, "bloodPurity: ", VampireUtil.formatPercent100(ClientCache.getVampireVars().bloodPurity));
 
-            craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientVampirePlayerDataCache.thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
-            craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.bloodlust));
-            craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", VampireUtil.formatPercent100(ClientVampirePlayerDataCache.thirstExhaustion));
-            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement, "/", Config.bloodUsageRate.get(), " | Rate: ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrementRate), "/t");
-            craftLine(ChatFormatting.DARK_GRAY, "highestThirstExhaustionIncrement: ", ClientVampirePlayerDataCache.Debug.highestThirstExhaustionIncrement);
-            craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientVampirePlayerDataCache.Debug.thirstTickTimer);
+            craftLine(ChatFormatting.DARK_RED, "thirstLevel: ", ClientCache.getVampireVars().thirstLevel, "/", VampirePlayerBloodData.MAX_THIRST);
+            craftLine(ChatFormatting.DARK_RED, "bloodlust: ", VampireUtil.formatPercent100(ClientCache.getVampireVars().bloodlust));
+            craftLine(ChatFormatting.GRAY, "thirstExhaustionLevel: ", VampireUtil.formatPercent100(ClientCache.getVampireVars().thirstExhaustion));
+            craftLine(ChatFormatting.DARK_GRAY, "thirstExhaustionIncrement: ", ClientCache.getDebugVars().thirstExhaustionIncrement, "/", Config.bloodUsageRate.get(), " | Rate: ", VampireUtil.formatDecimal(ClientCache.getDebugVars().thirstExhaustionIncrementRate), "/t");
+            craftLine(ChatFormatting.DARK_GRAY, "highestThirstExhaustionIncrement: ", ClientCache.getDebugVars().highestThirstExhaustionIncrement);
+            craftLine(ChatFormatting.GRAY, "thirstTickTimer: ", ClientCache.getDebugVars().thirstTickTimer);
 
-            craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth()), "/", VampireUtil.formatDecimal(player.getMaxHealth()), " | Rate: ", VampireUtil.formatDecimal(VampireUtil.getHealthRegenRate(player)), "/", ClientVampirePlayerDataCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
-            craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientVampirePlayerDataCache.Debug.noRegenTicks);
+            craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth()), "/", VampireUtil.formatDecimal(player.getMaxHealth()), " | Rate: ", VampireUtil.formatDecimal(VampireUtil.getHealthRegenRate(player)), "/", ClientCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
+            craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientCache.getDebugVars().noRegenTicks);
         }
 
-        if (ClientVampirePlayerDataCache.canFeed())
+        if (ClientCache.canFeed())
         {
-            craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientVampirePlayerDataCache.Debug.ticksInSun);
+            craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientCache.getDebugVars().ticksInSun);
             craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", FeedingMouseOverHandler.isLookingAtEdible());
-            craftLine(ChatFormatting.DARK_GRAY, "feeding: ", ClientVampirePlayerDataCache.feeding);
+            craftLine(ChatFormatting.DARK_GRAY, "feeding: ", ClientCache.getVampireVars().feeding);
 
             addAttributes(player);
         }
@@ -212,14 +192,14 @@ public class ModDebugOverlay
 
         for (VampireAttributeModifiers.Modifier modifier : VampireAttributeModifiers.Modifier.values())
         {
-            if (modifier.isApplicable(ClientVampirePlayerDataCache.vampireLevel, ClientVampirePlayerDataCache.activeAbilities))
+            if (modifier.isApplicable(ClientCache.getVampireVars().getVampireLevel(), ClientCache.getVampireVars().activeAbilities))
             {
                 attributeInstance = player.getAttribute(modifier.getBaseAttribute());
 
                 if (attributeInstance != null)
                 {
                     //mod: currentValue ( vampireLevelMod ( BloodTypeMod * BloodTypePurity ) )
-                    craftLine(ChatFormatting.DARK_AQUA, modifier.name(), ": ", VampireUtil.formatDecimal(attributeInstance.getValue()), " ( ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.vampireLevel.getAttributeMultiplier(modifier)), " * ( ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodType.getAttributeMultiplier(modifier)), " * ", VampireUtil.formatDecimal(ClientVampirePlayerDataCache.bloodPurity), " ) )");
+                    craftLine(ChatFormatting.DARK_AQUA, modifier.name(), ": ", VampireUtil.formatDecimal(attributeInstance.getValue()), " ( ", VampireUtil.formatDecimal(ClientCache.getVampireVars().getVampireLevel().getAttributeMultiplier(modifier)), " * ( ", VampireUtil.formatDecimal(ClientCache.getVampireVars().getBloodType().getAttributeMultiplier(modifier)), " * ", VampireUtil.formatDecimal(ClientCache.getVampireVars().bloodPurity), " ) )");
                 }
             }
         }
@@ -234,6 +214,8 @@ public class ModDebugOverlay
     {
         OFF,
         ABILITIES,
-        DIET,
+        DIET;
+
+        public static final SecondaryElement[] values = values();
     }
 }

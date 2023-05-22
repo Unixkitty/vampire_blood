@@ -10,7 +10,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -30,7 +30,7 @@ public class VampireCommand
         LiteralArgumentBuilder<CommandSourceStack> vampireCommand = Commands.literal("vampire")
                 .requires(commandSourceStack -> commandSourceStack.hasPermission(4));
 
-        registerTierCommand(VampirismStage.class, vampireCommand);
+        registerTierCommand(VampirismLevel.class, vampireCommand);
         registerTierCommand(BloodType.class, vampireCommand);
 
         registerCommand(Value.BLOOD, vampireCommand, IntegerArgumentType.integer(0, VampirePlayerBloodData.MAX_THIRST));
@@ -78,7 +78,7 @@ public class VampireCommand
             {
                 player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                 {
-                    if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
+                    if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                     {
                         String message = "";
 
@@ -142,7 +142,7 @@ public class VampireCommand
                     {
                         message = vampirePlayerData.getDietBloodType().getTranslation();
                     }
-                    else if (clazz.equals(VampirismStage.class))
+                    else if (clazz.equals(VampirismLevel.class))
                     {
                         message = vampirePlayerData.getVampireLevel().getTranslation();
                     }
@@ -160,7 +160,7 @@ public class VampireCommand
                 {
                     if (value instanceof BloodType type)
                     {
-                        if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
+                        if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                         {
                             if (type == BloodType.NONE)
                             {
@@ -185,7 +185,7 @@ public class VampireCommand
                             playerNotVampire(context, player);
                         }
                     }
-                    else if (value instanceof VampirismStage stage)
+                    else if (value instanceof VampirismLevel stage)
                     {
                         if (vampirePlayerData.getVampireLevel() != stage)
                         {

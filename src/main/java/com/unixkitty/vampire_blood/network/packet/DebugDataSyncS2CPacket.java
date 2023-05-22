@@ -9,17 +9,15 @@ import java.util.function.Supplier;
 public class DebugDataSyncS2CPacket extends BasePacket
 {
     private final int ticksInSun;
-    private final int ticksFeeding;
     private final int noRegenTicks;
 
     private final int thirstExhaustionIncrement;
     private final int thirstTickTimer;
     private final int[] diet;
 
-    public DebugDataSyncS2CPacket(int ticksInSun, int ticksFeeding, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
+    public DebugDataSyncS2CPacket(int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
         this.ticksInSun = ticksInSun;
-        this.ticksFeeding = ticksFeeding;
         this.noRegenTicks = noRegenTicks;
 
         this.thirstExhaustionIncrement = thirstExhaustionIncrement;
@@ -30,7 +28,6 @@ public class DebugDataSyncS2CPacket extends BasePacket
     public DebugDataSyncS2CPacket(FriendlyByteBuf buffer)
     {
         this.ticksInSun = buffer.readInt();
-        this.ticksFeeding = buffer.readInt();
         this.noRegenTicks = buffer.readVarInt();
 
         this.thirstExhaustionIncrement = buffer.readInt();
@@ -41,7 +38,6 @@ public class DebugDataSyncS2CPacket extends BasePacket
     public void toBytes(FriendlyByteBuf buffer)
     {
         buffer.writeInt(this.ticksInSun);
-        buffer.writeInt(this.ticksFeeding);
         buffer.writeVarInt(this.noRegenTicks);
 
         buffer.writeInt(this.thirstExhaustionIncrement);
@@ -53,7 +49,7 @@ public class DebugDataSyncS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() -> ClientPacketHandler.handleDebugData(this.ticksFeeding, this.ticksInSun, this.noRegenTicks, this.thirstExhaustionIncrement, this.thirstTickTimer, this.diet));
+        context.enqueueWork(() -> ClientPacketHandler.handleDebugData(this.ticksInSun, this.noRegenTicks, this.thirstExhaustionIncrement, this.thirstTickTimer, this.diet));
 
         context.setPacketHandled(true);
 

@@ -19,6 +19,8 @@ public class Config
     public static ForgeConfigSpec CLIENT_CONFIG;
 
     /* BEGIN COMMON CONFIG ENTRIES */
+    public static ForgeConfigSpec.BooleanValue debug;
+
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
     public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
@@ -50,6 +52,8 @@ public class Config
 
             commonConfig.push("General");
             {
+                debug = commonConfig.comment("Enable debug features (lots of network traffic and additional HUDs)").define("debug", true);
+
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").comment("Requires world restart").worldRestart().define("shouldUndeadIgnoreVampires", true);
 
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define("increasedDamageFromWood", true);
@@ -96,7 +100,7 @@ public class Config
 
             clientConfig.push("debug");
             {
-                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define("renderDebugOverlay", false);
+                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define("renderDebugOverlay", true);
             }
             clientConfig.pop();
 

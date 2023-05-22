@@ -18,7 +18,7 @@ public class VampirePlayerBloodData
 {
     public static final int MAX_THIRST = 40;
 
-    VampirismStage vampireLevel = VampirismStage.NOT_VAMPIRE;
+    VampirismLevel vampireLevel = VampirismLevel.NOT_VAMPIRE;
     BloodType bloodType = BloodType.HUMAN;
     float bloodPurity = 1.0F;
     int thirstLevel = 1;
@@ -124,9 +124,9 @@ public class VampirePlayerBloodData
 
     void checkOriginal(ServerPlayer player)
     {
-        if (this.vampireLevel == VampirismStage.ORIGINAL && !player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
+        if (this.vampireLevel == VampirismLevel.ORIGINAL && !player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
         {
-            this.vampireLevel = VampirismStage.MATURE;
+            this.vampireLevel = VampirismLevel.MATURE;
         }
     }
 

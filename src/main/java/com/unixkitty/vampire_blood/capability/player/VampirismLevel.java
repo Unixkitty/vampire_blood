@@ -3,7 +3,7 @@ package com.unixkitty.vampire_blood.capability.player;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import net.minecraft.ChatFormatting;
 
-public enum VampirismStage implements VampirismTier<VampirismStage>
+public enum VampirismLevel implements VampirismTier<VampirismLevel>
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0, ChatFormatting.WHITE),
     IN_TRANSITION(0, 1, 2, 1.25, 0, ChatFormatting.GRAY),
@@ -19,7 +19,7 @@ public enum VampirismStage implements VampirismTier<VampirismStage>
     private final float bloodUsageMultiplier;
     private final ChatFormatting chatFormatting;
 
-    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, double speedBoostMultiplier, float bloodUsageMultiplier, ChatFormatting formatting)
+    VampirismLevel(int id, double healthMultiplier, double strengthMultiplier, double speedBoostMultiplier, float bloodUsageMultiplier, ChatFormatting formatting)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;

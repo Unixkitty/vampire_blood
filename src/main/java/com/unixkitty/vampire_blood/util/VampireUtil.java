@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.util;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +36,7 @@ public class VampireUtil
 
     public static boolean isUndead(@Nonnull ServerPlayer player)
     {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismStage.NOT_VAMPIRE.getId()).orElse(false);
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId()).orElse(false);
     }
 
     public static float getHealthRegenRate(@Nonnull Player player)

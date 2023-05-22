@@ -2,16 +2,14 @@ package com.unixkitty.vampire_blood.client;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
@@ -19,24 +17,24 @@ public class ClientPacketHandler
 {
     public static void handleSyncAbilities(int[] abilities)
     {
-        List<VampireActiveAbility> previousList = new ArrayList<>(ClientVampirePlayerDataCache.activeAbilities);
+        final List<VampireActiveAbility> lastList = List.copyOf(ClientCache.getVampireVars().activeAbilities);
 
-        ClientVampirePlayerDataCache.activeAbilities.clear();
+        ClientCache.getVampireVars().activeAbilities.clear();
 
         for (int id : abilities)
         {
-            ClientVampirePlayerDataCache.activeAbilities.add(VampireActiveAbility.fromOrdinal(id));
+            ClientCache.getVampireVars().activeAbilities.add(VampireActiveAbility.fromOrdinal(id));
         }
 
         if (Minecraft.getInstance().player != null)
         {
             for (VampireActiveAbility ability : VampireActiveAbility.values())
             {
-                if (ClientVampirePlayerDataCache.activeAbilities.contains(ability))
+                if (ClientCache.getVampireVars().activeAbilities.contains(ability))
                 {
                     ability.refresh(Minecraft.getInstance().player);
                 }
-                else if (previousList.contains(ability))
+                else if (lastList.contains(ability))
                 {
                     ability.stop(Minecraft.getInstance().player);
                 }
@@ -44,34 +42,33 @@ public class ClientPacketHandler
         }
     }
 
-    public static void handleVampireData(VampirismStage vampireLevel, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust, float bloodPurity)
+    /*public static void handleVampireData(VampirismLevel vampireLevel, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust, float bloodPurity)
     {
         if (Minecraft.getInstance().player != null)
         {
             Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                ClientVampirePlayerDataCache.vampireLevel = vampirePlayerData.setClientVampireLevel(vampireLevel);
-                ClientVampirePlayerDataCache.bloodType = vampirePlayerData.setClientBloodType(bloodType);
+                ModCache.getVampireVars().getVampireLevel() = vampirePlayerData.setClientVampireLevel(vampireLevel);
+                ModCache.getVampireVars().getBloodType() = vampirePlayerData.setClientBloodType(bloodType);
 
-                ClientVampirePlayerDataCache.thirstLevel = vampirePlayerData.setClientBlood(thirstLevel);
-                ClientVampirePlayerDataCache.thirstExhaustion = vampirePlayerData.setClientExhaustion(thirstExhaustion);
-                ClientVampirePlayerDataCache.bloodlust = vampirePlayerData.setClientBloodlust(bloodlust);
-                ClientVampirePlayerDataCache.bloodPurity = bloodPurity;
+                ModCache.getVampireVars().thirstLevel = vampirePlayerData.setClientBlood(thirstLevel);
+                ModCache.getVampireVars().thirstExhaustion = vampirePlayerData.setClientExhaustion(thirstExhaustion);
+                ModCache.getVampireVars().bloodlust = vampirePlayerData.setClientBloodlust(bloodlust);
+                ModCache.getVampireVars().bloodPurity = bloodPurity;
             });
         }
-    }
+    }*/
 
-    public static void handleDebugData(int ticksFeeding, int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
+    public static void handleDebugData(int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
-        ClientVampirePlayerDataCache.Debug.ticksFeeding = ticksFeeding;
-        ClientVampirePlayerDataCache.Debug.ticksInSun = ticksInSun;
-        ClientVampirePlayerDataCache.Debug.noRegenTicks = noRegenTicks;
+        ClientCache.getDebugVars().ticksInSun = ticksInSun;
+        ClientCache.getDebugVars().noRegenTicks = noRegenTicks;
 
-        ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = thirstExhaustionIncrement;
-        ClientVampirePlayerDataCache.Debug.thirstTickTimer = thirstTickTimer;
+        ClientCache.getDebugVars().thirstExhaustionIncrement = thirstExhaustionIncrement;
+        ClientCache.getDebugVars().thirstTickTimer = thirstTickTimer;
 
         ArrayUtils.reverse(diet);
-        System.arraycopy(diet, 0, ClientVampirePlayerDataCache.Debug.diet, 0, diet.length);
+        System.arraycopy(diet, 0, ClientCache.getDebugVars().diet, 0, diet.length);
     }
 
     public static void handleFeedingStatus(boolean feeding)
@@ -79,7 +76,7 @@ public class ClientPacketHandler
         if (Minecraft.getInstance().player != null)
         {
             Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                    ClientVampirePlayerDataCache.feeding = vampirePlayerData.setFeeding(feeding));
+                    ClientCache.getVampireVars().feeding = vampirePlayerData.setFeeding(feeding));
         }
     }
 

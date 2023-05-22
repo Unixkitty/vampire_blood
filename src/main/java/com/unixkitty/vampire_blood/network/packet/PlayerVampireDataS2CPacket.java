@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
-import com.unixkitty.vampire_blood.client.ClientPacketHandler;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -10,16 +10,16 @@ import java.util.function.Supplier;
 
 public class PlayerVampireDataS2CPacket extends BasePacket
 {
-    private final VampirismStage vampireLevel;
-    private final BloodType bloodType;
-    private final int thirstLevel;
-    private final int thirstExhaustion;
-    private final float bloodlust;
-    private final float bloodPurity;
+    public final VampirismLevel vampireLevel;
+    public final BloodType bloodType;
+    public final int thirstLevel;
+    public final int thirstExhaustion;
+    public final float bloodlust;
+    public final float bloodPurity;
 
-    public PlayerVampireDataS2CPacket(VampirismStage vampirismStage, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust, float bloodPurity)
+    public PlayerVampireDataS2CPacket(VampirismLevel vampirismLevel, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust, float bloodPurity)
     {
-        this.vampireLevel = vampirismStage;
+        this.vampireLevel = vampirismLevel;
         this.bloodType = bloodType;
         this.thirstLevel = thirstLevel;
         this.thirstExhaustion = thirstExhaustion;
@@ -29,7 +29,7 @@ public class PlayerVampireDataS2CPacket extends BasePacket
 
     public PlayerVampireDataS2CPacket(FriendlyByteBuf buffer)
     {
-        this.vampireLevel = buffer.readEnum(VampirismStage.class);
+        this.vampireLevel = buffer.readEnum(VampirismLevel.class);
         this.bloodType = buffer.readEnum(BloodType.class);
         this.thirstLevel = buffer.readVarInt();
         this.thirstExhaustion = buffer.readVarInt();
@@ -51,7 +51,7 @@ public class PlayerVampireDataS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() -> ClientPacketHandler.handleVampireData(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust, this.bloodPurity));
+        context.enqueueWork(() -> ClientCache.getVampireVars().handleVampireDataPacket(this));
 
         context.setPacketHandled(true);
 

@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.client.feeding;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -22,7 +22,7 @@ public class FeedingMouseOverHandler
 
     static void handle(final RenderHighlightEvent.Entity event)
     {
-        if (ClientVampirePlayerDataCache.canFeed() && event.getTarget().getEntity() instanceof LivingEntity entity) //LivingEntity because we want info about players as well
+        if (ClientCache.canFeed() && event.getTarget().getEntity() instanceof LivingEntity entity) //LivingEntity because we want info about players as well
         {
             int currentTick = Minecraft.getInstance().gui.getGuiTicks();
 

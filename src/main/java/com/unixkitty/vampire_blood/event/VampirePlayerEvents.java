@@ -3,7 +3,7 @@ package com.unixkitty.vampire_blood.event;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
@@ -94,7 +94,7 @@ public class VampirePlayerEvents
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.IN_TRANSITION.getId())
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                 {
                     if (Config.vampireDustDropAmount.get() > 0 && event.getSource() != DamageSource.LAVA)
                     {
@@ -134,7 +134,7 @@ public class VampirePlayerEvents
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismStage.NOT_VAMPIRE.getId())
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId())
                 {
                     if (event.getSource().getEntity() instanceof LivingEntity attacker && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
                     {

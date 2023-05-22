@@ -3,7 +3,7 @@ package com.unixkitty.vampire_blood.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.client.ClientEvents;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -26,7 +26,7 @@ public class EntityBloodOverlay
 
     public static void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
     {
-        if (ClientVampirePlayerDataCache.canFeed())
+        if (ClientCache.canFeed())
         {
             Minecraft.getInstance().getProfiler().push("entity_blood_overlay");
 

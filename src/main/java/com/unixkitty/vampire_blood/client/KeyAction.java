@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.client;
 
 import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestFeedingC2SPacket;
@@ -63,7 +63,7 @@ public enum KeyAction
 
     public static void handleKeys()
     {
-        if (ClientVampirePlayerDataCache.isVampire())
+        if (ClientCache.isVampire())
         {
             for (KeyAction action : values())
             {

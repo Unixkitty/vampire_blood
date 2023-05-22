@@ -54,18 +54,18 @@ public class VampirePlayerData implements IBloodVessel
     {
         player.level.getProfiler().push("vampire_tick");
 
-        if (blood.vampireLevel != VampirismStage.NOT_VAMPIRE)
+        if (blood.vampireLevel != VampirismLevel.NOT_VAMPIRE)
         {
             handleSunlight(player);
 
             handleFeeding(player);
 
-            syncDebugData(player); //TODO remove debug
+            syncDebugData(player);
 
             blood.tick(player);
         }
 
-        if (blood.vampireLevel != VampirismStage.IN_TRANSITION)
+        if (blood.vampireLevel != VampirismLevel.IN_TRANSITION)
         {
             updateBloodForFeeding(player, getBloodType());
         }
@@ -75,7 +75,7 @@ public class VampirePlayerData implements IBloodVessel
 
     public void toggleAbility(ServerPlayer player, VampireActiveAbility ability)
     {
-        if (ability != null && blood.vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId())
+        if (ability != null && blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId())
         {
             if (blood.activeAbilities.contains(ability))
             {
@@ -97,7 +97,7 @@ public class VampirePlayerData implements IBloodVessel
 
     public void beginFeeding(@Nonnull LivingEntity target, ServerPlayer player)
     {
-        if (blood.vampireLevel != VampirismStage.NOT_VAMPIRE && !feeding && target.isAlive())
+        if (blood.vampireLevel != VampirismLevel.NOT_VAMPIRE && !feeding && target.isAlive())
         {
             if (blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST && VampireUtil.isLookingAtEntity(player, target))
             {
@@ -186,14 +186,14 @@ public class VampirePlayerData implements IBloodVessel
         blood.addPreventRegenTicks(amount);
     }
 
-    public VampirismStage getVampireLevel()
+    public VampirismLevel getVampireLevel()
     {
         return blood.vampireLevel;
     }
 
-    public void updateLevel(ServerPlayer player, VampirismStage level, boolean force)
+    public void updateLevel(ServerPlayer player, VampirismLevel level, boolean force)
     {
-        if (blood.vampireLevel.getId() <= VampirismStage.IN_TRANSITION.getId() && level.getId() > VampirismStage.IN_TRANSITION.getId())
+        if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId() && level.getId() > VampirismLevel.IN_TRANSITION.getId())
         {
             setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
 
@@ -202,7 +202,7 @@ public class VampirePlayerData implements IBloodVessel
 
         blood.vampireLevel = level;
 
-        if (blood.vampireLevel.getId() <= VampirismStage.IN_TRANSITION.getId())
+        if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId())
         {
             setBlood(1);
 
@@ -224,7 +224,7 @@ public class VampirePlayerData implements IBloodVessel
     @Override
     public boolean isEdible()
     {
-        return getBloodType() != BloodType.NONE && blood.vampireLevel != VampirismStage.IN_TRANSITION;
+        return getBloodType() != BloodType.NONE && blood.vampireLevel != VampirismLevel.IN_TRANSITION;
     }
 
     @Override
@@ -241,7 +241,7 @@ public class VampirePlayerData implements IBloodVessel
 
     private void updateBloodForFeeding(ServerPlayer player, BloodType bloodType)
     {
-        if (blood.vampireLevel == VampirismStage.NOT_VAMPIRE)
+        if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
         {
             this.maxBloodPoints = VampireUtil.healthToBlood(player.getMaxHealth(), bloodType);
             this.bloodPoints = VampireUtil.healthToBlood(player.getHealth(), bloodType);
@@ -264,7 +264,7 @@ public class VampirePlayerData implements IBloodVessel
         if (isEdible())
         {
             //Non-vampire player
-            if (blood.vampireLevel == VampirismStage.NOT_VAMPIRE)
+            if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
             {
                 drinkFromHealth(attacker, victim, getBloodType());
 
@@ -293,7 +293,7 @@ public class VampirePlayerData implements IBloodVessel
     @Override
     public BloodType getBloodType()
     {
-        return blood.vampireLevel == VampirismStage.NOT_VAMPIRE ? BloodType.HUMAN : blood.vampireLevel.getId() > VampirismStage.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
+        return blood.vampireLevel == VampirismLevel.NOT_VAMPIRE ? BloodType.HUMAN : blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
     }
 
     public int getThirstLevel()
@@ -363,7 +363,7 @@ public class VampirePlayerData implements IBloodVessel
 
                 if (this.ticksInSun >= Config.ticksToSunDamage.get())
                 {
-                    if (blood.vampireLevel != VampirismStage.IN_TRANSITION)
+                    if (blood.vampireLevel != VampirismLevel.IN_TRANSITION)
                     {
                         player.hurt(ModDamageSources.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
                         player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
@@ -448,7 +448,7 @@ public class VampirePlayerData implements IBloodVessel
 
     public void loadNBTData(CompoundTag tag)
     {
-        blood.vampireLevel = VampirismTier.fromId(VampirismStage.class, tag.getInt(LEVEL_NBT_NAME));
+        blood.vampireLevel = VampirismTier.fromId(VampirismLevel.class, tag.getInt(LEVEL_NBT_NAME));
         this.ticksInSun = tag.getInt(SUNTICKS_NBT_NAME);
         blood.bloodType = VampirismTier.fromId(BloodType.class, tag.getInt(BloodType.BLOODTYPE_NBT_NAME));
         blood.bloodPurity = tag.getFloat(BLOOD_PURITY_NBT_NAME);
@@ -474,12 +474,12 @@ public class VampirePlayerData implements IBloodVessel
 
                 if (isDeathEvent)
                 {
-                    if (newVampData.blood.vampireLevel == VampirismStage.IN_TRANSITION)
+                    if (newVampData.blood.vampireLevel == VampirismLevel.IN_TRANSITION)
                     {
-                        newVampData.blood.vampireLevel = VampirismStage.NOT_VAMPIRE; //Failing transition, player returns to monke
+                        newVampData.blood.vampireLevel = VampirismLevel.NOT_VAMPIRE; //Failing transition, player returns to monke
                     }
 
-                    if (newVampData.blood.vampireLevel != VampirismStage.NOT_VAMPIRE)
+                    if (newVampData.blood.vampireLevel != VampirismLevel.NOT_VAMPIRE)
                     {
                         newVampData.blood.bloodType = BloodType.FRAIL;
                         newVampData.blood.diet.reset(newVampData.blood.bloodType);
@@ -487,7 +487,7 @@ public class VampirePlayerData implements IBloodVessel
                         newVampData.blood.thirstLevel = VampirePlayerBloodData.MAX_THIRST / 4; //Don't respawn with full thirst
                     }
                 }
-                else if (newVampData.blood.vampireLevel != VampirismStage.IN_TRANSITION && newVampData.blood.vampireLevel != VampirismStage.NOT_VAMPIRE)
+                else if (newVampData.blood.vampireLevel != VampirismLevel.IN_TRANSITION && newVampData.blood.vampireLevel != VampirismLevel.NOT_VAMPIRE)
                 {
                     newVampData.blood.bloodType = oldVampData.blood.bloodType;
                     newVampData.blood.bloodPurity = oldVampData.blood.bloodPurity;
@@ -527,7 +527,7 @@ public class VampirePlayerData implements IBloodVessel
     }
 
     @OnlyIn(Dist.CLIENT)
-    public VampirismStage setClientVampireLevel(VampirismStage vampireLevel)
+    public VampirismLevel setClientVampireLevel(VampirismLevel vampireLevel)
     {
         blood.vampireLevel = vampireLevel;
 
@@ -568,18 +568,20 @@ public class VampirePlayerData implements IBloodVessel
     //===============================================
 
     //===============================================
-    //TODO remove debug
+    //Debug
     //===============================================
     private void syncDebugData(ServerPlayer player)
     {
-        ModNetworkDispatcher.sendToClient(new DebugDataSyncS2CPacket(
-                this.ticksInSun,
-                this.ticksFeeding,
-                blood.noRegenTicks,
-                blood.thirstExhaustionIncrement,
-                blood.thirstTickTimer,
-                blood.diet.toIntArray()
-        ), player);
+        if (Config.debug.get())
+        {
+            ModNetworkDispatcher.sendToClient(new DebugDataSyncS2CPacket(
+                    this.ticksInSun,
+                    blood.noRegenTicks,
+                    blood.thirstExhaustionIncrement,
+                    blood.thirstTickTimer,
+                    blood.diet.toIntArray()
+            ), player);
+        }
     }
     //===============================================
 }

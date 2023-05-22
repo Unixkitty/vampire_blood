@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.util;
 
-import com.unixkitty.vampire_blood.capability.player.VampirismStage;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffect;
@@ -10,9 +10,9 @@ import net.minecraft.world.entity.player.Player;
 
 public final class SunExposurer
 {
-    public static void chanceEffect(Player player, MobEffect effect, int durationMultiplier, int linearAmplifier, VampirismStage stage)
+    public static void chanceEffect(Player player, MobEffect effect, int durationMultiplier, int linearAmplifier, VampirismLevel stage)
     {
-        chanceEffect(player, effect, durationMultiplier, linearAmplifier, stage == VampirismStage.IN_TRANSITION ? effect == MobEffects.BLINDNESS ? 2 : 10 : 100);
+        chanceEffect(player, effect, durationMultiplier, linearAmplifier, stage == VampirismLevel.IN_TRANSITION ? effect == MobEffects.BLINDNESS ? 2 : 10 : 100);
     }
 
     public static void chanceEffect(Player player, MobEffect effect, int durationMultiplier, int linearAmplifier, int chance)
