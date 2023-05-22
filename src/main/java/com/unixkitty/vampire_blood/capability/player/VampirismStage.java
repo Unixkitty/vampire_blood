@@ -5,26 +5,28 @@ import net.minecraft.ChatFormatting;
 
 public enum VampirismStage implements VampirismTier<VampirismStage>
 {
-    NOT_VAMPIRE(-1, 1, 1, 1, 0),
-    IN_TRANSITION(0, 1, 2, 1.25, 0),
-    FLEDGLING(1, 3, 3, 3, 1.25F),
-    VAMPIRE(2, 4, 4, 4, 1.0F),
-    MATURE(3, 5, 5, 5, 0.75F),
-    ORIGINAL(999, 10, 6, 6, 0.5F);
+    NOT_VAMPIRE(-1, 1, 1, 1, 0, ChatFormatting.WHITE),
+    IN_TRANSITION(0, 1, 2, 1.25, 0, ChatFormatting.GRAY),
+    FLEDGLING(1, 3, 3, 3, 1.25F, ChatFormatting.RED),
+    VAMPIRE(2, 4, 4, 4, 1.0F, ChatFormatting.LIGHT_PURPLE),
+    MATURE(3, 5, 5, 5, 0.75F, ChatFormatting.DARK_PURPLE),
+    ORIGINAL(999, 10, 6, 6, 0.5F, ChatFormatting.DARK_RED);
 
     private final int id;
     private final double healthMultiplier;
     private final double strengthMultiplier;
     private final double speedBoostMultiplier;
     private final float bloodUsageMultiplier;
+    private final ChatFormatting chatFormatting;
 
-    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, double speedBoostMultiplier, float bloodUsageMultiplier)
+    VampirismStage(int id, double healthMultiplier, double strengthMultiplier, double speedBoostMultiplier, float bloodUsageMultiplier, ChatFormatting formatting)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;
         this.strengthMultiplier = strengthMultiplier;
         this.speedBoostMultiplier = speedBoostMultiplier;
         this.bloodUsageMultiplier = bloodUsageMultiplier;
+        this.chatFormatting = formatting;
     }
 
     @Override
@@ -65,14 +67,6 @@ public enum VampirismStage implements VampirismTier<VampirismStage>
     @Override
     public ChatFormatting getChatFormatting()
     {
-        return switch (this)
-        {
-            case NOT_VAMPIRE -> ChatFormatting.WHITE;
-            case IN_TRANSITION -> ChatFormatting.GRAY;
-            case FLEDGLING -> ChatFormatting.RED;
-            case VAMPIRE -> ChatFormatting.LIGHT_PURPLE;
-            case MATURE -> ChatFormatting.DARK_PURPLE;
-            case ORIGINAL -> ChatFormatting.DARK_RED;
-        };
+        return this.chatFormatting;
     }
 }

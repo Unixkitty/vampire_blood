@@ -2,9 +2,7 @@ package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirismStage;
-import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
-import net.minecraft.client.Minecraft;
+import com.unixkitty.vampire_blood.client.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -53,22 +51,7 @@ public class PlayerVampireDataS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() ->
-        {
-            if (Minecraft.getInstance().player != null)
-            {
-                Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                {
-                    ClientVampirePlayerDataCache.vampireLevel = vampirePlayerData.setClientVampireLevel(this.vampireLevel);
-                    ClientVampirePlayerDataCache.bloodType = vampirePlayerData.setClientBloodType(this.bloodType);
-
-                    ClientVampirePlayerDataCache.thirstLevel = vampirePlayerData.setClientBlood(this.thirstLevel);
-                    ClientVampirePlayerDataCache.thirstExhaustion = vampirePlayerData.setClientExhaustion(this.thirstExhaustion);
-                    ClientVampirePlayerDataCache.bloodlust = vampirePlayerData.setClientBloodlust(this.bloodlust);
-                    ClientVampirePlayerDataCache.bloodPurity = this.bloodPurity;
-                });
-            }
-        });
+        context.enqueueWork(() -> ClientPacketHandler.handleVampireData(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust, this.bloodPurity));
 
         context.setPacketHandled(true);
 

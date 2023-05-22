@@ -66,8 +66,12 @@ public class FeedingMouseOverHandler
         closeEnough = false;
     }
 
-    public static void setHasData()
+    public static void setData(BloodType bloodType, int bloodPoints, int maxBloodPoints)
     {
+        FeedingMouseOverHandler.bloodType = bloodType;
+        FeedingMouseOverHandler.bloodPoints = bloodPoints;
+        FeedingMouseOverHandler.maxBloodPoints = maxBloodPoints;
+
         hasData = true;
     }
 

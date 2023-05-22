@@ -6,7 +6,6 @@ import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -65,7 +64,7 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onClientTick(final TickEvent.PlayerTickEvent event)
         {
-            if (event.side == LogicalSide.CLIENT && event.player instanceof LocalPlayer player)
+            if (event.side == LogicalSide.CLIENT)
             {
                 switch (event.phase)
                 {
@@ -90,7 +89,7 @@ public final class ClientEvents
                     {
                         if (ModDebugOverlay.isMainOverlayEnabled() && ClientVampirePlayerDataCache.isVampire())
                         {
-                            ClientVampirePlayerDataCache.Debug.updateThirstExhaustionIncrementRate(player.tickCount);
+                            ClientVampirePlayerDataCache.Debug.updateThirstExhaustionIncrementRate(event.player.tickCount);
                         }
                     }
                 }

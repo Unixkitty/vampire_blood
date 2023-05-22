@@ -5,6 +5,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
+import com.unixkitty.vampire_blood.network.packet.SyncAbilitiesS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -162,7 +163,7 @@ public class VampirePlayerBloodData
             this.needsSync = false;
 
             ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust, this.bloodPurity), player);
-            ModNetworkDispatcher.syncPlayerVampireAbilities(player, this.activeAbilities);
+            ModNetworkDispatcher.sendToClient(new SyncAbilitiesS2CPacket(activeAbilities), player);
         }
     }
 

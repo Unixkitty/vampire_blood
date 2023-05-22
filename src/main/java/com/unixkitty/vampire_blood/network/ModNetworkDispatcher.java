@@ -2,7 +2,6 @@ package com.unixkitty.vampire_blood.network;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.network.packet.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,8 +9,6 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
-
-import java.util.Set;
 
 public class ModNetworkDispatcher
 {
@@ -77,10 +74,5 @@ public class ModNetworkDispatcher
     public static void notifyPlayerFeeding(ServerPlayer player, boolean value)
     {
         sendToClient(new PlayerFeedingStatusS2CPacket(value), player);
-    }
-
-    public static void syncPlayerVampireAbilities(ServerPlayer player, Set<VampireActiveAbility> activeAbilities)
-    {
-        sendToClient(new SyncAbilitiesS2CPacket(activeAbilities), player);
     }
 }

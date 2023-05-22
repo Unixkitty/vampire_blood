@@ -1,9 +1,8 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
+import com.unixkitty.vampire_blood.client.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.function.Supplier;
 
@@ -54,18 +53,7 @@ public class DebugDataSyncS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() ->
-        {
-            ClientVampirePlayerDataCache.Debug.ticksFeeding = this.ticksFeeding;
-            ClientVampirePlayerDataCache.Debug.ticksInSun = this.ticksInSun;
-            ClientVampirePlayerDataCache.Debug.noRegenTicks = this.noRegenTicks;
-
-            ClientVampirePlayerDataCache.Debug.thirstExhaustionIncrement = this.thirstExhaustionIncrement;
-            ClientVampirePlayerDataCache.Debug.thirstTickTimer = this.thirstTickTimer;
-
-            ArrayUtils.reverse(this.diet);
-            System.arraycopy(this.diet, 0, ClientVampirePlayerDataCache.Debug.diet, 0, this.diet.length);
-        });
+        context.enqueueWork(() -> ClientPacketHandler.handleDebugData(this.ticksFeeding, this.ticksInSun, this.noRegenTicks, this.thirstExhaustionIncrement, this.thirstTickTimer, this.diet));
 
         context.setPacketHandled(true);
 

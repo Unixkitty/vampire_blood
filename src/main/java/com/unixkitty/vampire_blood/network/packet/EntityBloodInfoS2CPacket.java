@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.network.packet;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
+import com.unixkitty.vampire_blood.client.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -38,14 +38,7 @@ public class EntityBloodInfoS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() ->
-        {
-            FeedingMouseOverHandler.bloodType = this.bloodType;
-            FeedingMouseOverHandler.bloodPoints = this.bloodPoints;
-            FeedingMouseOverHandler.maxBloodPoints = this.maxBloodPoints;
-
-            FeedingMouseOverHandler.setHasData();
-        });
+        context.enqueueWork(() -> ClientPacketHandler.handleEntityBloodInfo(this.bloodType, this.bloodPoints, this.maxBloodPoints));
 
         context.setPacketHandled(true);
 

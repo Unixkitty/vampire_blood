@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import net.minecraft.client.Minecraft;
+import com.unixkitty.vampire_blood.client.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -29,13 +29,7 @@ public class PlayerAvoidHurtAnimS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() ->
-        {
-            if (Minecraft.getInstance().player != null)
-            {
-                Minecraft.getInstance().player.setHealth(this.health);
-            }
-        });
+        context.enqueueWork(() -> ClientPacketHandler.handleAvoidHurtAnim(this.health));
 
         context.setPacketHandled(true);
 

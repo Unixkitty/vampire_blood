@@ -1,8 +1,6 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
-import com.unixkitty.vampire_blood.client.cache.ClientVampirePlayerDataCache;
-import net.minecraft.client.Minecraft;
+import com.unixkitty.vampire_blood.client.ClientPacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -31,14 +29,7 @@ public class PlayerFeedingStatusS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() ->
-        {
-            if (Minecraft.getInstance().player != null)
-            {
-                Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                        ClientVampirePlayerDataCache.feeding = vampirePlayerData.setFeeding(this.feeding));
-            }
-        });
+        context.enqueueWork(() -> ClientPacketHandler.handleFeedingStatus(this.feeding));
 
         context.setPacketHandled(true);
 
