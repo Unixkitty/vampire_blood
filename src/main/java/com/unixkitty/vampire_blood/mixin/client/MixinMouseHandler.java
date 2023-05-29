@@ -1,4 +1,4 @@
-package com.unixkitty.vampire_blood.mixin;
+package com.unixkitty.vampire_blood.mixin.client;
 
 import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import net.minecraft.client.Minecraft;

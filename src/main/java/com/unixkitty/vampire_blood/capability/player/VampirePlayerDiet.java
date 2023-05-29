@@ -2,12 +2,11 @@ package com.unixkitty.vampire_blood.capability.player;
 
 import com.google.common.collect.EvictingQueue;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectFloatImmutablePair;
 import net.minecraft.nbt.CompoundTag;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -48,11 +47,21 @@ public class VampirePlayerDiet
         }
     }
 
-    Pair<BloodType, Float> updateWith(@Nonnull BloodType bloodType)
+    ObjectFloatImmutablePair<BloodType> updateWith(@Nonnull BloodType bloodType)
     {
         this.diet.add(bloodType);
 
-        return getBloodTypeAndPurity();
+        Int2IntOpenHashMap bloodTypeFrequency = new Int2IntOpenHashMap();
+
+        for (BloodType _bloodType : diet)
+        {
+            bloodTypeFrequency.put(_bloodType.getId(), bloodTypeFrequency.getOrDefault(_bloodType.getId(), 0) + 1);
+        }
+
+        return bloodTypeFrequency.int2IntEntrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> new ObjectFloatImmutablePair<>(VampirismTier.fromId(BloodType.class, entry.getIntKey()), entry.getIntValue() / (float) DIET_HISTORY_SIZE))
+                .orElse(new ObjectFloatImmutablePair<>(BloodType.FRAIL, 1.0F));
     }
 
     void reset(BloodType type)
@@ -61,21 +70,6 @@ public class VampirePlayerDiet
         {
             diet.add(type);
         }
-    }
-
-    private Pair<BloodType, Float> getBloodTypeAndPurity()
-    {
-        Map<BloodType, Integer> bloodTypeFrequency = new HashMap<>();
-
-        for (BloodType bloodType : diet)
-        {
-            bloodTypeFrequency.put(bloodType, bloodTypeFrequency.getOrDefault(bloodType, 0) + 1);
-        }
-
-        return bloodTypeFrequency.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(entry -> new ImmutablePair<>(entry.getKey(), entry.getValue() / (float) DIET_HISTORY_SIZE))
-                .orElse(new ImmutablePair<>(BloodType.FRAIL, 1.0F));
     }
 
     //===============================================

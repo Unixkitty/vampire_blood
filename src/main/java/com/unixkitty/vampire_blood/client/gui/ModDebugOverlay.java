@@ -1,9 +1,9 @@
 package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
+import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.client.ClientEvents;
@@ -190,7 +190,7 @@ public class ModDebugOverlay
     {
         AttributeInstance attributeInstance;
 
-        for (VampireAttributeModifiers.Modifier modifier : VampireAttributeModifiers.Modifier.values())
+        for (VampireAttributeModifier modifier : VampireAttributeModifier.values())
         {
             if (modifier.isApplicable(ClientCache.getVampireVars().getVampireLevel(), ClientCache.getVampireVars().activeAbilities))
             {

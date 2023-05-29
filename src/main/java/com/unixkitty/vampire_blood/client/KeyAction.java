@@ -7,14 +7,13 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestFeedingC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.RequestStopFeedingC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.ToggleActiveAbilityC2SPacket;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
 public enum KeyAction
@@ -27,7 +26,7 @@ public enum KeyAction
     SENSES_TOGGLE(KeyBindings.SENSES_KEY, VampireActiveAbility.SENSES),
     CHARM(KeyBindings.CHARM_KEY);
 
-    private static final Map<KeyAction, Integer> timeStampMap = new HashMap<>();
+    private static final Int2IntOpenHashMap timeStampMap = new Int2IntOpenHashMap();
 
     private final KeyMapping key;
     private final VampireActiveAbility ability;
@@ -74,7 +73,7 @@ public enum KeyAction
 
     private static void handle(@Nonnull KeyAction action)
     {
-        int delta = Minecraft.getInstance().player.tickCount - timeStampMap.getOrDefault(action, 0);
+        int delta = Minecraft.getInstance().player.tickCount - timeStampMap.getOrDefault(action.ordinal(), 0);
 
         if (delta >= 10 || delta < 0)
         {
@@ -87,7 +86,7 @@ public enum KeyAction
                 default -> ModNetworkDispatcher.sendToServer(new ToggleActiveAbilityC2SPacket(action.ability));
             }
 
-            timeStampMap.put(action, Minecraft.getInstance().player.tickCount);
+            timeStampMap.put(action.ordinal(), Minecraft.getInstance().player.tickCount);
         }
     }
 }

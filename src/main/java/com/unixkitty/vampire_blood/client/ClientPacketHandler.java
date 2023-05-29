@@ -37,27 +37,15 @@ public class ClientPacketHandler
                 else if (lastList.contains(ability))
                 {
                     ability.stop(Minecraft.getInstance().player);
+
+                    if (ability == VampireActiveAbility.SENSES)
+                    {
+                        ClientCache.getVampireVars().invalidateOutlineColors();
+                    }
                 }
             }
         }
     }
-
-    /*public static void handleVampireData(VampirismLevel vampireLevel, BloodType bloodType, int thirstLevel, int thirstExhaustion, float bloodlust, float bloodPurity)
-    {
-        if (Minecraft.getInstance().player != null)
-        {
-            Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-            {
-                ModCache.getVampireVars().getVampireLevel() = vampirePlayerData.setClientVampireLevel(vampireLevel);
-                ModCache.getVampireVars().getBloodType() = vampirePlayerData.setClientBloodType(bloodType);
-
-                ModCache.getVampireVars().thirstLevel = vampirePlayerData.setClientBlood(thirstLevel);
-                ModCache.getVampireVars().thirstExhaustion = vampirePlayerData.setClientExhaustion(thirstExhaustion);
-                ModCache.getVampireVars().bloodlust = vampirePlayerData.setClientBloodlust(bloodlust);
-                ModCache.getVampireVars().bloodPurity = bloodPurity;
-            });
-        }
-    }*/
 
     public static void handleDebugData(int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
@@ -91,5 +79,10 @@ public class ClientPacketHandler
         {
             Minecraft.getInstance().player.setHealth(health);
         }
+    }
+
+    public static void handleEntityOutlineColor(int entityId, int color)
+    {
+        ClientCache.getVampireVars().setEntityOutlineColor(entityId, color);
     }
 }

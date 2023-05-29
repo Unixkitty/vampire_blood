@@ -34,6 +34,8 @@ public class ModNetworkDispatcher
         registerPacket(PlayerAvoidHurtAnimS2CPacket.class, false);
         registerPacket(ToggleActiveAbilityC2SPacket.class, true);
         registerPacket(SyncAbilitiesS2CPacket.class, false);
+        registerPacket(RequestEntityOutlineColorC2SPacket.class, true);
+        registerPacket(EntityOutlineColorS2CPacket.class, false);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)

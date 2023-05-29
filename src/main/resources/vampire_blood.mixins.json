@@ -7,9 +7,9 @@
     "MixinLivingEntity"
   ],
   "client": [
-    "MixinEntity",
-    "MixinMinecraft",
-    "MixinMouseHandler"
+    "client.MixinEntity",
+    "client.MixinLivingEntityClient",
+    "client.MixinMouseHandler"
   ],
   "minVersion": "0.8"
 }

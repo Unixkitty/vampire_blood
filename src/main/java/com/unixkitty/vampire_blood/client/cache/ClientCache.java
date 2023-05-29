@@ -3,9 +3,11 @@ package com.unixkitty.vampire_blood.client.cache;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.config.Config;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @OnlyIn(Dist.CLIENT)
@@ -48,5 +50,10 @@ public class ClientCache
     public static boolean isHungry()
     {
         return getVampireVars().thirstLevel <= VampirePlayerBloodData.MAX_THIRST / 6;
+    }
+
+    public static boolean needsEntityOutlineColor(@Nonnull LivingEntity entity)
+    {
+        return getVampireVars().needsEntityOutlineColor(entity.getId());
     }
 }

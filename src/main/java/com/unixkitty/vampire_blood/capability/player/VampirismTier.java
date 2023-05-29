@@ -1,7 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
@@ -11,7 +10,7 @@ public interface VampirismTier<E extends Enum<E> & VampirismTier<E>>
 {
     int getId();
 
-    double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier);
+    double getAttributeMultiplier(VampireAttributeModifier modifier);
 
     float getBloodlustMultiplier(boolean bloodPointGained);
 

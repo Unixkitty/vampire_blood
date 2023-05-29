@@ -1,67 +1,59 @@
 package com.unixkitty.vampire_blood.client;
 
-import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.init.ModEffects;
-import net.minecraft.ChatFormatting;
+import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
+import com.unixkitty.vampire_blood.network.packet.RequestEntityOutlineColorC2SPacket;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.monster.AbstractIllager;
-import net.minecraft.world.entity.monster.Witch;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.awt.*;
 
 @OnlyIn(Dist.CLIENT)
 public class VampiricSensesUtil
 {
-    public static boolean shouldEntityGlow(@Nonnull Entity entity, @Nullable LocalPlayer player)
+    private static final Int2IntOpenHashMap entityGlowRequestTimestampMap = new Int2IntOpenHashMap();
+
+    public static boolean shouldEntityGlow(@Nonnull LivingEntity entity)
     {
-        return (entity instanceof Player || entity instanceof PathfinderMob) && player != null && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < 30F;
+        Player player = Minecraft.getInstance().player;
+
+        if (player != null && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob) && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ModEffects.SENSES_DISTANCE_LIMIT)
+        {
+            if (ClientCache.needsEntityOutlineColor(entity))
+            {
+                int delta = player.tickCount - entityGlowRequestTimestampMap.getOrDefault(entity.getId(), 0);
+
+                if (delta >= 10 || delta < 0)
+                {
+                    ModNetworkDispatcher.sendToServer(new RequestEntityOutlineColorC2SPacket(entity.getId()));
+
+                    entityGlowRequestTimestampMap.put(entity.getId(), player.tickCount);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
-    //TODO we don't want much logic here because this is called every render frame, need caching
     public static int getEntityGlowColor(@Nonnull Entity entity)
     {
-        if (entity instanceof LivingEntity livingEntity && livingEntity.level.isClientSide() && Minecraft.getInstance().player != null && Minecraft.getInstance().player.hasEffect(ModEffects.ENHANCED_SENSES.get()))
+        if (entity instanceof Player && ((Player) entity).isCreative())
         {
-            if (livingEntity instanceof Player)
-            {
-//                if (livingEntity.getMobType() == MobType.UNDEAD)
-//                {
-                    return ChatFormatting.DARK_PURPLE.getColor();
-//                }
-//                else
-//                {
-//                    return BloodType.HUMAN.getColor();
-//                }
-            }
-            else if (livingEntity instanceof PathfinderMob)
-            {
-                if ((livingEntity.getMobType() == MobType.UNDEFINED && (livingEntity instanceof Villager || livingEntity instanceof Witch)) || (livingEntity.getMobType() == MobType.ILLAGER && livingEntity instanceof AbstractIllager))
-                {
-                    return BloodType.HUMAN.getColor();
-                }
-                else if (livingEntity.getMobType() == MobType.ARTHROPOD)
-                {
-                    return ChatFormatting.BLACK.getColor();
-                }
-                else if (livingEntity.getMobType() == MobType.WATER)
-                {
-                    return ChatFormatting.BLUE.getColor();
-                }
-                else if (livingEntity.getMobType() == MobType.UNDEAD)
-                {
-                    return BloodType.FRAIL.getColor();
-                }
-            }
+            return Color.HSBtoRGB((entity.tickCount % 100) / 100F, 1.0F, 1.0F);
+        }
+        else if (entity instanceof LivingEntity)
+        {
+            return ClientCache.getVampireVars().getEntityOutlineColor(entity.getId());
         }
 
         return -1;

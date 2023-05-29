@@ -1,12 +1,12 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
-import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import net.minecraft.ChatFormatting;
 
 public enum BloodType implements VampirismTier<BloodType>
 {
-    NONE(0, 0, 0, 0, 0, ChatFormatting.WHITE),
+    NONE(0, 0, 0, 0, 0, ChatFormatting.BLACK),
     FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.33F, ChatFormatting.GRAY),
     CREATURE(2, 0.5, 0.5, 0.5, 1F, ChatFormatting.LIGHT_PURPLE),
     HUMAN(3, 1, 1, 1, 2F, ChatFormatting.DARK_RED),
@@ -58,7 +58,7 @@ public enum BloodType implements VampirismTier<BloodType>
     }
 
     @Override
-    public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
+    public double getAttributeMultiplier(VampireAttributeModifier modifier)
     {
         return switch (modifier)
         {

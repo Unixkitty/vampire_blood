@@ -5,18 +5,23 @@ import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @OnlyIn(Dist.CLIENT)
 public class ModVampirePlayerVarsCache
 {
-    private final Map<Key, Object> cache = new ConcurrentHashMap<>();
+    private static final int VAMPIRE_LEVEL = 0;
+    private static final int BLOOD_TYPE = 1;
+    private static final int ENTITY_OUTLINE_COLORS = 2;
+    
+    private final Int2ObjectOpenHashMap<Object> cache = new Int2ObjectOpenHashMap<>();
 
     //General
     public boolean feeding = false;
@@ -28,24 +33,56 @@ public class ModVampirePlayerVarsCache
     public float bloodlust = 0;
     public float bloodPurity = 0;
 
-    public void setVampireLevel(VampirismLevel vampireLevel)
+    public boolean needsEntityOutlineColor(int entityId)
     {
-        this.cache.put(Key.VAMPIRE_LEVEL, vampireLevel);
+        if (this.cache.containsKey(ENTITY_OUTLINE_COLORS))
+        {
+            return !((Int2IntOpenHashMap)this.cache.get(ENTITY_OUTLINE_COLORS)).containsKey(entityId);
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public void setEntityOutlineColor(int entityId, int color)
+    {
+        ((Int2IntOpenHashMap)this.cache.computeIfAbsent(ENTITY_OUTLINE_COLORS, k -> new Int2IntOpenHashMap())).put(entityId, color);
+    }
+
+    public int getEntityOutlineColor(int entityId)
+    {
+        if (this.cache.containsKey(ENTITY_OUTLINE_COLORS))
+        {
+            return ((Int2IntOpenHashMap)this.cache.get(ENTITY_OUTLINE_COLORS)).getOrDefault(entityId, -1);
+        }
+
+        return -1;
+    }
+
+    public void invalidateOutlineColors()
+    {
+        this.cache.remove(ENTITY_OUTLINE_COLORS);
+    }
+
+    public void setVampireLevel(@Nonnull VampirismLevel vampireLevel)
+    {
+        this.cache.put(VAMPIRE_LEVEL, vampireLevel);
     }
 
     public VampirismLevel getVampireLevel()
     {
-        return (VampirismLevel) this.cache.getOrDefault(Key.VAMPIRE_LEVEL, VampirismLevel.NOT_VAMPIRE);
+        return (VampirismLevel) this.cache.getOrDefault(VAMPIRE_LEVEL, VampirismLevel.NOT_VAMPIRE);
     }
 
-    public void setBloodType(BloodType bloodType)
+    public void setBloodType(@Nonnull BloodType bloodType)
     {
-        this.cache.put(Key.BLOOD_TYPE, bloodType);
+        this.cache.put(BLOOD_TYPE, bloodType);
     }
 
     public BloodType getBloodType()
     {
-        return (BloodType) this.cache.getOrDefault(Key.BLOOD_TYPE, BloodType.HUMAN);
+        return (BloodType) this.cache.getOrDefault(BLOOD_TYPE, BloodType.HUMAN);
     }
 
     public void handleVampireDataPacket(final PlayerVampireDataS2CPacket packet)
@@ -54,8 +91,8 @@ public class ModVampirePlayerVarsCache
         {
             Minecraft.getInstance().player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                this.cache.put(Key.VAMPIRE_LEVEL, vampirePlayerData.setClientVampireLevel(packet.vampireLevel));
-                this.cache.put(Key.BLOOD_TYPE, vampirePlayerData.setClientBloodType(packet.bloodType));
+                setVampireLevel(vampirePlayerData.setClientVampireLevel(packet.vampireLevel));
+                setBloodType(vampirePlayerData.setClientBloodType(packet.bloodType));
 
                 this.thirstLevel = vampirePlayerData.setClientBlood(packet.thirstLevel);
                 this.thirstExhaustion = vampirePlayerData.setClientExhaustion(packet.thirstExhaustion);
@@ -63,11 +100,5 @@ public class ModVampirePlayerVarsCache
                 this.bloodPurity = packet.bloodPurity;
             });
         }
-    }
-
-    private enum Key
-    {
-        VAMPIRE_LEVEL,
-        BLOOD_TYPE
     }
 }

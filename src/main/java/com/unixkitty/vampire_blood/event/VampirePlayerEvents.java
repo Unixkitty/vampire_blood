@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
-import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
+import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
@@ -44,7 +44,7 @@ public class VampirePlayerEvents
 
         if (attributeInstance != null)
         {
-            AttributeModifier modifier = attributeInstance.getModifier(VampireAttributeModifiers.Modifier.ATTACK_SPEED.getUUID());
+            AttributeModifier modifier = attributeInstance.getModifier(VampireAttributeModifier.ATTACK_SPEED.getUUID());
 
             if (modifier != null)
             {

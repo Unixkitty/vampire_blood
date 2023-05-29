@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.unixkitty.vampire_blood.VampireBlood;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
@@ -11,15 +12,13 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BloodManager
 {
     private static final String configName = "blood.json";
 
-    private static final Map<String, BloodEntityConfig> bloodMap = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<String, BloodEntityConfig> bloodMap = new Object2ObjectOpenHashMap<>();
 
     private static boolean initialized = false;
 

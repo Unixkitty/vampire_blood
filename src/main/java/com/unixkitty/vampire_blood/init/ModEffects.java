@@ -11,6 +11,8 @@ import net.minecraftforge.registries.RegistryObject;
 
 public class ModEffects
 {
+    public static final float SENSES_DISTANCE_LIMIT = 30F;
+
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, VampireBlood.MODID);
 
     public static final RegistryObject<MobEffect> BLOOD_VISION = EFFECTS.register("blood_vision", () -> new BasicStatusEffect(ChatFormatting.DARK_RED.getColor()));

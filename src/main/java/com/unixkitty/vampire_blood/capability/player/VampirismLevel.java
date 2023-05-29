@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import net.minecraft.ChatFormatting;
 
 public enum VampirismLevel implements VampirismTier<VampirismLevel>
@@ -54,7 +53,7 @@ public enum VampirismLevel implements VampirismTier<VampirismLevel>
     }
 
     @Override
-    public double getAttributeMultiplier(VampireAttributeModifiers.Modifier modifier)
+    public double getAttributeMultiplier(VampireAttributeModifier modifier)
     {
         return switch (modifier)
         {

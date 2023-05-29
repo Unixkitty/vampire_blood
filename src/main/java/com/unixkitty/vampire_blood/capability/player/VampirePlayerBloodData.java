@@ -1,18 +1,15 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.capability.attribute.VampireAttributeModifiers;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.SyncAbilitiesS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class VampirePlayerBloodData
 {
@@ -28,7 +25,7 @@ public class VampirePlayerBloodData
     int noRegenTicks;
     float bloodlust;
 
-    final Set<VampireActiveAbility> activeAbilities = new HashSet<>();
+    final ObjectArraySet<VampireActiveAbility> activeAbilities = new ObjectArraySet<>();
 
     final VampirePlayerDiet diet = new VampirePlayerDiet(this.bloodType);
 
@@ -117,9 +114,9 @@ public class VampirePlayerBloodData
     {
         var result = diet.updateWith(bloodType);
 
-        this.bloodType = result.getKey();
+        this.bloodType = result.left();
 
-        this.bloodPurity = result.getValue();
+        this.bloodPurity = result.rightFloat();
     }
 
     void checkOriginal(ServerPlayer player)
@@ -136,7 +133,7 @@ public class VampirePlayerBloodData
 
         float lastHealthFactor = player.getHealth() / player.getMaxHealth();
 
-        VampireAttributeModifiers.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity, this.activeAbilities);
+        VampireUtil.updateAttributes(player, this.vampireLevel, this.bloodType, this.bloodPurity, this.activeAbilities);
 
         if (player.getHealth() / player.getMaxHealth() < lastHealthFactor)
         {
@@ -163,7 +160,7 @@ public class VampirePlayerBloodData
             this.needsSync = false;
 
             ModNetworkDispatcher.sendToClient(new PlayerVampireDataS2CPacket(this.vampireLevel, this.bloodType, this.thirstLevel, this.thirstExhaustion, this.bloodlust, this.bloodPurity), player);
-            ModNetworkDispatcher.sendToClient(new SyncAbilitiesS2CPacket(activeAbilities), player);
+            ModNetworkDispatcher.sendToClient(new SyncAbilitiesS2CPacket(this.activeAbilities), player);
         }
     }
 
