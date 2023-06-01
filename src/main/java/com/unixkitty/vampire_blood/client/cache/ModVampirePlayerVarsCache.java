@@ -20,18 +20,41 @@ public class ModVampirePlayerVarsCache
     private static final int VAMPIRE_LEVEL = 0;
     private static final int BLOOD_TYPE = 1;
     private static final int ENTITY_OUTLINE_COLORS = 2;
+    private static final int ENTITY_BLOOD_VALUES = 3;
     
     private final Int2ObjectOpenHashMap<Object> cache = new Int2ObjectOpenHashMap<>();
 
     //General
     public boolean feeding = false;
-    public final ArrayList<VampireActiveAbility> activeAbilities = new ArrayList<>();
+    public final ArrayList<VampireActiveAbility> activeAbilities = new ArrayList<>(); //TODO is this actually needed?
 
     //Blood data
     public int thirstLevel = 0;
     public int thirstExhaustion = 0;
     public float bloodlust = 0;
     public float bloodPurity = 0;
+
+    @SuppressWarnings("unchecked")
+    public void setEntityBloodValues(int entityId, int bloodPoints, int maxBloodPoints, BloodType bloodType)
+    {
+        ((Int2ObjectOpenHashMap<ClientCache.EntityBlood>)this.cache.computeIfAbsent(ENTITY_BLOOD_VALUES, k -> new Int2ObjectOpenHashMap<ClientCache.EntityBlood>())).put(entityId, new ClientCache.EntityBlood(bloodPoints, maxBloodPoints, bloodType));
+    }
+
+    @SuppressWarnings("unchecked")
+    public ClientCache.EntityBlood getEntityBlood(int entityId)
+    {
+        if (this.cache.containsKey(ENTITY_BLOOD_VALUES))
+        {
+            return ((Int2ObjectOpenHashMap<ClientCache.EntityBlood>)this.cache.get(ENTITY_BLOOD_VALUES)).getOrDefault(entityId, null);
+        }
+
+        return null;
+    }
+
+    public void invalidateEntityBloodValues()
+    {
+        this.cache.remove(ENTITY_BLOOD_VALUES);
+    }
 
     public boolean needsEntityOutlineColor(int entityId)
     {

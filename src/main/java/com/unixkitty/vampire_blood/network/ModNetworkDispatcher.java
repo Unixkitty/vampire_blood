@@ -20,7 +20,7 @@ public class ModNetworkDispatcher
 
     public static void register()
     {
-        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID + ":messages"), () -> PROTOCOL_VERSION, s -> true, s -> true);
+        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID, "messages"), () -> PROTOCOL_VERSION, s -> true, s -> true);
 
         //================================================================================================
 
@@ -68,9 +68,9 @@ public class ModNetworkDispatcher
 
     //========================================
 
-    public static void sendPlayerEntityBlood(ServerPlayer player, BloodType bloodType, int bloodPoints, int maxBloodPoints)
+    public static void sendPlayerEntityBlood(ServerPlayer player, int entityId, BloodType bloodType, int bloodPoints, int maxBloodPoints, boolean lookingDirectly)
     {
-        sendToClient(new EntityBloodInfoS2CPacket(bloodType, bloodPoints, maxBloodPoints), player);
+        sendToClient(new EntityBloodInfoS2CPacket(entityId, bloodType, bloodPoints, maxBloodPoints, lookingDirectly), player);
     }
 
     public static void notifyPlayerFeeding(ServerPlayer player, boolean value)

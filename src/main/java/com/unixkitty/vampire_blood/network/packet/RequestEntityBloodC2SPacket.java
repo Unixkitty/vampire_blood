@@ -14,20 +14,24 @@ import java.util.function.Supplier;
 public class RequestEntityBloodC2SPacket extends BasePacket
 {
     private final int id;
+    private final boolean lookingDirectly;
 
-    public RequestEntityBloodC2SPacket(int id)
+    public RequestEntityBloodC2SPacket(int id, boolean lookingDirectly)
     {
         this.id = id;
+        this.lookingDirectly = lookingDirectly;
     }
 
     public RequestEntityBloodC2SPacket(FriendlyByteBuf buffer)
     {
         this.id = buffer.readInt();
+        this.lookingDirectly = buffer.readBoolean();
     }
 
     public void toBytes(FriendlyByteBuf buffer)
     {
         buffer.writeInt(this.id);
+        buffer.writeBoolean(this.lookingDirectly);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)
@@ -44,11 +48,11 @@ public class RequestEntityBloodC2SPacket extends BasePacket
                 {
                     if (livingEntity instanceof Player)
                     {
-                        livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> ModNetworkDispatcher.sendPlayerEntityBlood(player, vampirePlayerData.getBloodType(), vampirePlayerData.getBloodPoints(), vampirePlayerData.getMaxBloodPoints()));
+                        livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, vampirePlayerData.getBloodType(), vampirePlayerData.getBloodPoints(), vampirePlayerData.getMaxBloodPoints(), this.lookingDirectly));
                     }
                     else
                     {
-                        livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints()));
+                        livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints(), this.lookingDirectly));
                     }
                 }
             }

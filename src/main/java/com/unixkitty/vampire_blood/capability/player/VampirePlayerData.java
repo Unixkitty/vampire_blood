@@ -414,7 +414,7 @@ public class VampirePlayerData implements IBloodVessel
                         this.feedingEntity.setLastHurtByMob(player);
                     }
 
-                    ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints());
+                    ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntity.getId(), this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints(), true);
 
                     addBlood(player, 1, this.feedingEntityBlood.getBloodType());
                 }

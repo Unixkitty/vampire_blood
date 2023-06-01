@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import java.awt.*;
 
 @OnlyIn(Dist.CLIENT)
-public class VampiricSensesUtil
+public final class VampiricSensesUtil
 {
     private static final Int2IntOpenHashMap entityGlowRequestTimestampMap = new Int2IntOpenHashMap();
 
@@ -25,9 +25,9 @@ public class VampiricSensesUtil
     {
         Player player = Minecraft.getInstance().player;
 
-        if (player != null && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob) && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ModEffects.SENSES_DISTANCE_LIMIT)
+        if (player != null && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ModEffects.SENSES_DISTANCE_LIMIT)
         {
-            if (ClientCache.needsEntityOutlineColor(entity))
+            if (ClientCache.getVampireVars().needsEntityOutlineColor(entity.getId()))
             {
                 int delta = player.tickCount - entityGlowRequestTimestampMap.getOrDefault(entity.getId(), 0);
 
@@ -51,7 +51,7 @@ public class VampiricSensesUtil
         {
             return Color.HSBtoRGB((entity.tickCount % 100) / 100F, 1.0F, 1.0F);
         }
-        else if (entity instanceof LivingEntity)
+        else if (entity instanceof PathfinderMob)
         {
             return ClientCache.getVampireVars().getEntityOutlineColor(entity.getId());
         }

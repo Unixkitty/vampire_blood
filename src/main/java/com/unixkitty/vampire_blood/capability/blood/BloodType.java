@@ -8,7 +8,7 @@ public enum BloodType implements VampirismTier<BloodType>
 {
     NONE(0, 0, 0, 0, 0, ChatFormatting.BLACK),
     FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.33F, ChatFormatting.GRAY),
-    CREATURE(2, 0.5, 0.5, 0.5, 1F, ChatFormatting.LIGHT_PURPLE),
+    CREATURE(2, 0.5, 0.5, 0.5, 1F, ChatFormatting.GREEN),
     HUMAN(3, 1, 1, 1, 2F, ChatFormatting.DARK_RED),
     VAMPIRE(4, 0.75, 0.75, 1.25, 1F, ChatFormatting.DARK_PURPLE),
     PIGLIN(5, 0.75, 0.75, 0.75, 1.5F, ChatFormatting.GOLD);
@@ -76,6 +76,12 @@ public enum BloodType implements VampirismTier<BloodType>
 
     public int getColor()
     {
-        return this.chatFormatting.getColor();
+        return switch (this)
+        {
+            case CREATURE -> 6336304;
+            case HUMAN -> 9437216;
+            case VAMPIRE -> 6226059;
+            default -> this.chatFormatting.getColor();
+        };
     }
 }

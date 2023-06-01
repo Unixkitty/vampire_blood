@@ -1,10 +1,10 @@
 package com.unixkitty.vampire_blood.client;
 
-import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
+import com.unixkitty.vampire_blood.network.packet.EntityBloodInfoS2CPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -42,6 +42,10 @@ public class ClientPacketHandler
                     {
                         ClientCache.getVampireVars().invalidateOutlineColors();
                     }
+                    else if (ability == VampireActiveAbility.BLOOD_VISION)
+                    {
+                        ClientCache.getVampireVars().invalidateEntityBloodValues();
+                    }
                 }
             }
         }
@@ -68,9 +72,16 @@ public class ClientPacketHandler
         }
     }
 
-    public static void handleEntityBloodInfo(BloodType bloodType, int bloodPoints, int maxBloodPoints)
+    public static void handleEntityBloodInfo(EntityBloodInfoS2CPacket packet)
     {
-        FeedingMouseOverHandler.setData(bloodType, bloodPoints, maxBloodPoints);
+        if (packet.lookingDirectly)
+        {
+            FeedingMouseOverHandler.setData(packet.bloodType, packet.bloodPoints, packet.maxBloodPoints);
+        }
+        else
+        {
+            ClientCache.getVampireVars().setEntityBloodValues(packet.entityId, packet.bloodPoints, packet.maxBloodPoints, packet.bloodType);
+        }
     }
 
     public static void handleAvoidHurtAnim(float health)

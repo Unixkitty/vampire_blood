@@ -33,6 +33,6 @@ public class FeedingHandler
 
     static void requestUpdateOn(int id)
     {
-        ModNetworkDispatcher.sendToServer(new RequestEntityBloodC2SPacket(id));
+        ModNetworkDispatcher.sendToServer(new RequestEntityBloodC2SPacket(id, true));
     }
 }

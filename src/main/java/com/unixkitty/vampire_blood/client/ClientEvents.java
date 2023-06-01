@@ -66,36 +66,19 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onClientTick(final TickEvent.PlayerTickEvent event)
         {
-            if (event.side == LogicalSide.CLIENT)
+            if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.END && ClientCache.isVampire())
             {
-                switch (event.phase)
+                if (Config.debug.get() && Config.renderDebugOverlay.get() && ModDebugOverlay.mainEnabled)
                 {
-                    case START ->
-                    {
-                        /*if (player.tickCount % 10 == 0)
-                        {
-                            for (VampireActiveAbilities ability : VampireActiveAbilities.values())
-                            {
-                                if (ClientVampirePlayerDataCache.activeAbilities.contains(ability) && ClientVampirePlayerDataCache.isVampire())
-                                {
-                                    ability.refresh(player);
-                                }
-                                else if (!ClientVampirePlayerDataCache.isVampire() || !ClientVampirePlayerDataCache.activeAbilities.contains(ability))
-                                {
-                                    ability.stop(player);
-                                }
-                            }
-                        }*/
-                    }
-                    case END ->
-                    {
-                        if (Config.debug.get() && Config.renderDebugOverlay.get() && ModDebugOverlay.mainEnabled && ClientCache.isVampire())
-                        {
-                            ClientCache.getDebugVars().updateThirstExhaustionIncrementRate(event.player.tickCount);
-                        }
-                    }
+                    ClientCache.getDebugVars().updateThirstExhaustionIncrementRate(event.player.tickCount);
                 }
             }
+        }
+
+        @SubscribeEvent
+        public static void onPostRenderLiving(final RenderLivingEvent.Post<?, ?> event)
+        {
+            BloodVisionUtil.render(event);
         }
 
         @SubscribeEvent
