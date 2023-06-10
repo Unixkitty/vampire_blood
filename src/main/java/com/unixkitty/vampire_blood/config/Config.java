@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.config;
 
 import com.google.common.collect.Lists;
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -26,6 +27,7 @@ public class Config
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
     public static ForgeConfigSpec.IntValue vampireDustDropAmount;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> sunnyDimensions;
+    public static ForgeConfigSpec.IntValue abilityHungerThreshold;
 
     public static ForgeConfigSpec.IntValue naturalHealingRate;
     public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
@@ -53,16 +55,12 @@ public class Config
             commonConfig.push("General");
             {
                 debug = commonConfig.comment("Enable debug features (lots of network traffic and additional HUDs)").define("debug", true);
-
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").comment("Requires world restart").worldRestart().define("shouldUndeadIgnoreVampires", true);
-
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define("increasedDamageFromWood", true);
-
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
-
                 vampireDustDropAmount = commonConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
-
                 sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList("sunnyDimensions"), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
+                abilityHungerThreshold = commonConfig.comment("Hunger level at which abilities can no longer be used by a vampire player").defineInRange("abilityHungerThreshold", VampirePlayerBloodData.MAX_THIRST / 20, 0, VampirePlayerBloodData.MAX_THIRST);
             }
             commonConfig.pop();
 

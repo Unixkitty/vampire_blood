@@ -63,6 +63,8 @@ public class VampirePlayerData implements IBloodVessel
             syncDebugData(player);
 
             blood.tick(player);
+
+            handleAbilities(player);
         }
 
         if (blood.vampireLevel != VampirismLevel.IN_TRANSITION)
@@ -80,13 +82,18 @@ public class VampirePlayerData implements IBloodVessel
             if (blood.activeAbilities.contains(ability))
             {
                 blood.activeAbilities.remove(ability);
+
+                blood.updateWithAttributes(player, true);
             }
             else
             {
-                blood.activeAbilities.add(ability);
-            }
+                if (!this.catchingUV && (ability == VampireActiveAbility.BLOOD_VISION || ability == VampireActiveAbility.NIGHT_VISION) || blood.thirstLevel > Config.abilityHungerThreshold.get())
+                {
+                    blood.activeAbilities.add(ability);
 
-            blood.updateWithAttributes(player, true);
+                    blood.updateWithAttributes(player, true);
+                }
+            }
         }
     }
 
@@ -326,6 +333,25 @@ public class VampirePlayerData implements IBloodVessel
         blood.sync();
     }
 
+    private void handleAbilities(ServerPlayer player)
+    {
+        boolean veryHungry = blood.thirstLevel <= Config.abilityHungerThreshold.get();
+
+        //Turn off abilities when exposed to sunlight or at low hunger
+        if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && player.tickCount % 20 == 0 && !blood.activeAbilities.isEmpty() && (this.catchingUV || veryHungry))
+        {
+            for (VampireActiveAbility ability : blood.activeAbilities)
+            {
+                if (veryHungry && (ability == VampireActiveAbility.BLOOD_VISION || ability == VampireActiveAbility.NIGHT_VISION))
+                {
+                    continue;
+                }
+
+                toggleAbility(player, ability);
+            }
+        }
+    }
+
     private void handleSunlight(ServerPlayer player)
     {
         player.level.getProfiler().push("vampire_catching_sun_logic");
@@ -343,7 +369,7 @@ public class VampirePlayerData implements IBloodVessel
                 --this.catchingUVTicks;
             }
 
-            if (catchingUV)
+            if (this.catchingUV)
             {
                 ++this.ticksInSun;
 
