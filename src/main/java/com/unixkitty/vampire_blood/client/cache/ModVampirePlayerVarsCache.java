@@ -21,6 +21,7 @@ public class ModVampirePlayerVarsCache
     private static final int BLOOD_TYPE = 1;
     private static final int ENTITY_OUTLINE_COLORS = 2;
     private static final int ENTITY_BLOOD_VALUES = 3;
+    private static final int MOUSE_OVER_HANDLER = 4;
     
     private final Int2ObjectOpenHashMap<Object> cache = new Int2ObjectOpenHashMap<>();
 

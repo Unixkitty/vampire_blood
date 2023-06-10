@@ -10,6 +10,7 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -20,6 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.UUID;
 
 public class VampirePlayerData implements IBloodVessel
 {
@@ -50,9 +52,11 @@ public class VampirePlayerData implements IBloodVessel
     private int maxBloodPoints = 0;
     private int bloodPoints = 0;
 
+    private Object2IntOpenHashMap<UUID> charmedByMap = null;
+
     public void tick(ServerPlayer player)
     {
-        player.level.getProfiler().push("vampire_tick");
+        player.level.getProfiler().push("vampire_player_tick");
 
         if (blood.vampireLevel != VampirismLevel.NOT_VAMPIRE)
         {
@@ -60,12 +64,14 @@ public class VampirePlayerData implements IBloodVessel
 
             handleFeeding(player);
 
-            syncDebugData(player);
-
             blood.tick(player);
 
             handleAbilities(player);
+
+            syncDebugData(player);
         }
+
+        handleBeingCharmedTicks(player);
 
         if (blood.vampireLevel != VampirismLevel.IN_TRANSITION)
         {
@@ -73,6 +79,21 @@ public class VampirePlayerData implements IBloodVessel
         }
 
         player.level.getProfiler().pop();
+    }
+
+    public void charmTarget(@Nonnull LivingEntity target, ServerPlayer player)
+    {
+        if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && target.isAlive() && blood.thirstLevel > Config.abilityHungerThreshold.get() && VampireUtil.isLookingAtEntity(player, target))
+        {
+            if (target instanceof Player targetPlayer && !targetPlayer.isCreative() && !targetPlayer.isSpectator())
+            {
+                target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.tryGetCharmed(player, blood.vampireLevel));
+            }
+            else
+            {
+                target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tryGetCharmed(player, blood.vampireLevel));
+            }
+        }
     }
 
     public void toggleAbility(ServerPlayer player, VampireActiveAbility ability)
@@ -108,7 +129,7 @@ public class VampirePlayerData implements IBloodVessel
         {
             if (blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST && VampireUtil.isLookingAtEntity(player, target))
             {
-                if (target instanceof Player)
+                if (target instanceof Player targetPlayer && !targetPlayer.isSpectator() && !targetPlayer.isCreative())
                 {
                     target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                     {
@@ -132,13 +153,9 @@ public class VampirePlayerData implements IBloodVessel
 
             if (this.feedingEntityBlood != null)
             {
-                this.feedingEntity = target;
+                VampireUtil.preventMovement(this.feedingEntity = target);
 
-                VampireUtil.preventMovement(target);
-
-                this.feeding = true;
-
-                ModNetworkDispatcher.notifyPlayerFeeding(player, true);
+                ModNetworkDispatcher.notifyPlayerFeeding(player, this.feeding = true);
 
                 sync();
             }
@@ -298,6 +315,51 @@ public class VampirePlayerData implements IBloodVessel
     }
 
     @Override
+    public boolean isCharmedBy(ServerPlayer player)
+    {
+        return this.charmedByMap != null && this.charmedByMap.containsKey(player.getUUID());
+    }
+
+    @Override
+    public void setCharmedBy(ServerPlayer player)
+    {
+        if (this.charmedByMap == null)
+        {
+            this.charmedByMap = new Object2IntOpenHashMap<>();
+        }
+
+        this.charmedByMap.put(player.getUUID(), (int) Config.charmedEffectDuration.get());
+    }
+
+    @Override
+    public void handleBeingCharmedTicks(LivingEntity player)
+    {
+        if (player.tickCount % 20 == 0 && this.charmedByMap != null && !this.charmedByMap.isEmpty())
+        {
+            if (blood.vampireLevel == VampirismLevel.IN_TRANSITION || blood.vampireLevel == VampirismLevel.ORIGINAL)
+            {
+                this.charmedByMap.clear();
+            }
+            else
+            {
+                for (UUID key : this.charmedByMap.keySet())
+                {
+                    int value = this.charmedByMap.getInt(key);
+
+                    if (value == 0)
+                    {
+                        this.charmedByMap.removeInt(key);
+                    }
+                    else if (value > 0)
+                    {
+                        this.charmedByMap.addTo(key, -1);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
     public BloodType getBloodType()
     {
         return blood.vampireLevel == VampirismLevel.NOT_VAMPIRE ? BloodType.HUMAN : blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
@@ -435,7 +497,7 @@ public class VampirePlayerData implements IBloodVessel
                 {
                     VampireUtil.preventMovement(this.feedingEntity);
 
-                    if (!this.feedingEntity.isSleeping() && this.feedingEntity.getLastHurtByMob() != player)
+                    if (!this.feedingEntity.isSleeping() && !this.feedingEntityBlood.isCharmedBy(player) && this.feedingEntity.getLastHurtByMob() != player)
                     {
                         this.feedingEntity.setLastHurtByMob(player);
                     }
@@ -470,6 +532,8 @@ public class VampirePlayerData implements IBloodVessel
         blood.diet.saveNBT(tag);
 
         VampireActiveAbility.saveNBT(blood.activeAbilities, tag);
+
+        saveCharmedByMap(tag, this.charmedByMap);
     }
 
     public void loadNBTData(CompoundTag tag)
@@ -488,6 +552,8 @@ public class VampirePlayerData implements IBloodVessel
         blood.diet.loadNBT(tag);
 
         VampireActiveAbility.loadNBT(blood.activeAbilities, tag);
+
+        this.charmedByMap = loadCharmedByMap(tag);
     }
 
     public static void copyData(Player oldPlayer, ServerPlayer player, boolean isDeathEvent)

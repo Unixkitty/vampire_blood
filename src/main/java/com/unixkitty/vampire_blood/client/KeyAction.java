@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestFeedingC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.RequestStopFeedingC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.ToggleActiveAbilityC2SPacket;
+import com.unixkitty.vampire_blood.network.packet.UseCharmAbilityC2SPacket;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -82,7 +83,13 @@ public enum KeyAction
                 case FEED_START ->
                         ModNetworkDispatcher.sendToServer(new RequestFeedingC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
                 case FEED_STOP -> ModNetworkDispatcher.sendToServer(new RequestStopFeedingC2SPacket());
-//                case CHARM -> ModNetworkDispatcher.sendToServer(new UseCharmAbilityC2SPacket());
+                case CHARM ->
+                {
+                    if (FeedingMouseOverHandler.isCloseEnough())
+                    {
+                        ModNetworkDispatcher.sendToServer(new UseCharmAbilityC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
+                    }
+                }
                 default -> ModNetworkDispatcher.sendToServer(new ToggleActiveAbilityC2SPacket(action.ability));
             }
 

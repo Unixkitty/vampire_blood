@@ -84,6 +84,8 @@ public class VampireUtil
     public static void preventMovement(@Nonnull LivingEntity entity)
     {
         entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 9, false, false, true));
+        entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 20, 2, false, false, true));
+        entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 200, 1, false, false, true));
     }
 
     public static boolean isLookingAtEntity(@Nonnull Player player, @Nonnull LivingEntity target)

@@ -27,7 +27,6 @@ public class Config
     public static ForgeConfigSpec.IntValue ticksToSunDamage;
     public static ForgeConfigSpec.IntValue vampireDustDropAmount;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> sunnyDimensions;
-    public static ForgeConfigSpec.IntValue abilityHungerThreshold;
 
     public static ForgeConfigSpec.IntValue naturalHealingRate;
     public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
@@ -37,6 +36,9 @@ public class Config
     public static ForgeConfigSpec.BooleanValue healthOrBloodPoints;
     public static ForgeConfigSpec.BooleanValue entityRegen;
     public static ForgeConfigSpec.IntValue entityRegenTime;
+
+    public static ForgeConfigSpec.IntValue abilityHungerThreshold;
+    public static ForgeConfigSpec.IntValue charmedEffectDuration;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -60,7 +62,6 @@ public class Config
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
                 vampireDustDropAmount = commonConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
                 sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList("sunnyDimensions"), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
-                abilityHungerThreshold = commonConfig.comment("Hunger level at which abilities can no longer be used by a vampire player").defineInRange("abilityHungerThreshold", VampirePlayerBloodData.MAX_THIRST / 20, 0, VampirePlayerBloodData.MAX_THIRST);
             }
             commonConfig.pop();
 
@@ -78,6 +79,13 @@ public class Config
                 healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points, and non-vampire players who always use health").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
                 entityRegen = commonConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", true);
                 entityRegenTime = commonConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
+            }
+            commonConfig.pop();
+
+            commonConfig.push("Abilities");
+            {
+                abilityHungerThreshold = commonConfig.comment("Hunger level at which abilities can no longer be used by a vampire player").defineInRange("abilityHungerThreshold", VampirePlayerBloodData.MAX_THIRST / 20, 0, VampirePlayerBloodData.MAX_THIRST);
+                charmedEffectDuration = commonConfig.comment("How many ticks charm effect lasts on targets, -1 for unlimited duration").defineInRange("charmedEffectDuration", 1200, -1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 
