@@ -5,16 +5,13 @@ import com.unixkitty.vampire_blood.config.BloodEntityConfig;
 import com.unixkitty.vampire_blood.config.BloodManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
-public class BloodEntityStorage implements IBloodVessel
+public class BloodEntityStorage extends AbstractBloodVessel
 {
     private static final String ID_NBT_NAME = "id";
     private static final String BLOOD_POINTS_NBT_NAME = "bloodPoints";
@@ -33,8 +30,6 @@ public class BloodEntityStorage implements IBloodVessel
     private int ticksPerRegen = 0;
 
     private boolean freshEntity = true;
-
-    private Object2IntOpenHashMap<UUID> charmedByMap = null;
 
     public void tick(LivingEntity entity)
     {
@@ -116,6 +111,13 @@ public class BloodEntityStorage implements IBloodVessel
         this.freshEntity = false;
     }
 
+    private void updateBloodHealth(LivingEntity entity)
+    {
+        this.maxBloodPoints = VampireUtil.healthToBlood(entity.getMaxHealth(), this.bloodType);
+        this.bloodPoints = VampireUtil.healthToBlood(entity.getHealth(), this.bloodType);
+        this.ticksPerRegen = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
+    }
+
     @Override
     public boolean isEdible()
     {
@@ -181,50 +183,6 @@ public class BloodEntityStorage implements IBloodVessel
     }
 
     @Override
-    public boolean isCharmedBy(ServerPlayer player)
-    {
-        return this.charmedByMap != null && this.charmedByMap.containsKey(player.getUUID());
-    }
-
-    @Override
-    public void setCharmedBy(ServerPlayer player)
-    {
-        if (this.charmedByMap == null)
-        {
-            this.charmedByMap = new Object2IntOpenHashMap<>();
-        }
-
-        this.charmedByMap.put(player.getUUID(), (int) Config.charmedEffectDuration.get());
-    }
-
-    @Override
-    public void handleBeingCharmedTicks(LivingEntity entity)
-    {
-        if (entity.tickCount % 20 == 0 && this.charmedByMap != null && !this.charmedByMap.isEmpty())
-        {
-            for (UUID key : this.charmedByMap.keySet())
-            {
-                int value = this.charmedByMap.getInt(key);
-
-                if (value == 0)
-                {
-                    this.charmedByMap.removeInt(key);
-                }
-                else if (value > 0)
-                {
-                    this.charmedByMap.addTo(key, -1);
-                }
-            }
-        }
-    }
-
-    private void updateBloodHealth(LivingEntity entity)
-    {
-        this.maxBloodPoints = VampireUtil.healthToBlood(entity.getMaxHealth(), this.bloodType);
-        this.bloodPoints = VampireUtil.healthToBlood(entity.getHealth(), this.bloodType);
-        this.ticksPerRegen = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
-    }
-
     public void saveNBTData(CompoundTag tag)
     {
         tag.putString(ID_NBT_NAME, this.id);
@@ -235,9 +193,10 @@ public class BloodEntityStorage implements IBloodVessel
         tag.putInt(REGEN_TIMER_NBT_NAME, this.naturalRegenTimer);
         tag.putBoolean(FRESH_ENTITY_NBT_NAME, this.freshEntity);
 
-        saveCharmedByMap(tag, this.charmedByMap);
+        super.saveNBTData(tag);
     }
 
+    @Override
     public void loadNBTData(CompoundTag tag)
     {
         this.id = tag.getString(ID_NBT_NAME);
@@ -248,6 +207,6 @@ public class BloodEntityStorage implements IBloodVessel
         this.naturalRegenTimer = tag.getInt(REGEN_TIMER_NBT_NAME);
         this.freshEntity = tag.getBoolean(FRESH_ENTITY_NBT_NAME);
 
-        this.charmedByMap = loadCharmedByMap(tag);
+        super.loadNBTData(tag);
     }
 }

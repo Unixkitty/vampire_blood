@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
+import com.unixkitty.vampire_blood.capability.blood.AbstractBloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
@@ -10,7 +11,6 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
@@ -21,9 +21,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.UUID;
 
-public class VampirePlayerData implements IBloodVessel
+public class VampirePlayerData extends AbstractBloodVessel
 {
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
@@ -51,8 +50,6 @@ public class VampirePlayerData implements IBloodVessel
     //This is for being fed on
     private int maxBloodPoints = 0;
     private int bloodPoints = 0;
-
-    private Object2IntOpenHashMap<UUID> charmedByMap = null;
 
     public void tick(ServerPlayer player)
     {
@@ -245,124 +242,9 @@ public class VampirePlayerData implements IBloodVessel
         blood.updateWithAttributes(player, force);
     }
 
-    @Override
-    public boolean isEdible()
-    {
-        return getBloodType() != BloodType.NONE && blood.vampireLevel != VampirismLevel.IN_TRANSITION;
-    }
-
-    @Override
-    public int getBloodPoints()
-    {
-        return this.bloodPoints;
-    }
-
-    @Override
-    public int getMaxBloodPoints()
-    {
-        return this.maxBloodPoints;
-    }
-
-    private void updateBloodForFeeding(ServerPlayer player, BloodType bloodType)
-    {
-        if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
-        {
-            this.maxBloodPoints = VampireUtil.healthToBlood(player.getMaxHealth(), bloodType);
-            this.bloodPoints = VampireUtil.healthToBlood(player.getHealth(), bloodType);
-        }
-        else
-        {
-            this.maxBloodPoints = VampirePlayerBloodData.MAX_THIRST;
-            this.bloodPoints = blood.thirstLevel;
-        }
-    }
-
     public BloodType getDietBloodType()
     {
         return blood.bloodType;
-    }
-
-    @Override
-    public boolean decreaseBlood(@NotNull LivingEntity attacker, @NotNull LivingEntity victim)
-    {
-        if (isEdible())
-        {
-            //Non-vampire player
-            if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
-            {
-                drinkFromHealth(attacker, victim, getBloodType());
-
-                return true;
-            }
-            else //Vampire, because isEdible() checks for transitioning stage
-            {
-                int resultingThirstLevel = blood.thirstLevel - 1;
-
-                if (resultingThirstLevel >= 0)
-                {
-                    blood.decreaseBlood(false);
-
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean isCharmedBy(ServerPlayer player)
-    {
-        return this.charmedByMap != null && this.charmedByMap.containsKey(player.getUUID());
-    }
-
-    @Override
-    public void setCharmedBy(ServerPlayer player)
-    {
-        if (this.charmedByMap == null)
-        {
-            this.charmedByMap = new Object2IntOpenHashMap<>();
-        }
-
-        this.charmedByMap.put(player.getUUID(), (int) Config.charmedEffectDuration.get());
-    }
-
-    @Override
-    public void handleBeingCharmedTicks(LivingEntity player)
-    {
-        if (player.tickCount % 20 == 0 && this.charmedByMap != null && !this.charmedByMap.isEmpty())
-        {
-            if (blood.vampireLevel == VampirismLevel.IN_TRANSITION || blood.vampireLevel == VampirismLevel.ORIGINAL)
-            {
-                this.charmedByMap.clear();
-            }
-            else
-            {
-                for (UUID key : this.charmedByMap.keySet())
-                {
-                    int value = this.charmedByMap.getInt(key);
-
-                    if (value == 0)
-                    {
-                        this.charmedByMap.removeInt(key);
-                    }
-                    else if (value > 0)
-                    {
-                        this.charmedByMap.addTo(key, -1);
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
-    public BloodType getBloodType()
-    {
-        return blood.vampireLevel == VampirismLevel.NOT_VAMPIRE ? BloodType.HUMAN : blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
     }
 
     public int getThirstLevel()
@@ -393,6 +275,20 @@ public class VampirePlayerData implements IBloodVessel
     public void sync()
     {
         blood.sync();
+    }
+
+    private void updateBloodForFeeding(ServerPlayer player, BloodType bloodType)
+    {
+        if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
+        {
+            this.maxBloodPoints = VampireUtil.healthToBlood(player.getMaxHealth(), bloodType);
+            this.bloodPoints = VampireUtil.healthToBlood(player.getHealth(), bloodType);
+        }
+        else
+        {
+            this.maxBloodPoints = VampirePlayerBloodData.MAX_THIRST;
+            this.bloodPoints = blood.thirstLevel;
+        }
     }
 
     private void handleAbilities(ServerPlayer player)
@@ -516,6 +412,63 @@ public class VampirePlayerData implements IBloodVessel
         }
     }
 
+    @Override
+    public boolean isEdible()
+    {
+        return getBloodType() != BloodType.NONE && blood.vampireLevel != VampirismLevel.IN_TRANSITION;
+    }
+
+    @Override
+    public int getBloodPoints()
+    {
+        return this.bloodPoints;
+    }
+
+    @Override
+    public int getMaxBloodPoints()
+    {
+        return this.maxBloodPoints;
+    }
+
+    @Override
+    public boolean decreaseBlood(@NotNull LivingEntity attacker, @NotNull LivingEntity victim)
+    {
+        if (isEdible())
+        {
+            //Non-vampire player
+            if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
+            {
+                drinkFromHealth(attacker, victim, getBloodType());
+
+                return true;
+            }
+            else //Vampire, because isEdible() checks for transitioning stage
+            {
+                int resultingThirstLevel = blood.thirstLevel - 1;
+
+                if (resultingThirstLevel >= 0)
+                {
+                    blood.decreaseBlood(false);
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public BloodType getBloodType()
+    {
+        return blood.vampireLevel == VampirismLevel.NOT_VAMPIRE ? BloodType.HUMAN : blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() ? BloodType.VAMPIRE : BloodType.NONE;
+    }
+
+    @Override
     public void saveNBTData(CompoundTag tag)
     {
         tag.putInt(LEVEL_NBT_NAME, blood.vampireLevel.getId());
@@ -533,9 +486,10 @@ public class VampirePlayerData implements IBloodVessel
 
         VampireActiveAbility.saveNBT(blood.activeAbilities, tag);
 
-        saveCharmedByMap(tag, this.charmedByMap);
+        super.saveNBTData(tag);
     }
 
+    @Override
     public void loadNBTData(CompoundTag tag)
     {
         blood.vampireLevel = VampirismTier.fromId(VampirismLevel.class, tag.getInt(LEVEL_NBT_NAME));
@@ -553,7 +507,20 @@ public class VampirePlayerData implements IBloodVessel
 
         VampireActiveAbility.loadNBT(blood.activeAbilities, tag);
 
-        this.charmedByMap = loadCharmedByMap(tag);
+        super.loadNBTData(tag);
+    }
+
+    @Override
+    protected void handleCharmedTicks(LivingEntity player)
+    {
+        if (blood.vampireLevel == VampirismLevel.IN_TRANSITION || blood.vampireLevel == VampirismLevel.ORIGINAL)
+        {
+            this.charmedByMap.clear();
+        }
+        else
+        {
+            super.handleCharmedTicks(player);
+        }
     }
 
     public static void copyData(Player oldPlayer, ServerPlayer player, boolean isDeathEvent)
