@@ -48,11 +48,11 @@ public class RequestEntityBloodC2SPacket extends BasePacket
                 {
                     if (livingEntity instanceof Player)
                     {
-                        livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, vampirePlayerData.getBloodType(), vampirePlayerData.getBloodPoints(), vampirePlayerData.getMaxBloodPoints(), this.lookingDirectly));
+                        livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, vampirePlayerData.getBloodType(), vampirePlayerData.getBloodPoints(), vampirePlayerData.getMaxBloodPoints(), this.lookingDirectly, vampirePlayerData.getCharmedByTicks(player)));
                     }
                     else
                     {
-                        livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints(), this.lookingDirectly));
+                        livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodStorage -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, bloodStorage.getBloodType(), bloodStorage.getBloodPoints(), bloodStorage.getMaxBloodPoints(), this.lookingDirectly, bloodStorage.getCharmedByTicks(player)));
                     }
                 }
             }

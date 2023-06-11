@@ -69,9 +69,9 @@ public class ModNetworkDispatcher
 
     //========================================
 
-    public static void sendPlayerEntityBlood(ServerPlayer player, int entityId, BloodType bloodType, int bloodPoints, int maxBloodPoints, boolean lookingDirectly)
+    public static void sendPlayerEntityBlood(ServerPlayer player, int entityId, BloodType bloodType, int bloodPoints, int maxBloodPoints, boolean lookingDirectly, int charmedTicks)
     {
-        sendToClient(new EntityBloodInfoS2CPacket(entityId, bloodType, bloodPoints, maxBloodPoints, lookingDirectly), player);
+        sendToClient(new EntityBloodInfoS2CPacket(entityId, bloodType, bloodPoints, maxBloodPoints, lookingDirectly, charmedTicks), player);
     }
 
     public static void notifyPlayerFeeding(ServerPlayer player, boolean value)

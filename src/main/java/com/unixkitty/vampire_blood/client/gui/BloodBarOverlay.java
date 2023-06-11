@@ -145,14 +145,14 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     drawLine(FeedingMouseOverHandler.bloodType.getTranslation(), poseStack, gui, renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
                     drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_RED);
 
-                    if (ClientCache.getVampireVars().isEntityCharmed(FeedingMouseOverHandler.getLastEntity().getId()))
-                    {
-                        drawLine(Component.translatable("effect.vampire_blood.charmed"), poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_PURPLE);
-                    }
-
                     if (Config.entityBloodHUDshowHP.get())
                     {
                         drawLine(Component.translatable("text.vampire_blood.health", VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getHealth()), VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getMaxHealth())), poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.RED);
+                    }
+
+                    if (FeedingMouseOverHandler.charmedSeconds != -2)
+                    {
+                        drawLine(Component.translatable("text.vampire_blood.charmed_for", FeedingMouseOverHandler.charmedSeconds), poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_PURPLE);
                     }
                 }
                 else

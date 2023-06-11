@@ -14,14 +14,16 @@ public class EntityBloodInfoS2CPacket extends BasePacket
     public final int maxBloodPoints;
     public final int bloodPoints;
     public final boolean lookingDirectly;
+    public final int charmedTicks;
 
-    public EntityBloodInfoS2CPacket(int entityId, BloodType bloodType, int bloodPoints, int maxBloodPoints, boolean lookingDirectly)
+    public EntityBloodInfoS2CPacket(int entityId, BloodType bloodType, int bloodPoints, int maxBloodPoints, boolean lookingDirectly, int charmedTicks)
     {
         this.entityId = entityId;
         this.bloodType = bloodType;
         this.bloodPoints = bloodPoints;
         this.maxBloodPoints = maxBloodPoints;
         this.lookingDirectly = lookingDirectly;
+        this.charmedTicks = charmedTicks;
     }
 
     public EntityBloodInfoS2CPacket(FriendlyByteBuf buffer)
@@ -31,6 +33,7 @@ public class EntityBloodInfoS2CPacket extends BasePacket
         this.bloodPoints = buffer.readInt();
         this.maxBloodPoints = buffer.readInt();
         this.lookingDirectly = buffer.readBoolean();
+        this.charmedTicks = buffer.readInt();
     }
 
     public void toBytes(FriendlyByteBuf buffer)
@@ -40,6 +43,7 @@ public class EntityBloodInfoS2CPacket extends BasePacket
         buffer.writeInt(this.bloodPoints);
         buffer.writeInt(this.maxBloodPoints);
         buffer.writeBoolean(this.lookingDirectly);
+        buffer.writeInt(this.charmedTicks);
     }
 
     public boolean handle(Supplier<NetworkEvent.Context> contextSupplier)

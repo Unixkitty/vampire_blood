@@ -16,6 +16,58 @@ public abstract class BloodVessel implements IBloodVessel
 {
     protected Object2IntOpenHashMap<UUID> charmedByMap = null;
 
+    public void saveNBTData(CompoundTag tag)
+    {
+        if (this.charmedByMap != null)
+        {
+            CompoundTag subTag = new CompoundTag();
+
+            this.charmedByMap.forEach((uuid, integer) -> subTag.putInt(uuid.toString(), integer));
+
+            tag.put(CHARMED_BY_NBT_NAME, subTag);
+        }
+    }
+
+    public void loadNBTData(CompoundTag tag)
+    {
+        CompoundTag subTagCharmedBy = tag.getCompound(CHARMED_BY_NBT_NAME);
+
+        if (subTagCharmedBy.size() > 0)
+        {
+            this.charmedByMap = new Object2IntOpenHashMap<>();
+
+            for (String key : subTagCharmedBy.getAllKeys())
+            {
+                this.charmedByMap.put(UUID.fromString(key), subTagCharmedBy.getInt(key));
+            }
+        }
+    }
+
+    protected void handleCharmedTicks(LivingEntity entity)
+    {
+        for (UUID key : this.charmedByMap.keySet())
+        {
+            int value = this.charmedByMap.getInt(key);
+
+            if (value > 0)
+            {
+                if (value >= 20)
+                {
+                    this.charmedByMap.addTo(key, -20);
+                }
+                else
+                {
+                    this.charmedByMap.addTo(key, -value);
+                }
+            }
+
+            if (value == 0)
+            {
+                this.charmedByMap.removeInt(key);
+            }
+        }
+    }
+
     @Override
     public void dieFromBloodLoss(@NotNull LivingEntity victim, @NotNull LivingEntity attacker)
     {
@@ -47,35 +99,16 @@ public abstract class BloodVessel implements IBloodVessel
         }
     }
 
-    protected void handleCharmedTicks(LivingEntity entity)
-    {
-        for (UUID key : this.charmedByMap.keySet())
-        {
-            int value = this.charmedByMap.getInt(key);
-
-            if (value > 0)
-            {
-                if (value >= 20)
-                {
-                    this.charmedByMap.addTo(key, -20);
-                }
-                else
-                {
-                    this.charmedByMap.addTo(key, -value);
-                }
-            }
-
-            if (value == 0)
-            {
-                this.charmedByMap.removeInt(key);
-            }
-        }
-    }
-
     @Override
     public boolean isCharmedBy(ServerPlayer player)
     {
         return this.charmedByMap != null && this.charmedByMap.containsKey(player.getUUID());
+    }
+
+    @Override
+    public int getCharmedByTicks(ServerPlayer player)
+    {
+        return this.charmedByMap == null ? -2 : this.charmedByMap.getOrDefault(player.getUUID(), -2);
     }
 
     @Override
@@ -102,33 +135,6 @@ public abstract class BloodVessel implements IBloodVessel
                 }
             }
             case CREATURE, HUMAN, PIGLIN -> setCharmedBy(player);
-        }
-    }
-
-    public void saveNBTData(CompoundTag tag)
-    {
-        if (this.charmedByMap != null)
-        {
-            CompoundTag subTag = new CompoundTag();
-
-            this.charmedByMap.forEach((uuid, integer) -> subTag.putInt(uuid.toString(), integer));
-
-            tag.put(CHARMED_BY_NBT_NAME, subTag);
-        }
-    }
-
-    public void loadNBTData(CompoundTag tag)
-    {
-        CompoundTag subTagCharmedBy = tag.getCompound(CHARMED_BY_NBT_NAME);
-
-        if (subTagCharmedBy.size() > 0)
-        {
-            this.charmedByMap = new Object2IntOpenHashMap<>();
-
-            for (String key : subTagCharmedBy.getAllKeys())
-            {
-                this.charmedByMap.put(UUID.fromString(key), subTagCharmedBy.getInt(key));
-            }
         }
     }
 }

@@ -76,11 +76,12 @@ public class ClientPacketHandler
     {
         if (packet.lookingDirectly)
         {
-            FeedingMouseOverHandler.setData(packet.bloodType, packet.bloodPoints, packet.maxBloodPoints);
+            FeedingMouseOverHandler.setData(packet.bloodType, packet.bloodPoints, packet.maxBloodPoints, packet.charmedTicks);
         }
         else
         {
             ClientCache.getVampireVars().setEntityBloodValues(packet.entityId, packet.bloodPoints, packet.maxBloodPoints, packet.bloodType);
+            ClientCache.getVampireVars().setEntityCharmed(packet.entityId, !(packet.charmedTicks == -2 || packet.charmedTicks == 0));
         }
     }
 

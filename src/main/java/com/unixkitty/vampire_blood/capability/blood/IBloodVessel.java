@@ -28,6 +28,8 @@ public interface IBloodVessel
 
     boolean isCharmedBy(ServerPlayer player);
 
+    int getCharmedByTicks(ServerPlayer player);
+
     void setCharmedBy(ServerPlayer player);
 
     void handleBeingCharmedTicks(LivingEntity entity);

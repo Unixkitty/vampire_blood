@@ -48,5 +48,6 @@
   "effect.vampire_blood.enhanced_senses": "Vampiric Senses",
   "effect.vampire_blood.enhanced_speed": "Vampiric Speed",
   "effect.vampire_blood.charmed": "Enthralled",
+  "text.vampire_blood.charmed_for": "Enthralled for %ss",
   "text.vampire_blood.health": "Health: %s/%s"
 }

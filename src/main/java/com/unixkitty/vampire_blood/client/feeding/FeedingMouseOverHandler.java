@@ -14,6 +14,7 @@ public class FeedingMouseOverHandler
     public static BloodType bloodType = BloodType.NONE;
     public static int maxBloodPoints = 0;
     public static int bloodPoints = 0;
+    public static int charmedSeconds = -2;
 
     private static LivingEntity lastEntity = null;
     private static boolean closeEnough = false;
@@ -61,16 +62,18 @@ public class FeedingMouseOverHandler
         bloodType = BloodType.NONE;
         maxBloodPoints = 0;
         bloodPoints = 0;
+        charmedSeconds = -2;
 
         hasData = false;
         closeEnough = false;
     }
 
-    public static void setData(BloodType bloodType, int bloodPoints, int maxBloodPoints)
+    public static void setData(BloodType pBloodType, int pBloodPoints, int pMaxBloodPoints, int pCharmedTicks)
     {
-        FeedingMouseOverHandler.bloodType = bloodType;
-        FeedingMouseOverHandler.bloodPoints = bloodPoints;
-        FeedingMouseOverHandler.maxBloodPoints = maxBloodPoints;
+        bloodType = pBloodType;
+        bloodPoints = pBloodPoints;
+        maxBloodPoints = pMaxBloodPoints;
+        charmedSeconds = pCharmedTicks > 0 ? pCharmedTicks / 20 : pCharmedTicks;
 
         hasData = true;
     }

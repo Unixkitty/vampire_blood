@@ -82,6 +82,8 @@ public class VampirePlayerData extends BloodVessel
     {
         if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && target.isAlive() && blood.thirstLevel > Config.abilityHungerThreshold.get() && VampireUtil.isLookingAtEntity(player, target))
         {
+            --blood.thirstLevel; // #3 failed hotswap trigger
+
             if (target instanceof Player targetPlayer && !targetPlayer.isCreative() && !targetPlayer.isSpectator())
             {
                 target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.tryGetCharmed(player, blood.vampireLevel));
@@ -90,6 +92,8 @@ public class VampirePlayerData extends BloodVessel
             {
                 target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tryGetCharmed(player, blood.vampireLevel));
             }
+
+            sync(); // #2 failed hotswap trigger
         }
     }
 
@@ -398,7 +402,7 @@ public class VampirePlayerData extends BloodVessel
                         this.feedingEntity.setLastHurtByMob(player);
                     }
 
-                    ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntity.getId(), this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints(), true);
+                    ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntity.getId(), this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints(), true, this.feedingEntityBlood.getCharmedByTicks(player));
 
                     addBlood(player, 1, this.feedingEntityBlood.getBloodType());
                 }
