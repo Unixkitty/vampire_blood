@@ -4,6 +4,7 @@ import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
@@ -155,6 +157,37 @@ public class VampirePlayerEvents
                     }
                 }
             });
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingAttack(final LivingAttackEvent event)
+    {
+        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
+        {
+            boolean charmedByPlayer;
+
+            LivingEntity attacker = event.getEntity();
+
+            if (attacker instanceof ServerPlayer)
+            {
+                charmedByPlayer = attacker.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.isCharmedBy(player)).orElse(false);
+            }
+            else
+            {
+                charmedByPlayer = attacker.getCapability(BloodProvider.BLOOD_STORAGE).map(bloodEntityStorage -> bloodEntityStorage.isCharmedBy(player)).orElse(false);
+            }
+
+            if (charmedByPlayer)
+            {
+                player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                {
+                    if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
+                    {
+                        event.setCanceled(true);
+                    }
+                });
+            }
         }
     }
 }

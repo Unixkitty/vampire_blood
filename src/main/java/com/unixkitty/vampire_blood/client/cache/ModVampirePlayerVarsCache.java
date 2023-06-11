@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -22,6 +23,7 @@ public class ModVampirePlayerVarsCache
     private static final int ENTITY_OUTLINE_COLORS = 2;
     private static final int ENTITY_BLOOD_VALUES = 3;
     private static final int MOUSE_OVER_HANDLER = 4;
+    private static final int CHARMED_ENTITIES = 5;
     
     private final Int2ObjectOpenHashMap<Object> cache = new Int2ObjectOpenHashMap<>();
 
@@ -34,6 +36,30 @@ public class ModVampirePlayerVarsCache
     public int thirstExhaustion = 0;
     public float bloodlust = 0;
     public float bloodPurity = 0;
+
+    public void setEntityCharmed(int entityId, boolean state)
+    {
+        IntOpenHashSet set = (IntOpenHashSet) this.cache.computeIfAbsent(CHARMED_ENTITIES, k -> new IntOpenHashSet());
+
+        if (state)
+        {
+            set.add(entityId);
+        }
+        else
+        {
+            set.remove(entityId);
+        }
+    }
+
+    public boolean isEntityCharmed(int entityId)
+    {
+        if (this.cache.containsKey(CHARMED_ENTITIES))
+        {
+            return ((IntOpenHashSet)this.cache.get(CHARMED_ENTITIES)).contains(entityId);
+        }
+
+        return false;
+    }
 
     @SuppressWarnings("unchecked")
     public void setEntityBloodValues(int entityId, int bloodPoints, int maxBloodPoints, BloodType bloodType)

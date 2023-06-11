@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public abstract class AbstractBloodVessel implements IBloodVessel
+public abstract class BloodVessel implements IBloodVessel
 {
     protected Object2IntOpenHashMap<UUID> charmedByMap = null;
 

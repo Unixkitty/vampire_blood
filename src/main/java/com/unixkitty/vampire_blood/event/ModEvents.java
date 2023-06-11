@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.event;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -33,6 +35,24 @@ import java.util.function.Predicate;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class ModEvents
 {
+    @SubscribeEvent
+    public static void onLivingChangeTarget(final LivingChangeTargetEvent event)
+    {
+        if (!event.getEntity().level.isClientSide())
+        {
+            if (event.getNewTarget() instanceof ServerPlayer player)
+            {
+                event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
+                {
+                    if (bloodEntityStorage.isCharmedBy(player) && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId()).orElse(false))
+                    {
+                        event.setCanceled(true);
+                    }
+                });
+            }
+        }
+    }
+
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
     {

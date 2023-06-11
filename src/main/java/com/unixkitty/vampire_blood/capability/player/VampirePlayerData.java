@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.capability.blood.AbstractBloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.blood.BloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class VampirePlayerData extends AbstractBloodVessel
+public class VampirePlayerData extends BloodVessel
 {
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";

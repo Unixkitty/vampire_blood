@@ -11,7 +11,7 @@ import net.minecraft.world.entity.MobType;
 
 import javax.annotation.Nonnull;
 
-public class BloodEntityStorage extends AbstractBloodVessel
+public class BloodEntityStorage extends BloodVessel
 {
     private static final String ID_NBT_NAME = "id";
     private static final String BLOOD_POINTS_NBT_NAME = "bloodPoints";
