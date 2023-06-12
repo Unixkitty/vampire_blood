@@ -24,13 +24,13 @@ public interface IBloodVessel
 
     boolean decreaseBlood(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim);
 
-    void tryGetCharmed(ServerPlayer player, VampirismLevel attackerLevel);
+    boolean tryGetCharmed(ServerPlayer player, VampirismLevel attackerLevel);
 
     boolean isCharmedBy(ServerPlayer player);
 
     int getCharmedByTicks(ServerPlayer player);
 
-    void setCharmedBy(ServerPlayer player);
+    boolean setCharmedBy(ServerPlayer player);
 
     void handleBeingCharmedTicks(LivingEntity entity);
 }

@@ -20,6 +20,7 @@ public final class ModRegistry
 
             ModEffects.EFFECTS.register(modEventBus);
             ModItems.ITEMS.register(modEventBus);
+            ModParticles.PARTICLES.register(modEventBus);
         }
     }
 

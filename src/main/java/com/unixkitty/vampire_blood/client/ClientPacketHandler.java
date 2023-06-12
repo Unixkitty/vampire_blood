@@ -97,4 +97,9 @@ public class ClientPacketHandler
     {
         ClientCache.getVampireVars().setEntityOutlineColor(entityId, color);
     }
+
+    public static void handleEntityCharmedStatus(int entityId, boolean charmed)
+    {
+        ClientCache.getVampireVars().setEntityCharmed(entityId, charmed);
+    }
 }

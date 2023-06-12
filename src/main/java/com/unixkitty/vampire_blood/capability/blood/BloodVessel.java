@@ -1,12 +1,17 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageSources;
+import com.unixkitty.vampire_blood.init.ModEffects;
+import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
+import com.unixkitty.vampire_blood.network.packet.EntityCharmedStatusS2CPacket;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -65,6 +70,16 @@ public abstract class BloodVessel implements IBloodVessel
             {
                 this.charmedByMap.removeInt(key);
             }
+
+            ServerPlayer player = (ServerPlayer) entity.level.getPlayerByUUID(key);
+
+            //Check if player is actually logged on and if they're nearby before sending packet
+            if (player != null
+                    && entity.level.getNearbyPlayers(TargetingConditions.forNonCombat().selector(target -> target.equals(player)), entity, entity.getBoundingBox().inflate(ModEffects.SENSES_DISTANCE_LIMIT)).contains(player)
+                    && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId()).orElse(false))
+            {
+                ModNetworkDispatcher.sendToClient(new EntityCharmedStatusS2CPacket(entity.getId(), value != 0), player);
+            }
         }
     }
 
@@ -112,29 +127,35 @@ public abstract class BloodVessel implements IBloodVessel
     }
 
     @Override
-    public void setCharmedBy(ServerPlayer player)
+    public boolean setCharmedBy(ServerPlayer player)
     {
         if (this.charmedByMap == null)
         {
             this.charmedByMap = new Object2IntOpenHashMap<>();
         }
 
-        this.charmedByMap.put(player.getUUID(), (int) Config.charmedEffectDuration.get());
+        UUID uuid = player.getUUID();
+
+        if (this.charmedByMap.containsKey(uuid))
+        {
+            this.charmedByMap.removeInt(uuid);
+        }
+        else
+        {
+            this.charmedByMap.put(uuid, (int) Config.charmEffectDuration.get());
+        }
+
+        return true;
     }
 
     @Override
-    public void tryGetCharmed(ServerPlayer player, VampirismLevel attackerLevel)
+    public boolean tryGetCharmed(ServerPlayer player, VampirismLevel attackerLevel)
     {
-        switch (getBloodType())
+        return switch (getBloodType())
         {
-            case VAMPIRE ->
-            {
-                if (attackerLevel == VampirismLevel.ORIGINAL)
-                {
-                    setCharmedBy(player);
-                }
-            }
+            case VAMPIRE -> attackerLevel == VampirismLevel.ORIGINAL && setCharmedBy(player);
             case CREATURE, HUMAN, PIGLIN -> setCharmedBy(player);
-        }
+            default -> false;
+        };
     }
 }

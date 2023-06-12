@@ -38,17 +38,17 @@ public class ClientCache
 
     public static boolean canFeed()
     {
-        return getVampireVars().getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId();
+        return vampirePlayerVars != null && vampirePlayerVars.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId();
     }
 
     public static boolean isVampire()
     {
-        return getVampireVars().getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId();
+        return vampirePlayerVars != null && vampirePlayerVars.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId();
     }
 
     public static boolean isHungry()
     {
-        return getVampireVars().thirstLevel <= VampirePlayerBloodData.MAX_THIRST / 6;
+        return vampirePlayerVars != null && vampirePlayerVars.thirstLevel <= VampirePlayerBloodData.MAX_THIRST / 6;
     }
 
     public record EntityBlood(int bloodPoints, int maxBloodPoints, BloodType bloodType){}

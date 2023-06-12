@@ -38,7 +38,7 @@ public class Config
     public static ForgeConfigSpec.IntValue entityRegenTime;
 
     public static ForgeConfigSpec.IntValue abilityHungerThreshold;
-    public static ForgeConfigSpec.IntValue charmedEffectDuration;
+    public static ForgeConfigSpec.IntValue charmEffectDuration;
     /* END ENTRIES */
 
     /* BEGIN CLIENT CONFIG ENTRIES */
@@ -85,7 +85,7 @@ public class Config
             commonConfig.push("Abilities");
             {
                 abilityHungerThreshold = commonConfig.comment("Hunger level at which abilities can no longer be used by a vampire player").defineInRange("abilityHungerThreshold", VampirePlayerBloodData.MAX_THIRST / 20, 0, VampirePlayerBloodData.MAX_THIRST);
-                charmedEffectDuration = commonConfig.comment("How many ticks charm effect lasts on targets, -1 for unlimited duration").defineInRange("charmedEffectDuration", 1200, -1, Integer.MAX_VALUE);
+                charmEffectDuration = commonConfig.comment("How many ticks charm effect lasts on targets, -1 for unlimited duration").defineInRange("charmEffectDuration", 1200, -1, Integer.MAX_VALUE);
             }
             commonConfig.pop();
 

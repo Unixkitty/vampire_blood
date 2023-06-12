@@ -82,18 +82,22 @@ public class VampirePlayerData extends BloodVessel
     {
         if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && target.isAlive() && blood.thirstLevel > Config.abilityHungerThreshold.get() && VampireUtil.isLookingAtEntity(player, target))
         {
-            --blood.thirstLevel; // #3 failed hotswap trigger
+            boolean shouldUseBlood;
 
             if (target instanceof Player targetPlayer && !targetPlayer.isCreative() && !targetPlayer.isSpectator())
             {
-                target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.tryGetCharmed(player, blood.vampireLevel));
+                shouldUseBlood = target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(data -> data.tryGetCharmed(player, blood.vampireLevel)).orElse(false);
             }
             else
             {
-                target.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tryGetCharmed(player, blood.vampireLevel));
+                shouldUseBlood = target.getCapability(BloodProvider.BLOOD_STORAGE).map(data -> data.tryGetCharmed(player, blood.vampireLevel)).orElse(false);
             }
 
-            sync(); // #2 failed hotswap trigger
+            if (shouldUseBlood)
+            {
+                --blood.thirstLevel;
+                sync();
+            }
         }
     }
 

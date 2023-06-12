@@ -6,13 +6,19 @@ import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.init.ModEffects;
+import com.unixkitty.vampire_blood.init.ModParticles;
+import com.unixkitty.vampire_blood.particle.CharmedParticle;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -76,6 +82,24 @@ public final class ClientEvents
         }
 
         @SubscribeEvent
+        public static void onLivingTick(final LivingEvent.LivingTickEvent event)
+        {
+            LivingEntity entity = event.getEntity();
+            LocalPlayer player = Minecraft.getInstance().player;
+
+            if (entity.level.isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DISTANCE_LIMIT))
+            {
+                double d1 = entity.level.random.nextDouble() * 2.0D;
+                double d2 = entity.level.random.nextDouble() * Math.PI;
+                double d3 = Math.cos(d2) * d1;
+                double d4 = 0.01D + entity.level.random.nextDouble() * 0.5D;
+                double d5 = Math.sin(d2) * d1;
+
+                entity.level.addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getX() + d3 * 0.1D, entity.getY() + (entity.getBbHeight() / 2), entity.getZ() + d5 * 0.1D, d3, d4, d5);
+            }
+        }
+
+        @SubscribeEvent
         public static void onPostRenderLiving(final RenderLivingEvent.Post<?, ?> event)
         {
             BloodVisionUtil.render(event);
@@ -110,6 +134,12 @@ public final class ClientEvents
         public static void onRegisterGuiOverlays(final RegisterGuiOverlaysEvent event)
         {
             event.registerAbove(VanillaGuiOverlay.FOOD_LEVEL.id(), "blood", BloodBarOverlay.INSTANCE);
+        }
+
+        @SubscribeEvent
+        public static void registerParticleFactories(final RegisterParticleProvidersEvent event)
+        {
+            event.register(ModParticles.CHARMED_PARTICLE.get(), CharmedParticle.Provider::new);
         }
     }
 }

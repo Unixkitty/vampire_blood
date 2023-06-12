@@ -37,6 +37,7 @@ public class ModNetworkDispatcher
         registerPacket(RequestEntityOutlineColorC2SPacket.class, true);
         registerPacket(EntityOutlineColorS2CPacket.class, false);
         registerPacket(UseCharmAbilityC2SPacket.class, true);
+        registerPacket(EntityCharmedStatusS2CPacket.class, false);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)
