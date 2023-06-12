@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 import java.util.Set;
 
 public class VampireUtil
@@ -192,5 +193,10 @@ public class VampireUtil
                 }
             }
         }
+    }
+
+    public static Optional<Vec3> getFeedingBloodParticlePosition(Player vampirePlayer, LivingEntity feedingTarget)
+    {
+        return feedingTarget.getBoundingBox().clip(vampirePlayer.getEyePosition(), feedingTarget.getPosition(1.0F).add(0, feedingTarget.getBbHeight() / 2, 0));
     }
 }

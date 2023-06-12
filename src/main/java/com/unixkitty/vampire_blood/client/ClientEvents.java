@@ -1,18 +1,24 @@
 package com.unixkitty.vampire_blood.client;
 
+import com.mojang.math.Vector3f;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
+import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
 import com.unixkitty.vampire_blood.particle.CharmedParticle;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -28,6 +34,29 @@ public final class ClientEvents
 {
     public static final int MARGIN_PX = 5;
     public static final ResourceLocation ICONS_PNG = new ResourceLocation(VampireBlood.MODID, "textures/gui/icons.png");
+
+    //forSelf we only spawn one particle, otherwise multiple
+    public static void spawnBloodParticles(Vec3 position, boolean forSelf)
+    {
+        ClientLevel level = Minecraft.getInstance().level;
+
+        if (level != null)
+        {
+            double radius = forSelf ? 0.1D : 0.2D;
+            double offsetX;
+            double offsetY;
+            double offsetZ;
+
+            for (int i = 0; i < (forSelf ? 1 : 4); i++)
+            {
+                offsetX = level.random.nextDouble() * radius - radius / 2;
+                offsetY = level.random.nextDouble() * radius - radius / 2;
+                offsetZ = level.random.nextDouble() * radius - radius / 2;
+
+                level.addParticle(new DustParticleOptions(new Vector3f(0.7333F, 0.0392F, 0.1176F), 0.75F), position.x + offsetX, position.y + offsetY, position.z + offsetZ, 0, 0, 0);
+            }
+        }
+    }
 
     @Mod.EventBusSubscriber(modid = VampireBlood.MODID, value = Dist.CLIENT)
     public static class ClientForgeEvents
@@ -92,10 +121,23 @@ public final class ClientEvents
                 double d1 = entity.level.random.nextDouble() * 2.0D;
                 double d2 = entity.level.random.nextDouble() * Math.PI;
                 double d3 = Math.cos(d2) * d1;
-                double d4 = 0.01D + entity.level.random.nextDouble() * 0.5D;
-                double d5 = Math.sin(d2) * d1;
+                double d4 = Math.sin(d2) * d1;
 
-                entity.level.addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getX() + d3 * 0.1D, entity.getY() + (entity.getBbHeight() / 2), entity.getZ() + d5 * 0.1D, d3, d4, d5);
+                entity.level.addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getX() + d3 * 0.1D, entity.getY() + (entity.getBbHeight() / 2), entity.getZ() + d4 * 0.1D, d3 / 2, 0, d4 / 2);
+            }
+        }
+
+        @SubscribeEvent
+        public static void onPlayerTick(final TickEvent.PlayerTickEvent event)
+        {
+            if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.END && event.player.isAlive() && ClientCache.canFeed() && ClientCache.getVampireVars().feeding && event.player.tickCount % 5 == 0)
+            {
+                LivingEntity entity = FeedingMouseOverHandler.getLastEntity();
+
+                if (entity != null)
+                {
+                    VampireUtil.getFeedingBloodParticlePosition(event.player, entity).ifPresent(vec3 -> spawnBloodParticles(vec3, true));
+                }
             }
         }
 

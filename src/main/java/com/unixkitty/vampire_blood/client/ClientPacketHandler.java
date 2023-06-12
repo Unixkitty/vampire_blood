@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.network.packet.EntityBloodInfoS2CPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.ArrayUtils;
@@ -101,5 +102,10 @@ public class ClientPacketHandler
     public static void handleEntityCharmedStatus(int entityId, boolean charmed)
     {
         ClientCache.getVampireVars().setEntityCharmed(entityId, charmed);
+    }
+
+    public static void handleBloodParticles(Vec3 position)
+    {
+        ClientEvents.spawnBloodParticles(position, false);
     }
 }

@@ -409,6 +409,12 @@ public class VampirePlayerData extends BloodVessel
                     ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntity.getId(), this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints(), true, this.feedingEntityBlood.getCharmedByTicks(player));
 
                     addBlood(player, 1, this.feedingEntityBlood.getBloodType());
+
+                    //Tell other clients to spawn blood particles
+                    if (player.level.players().size() > 1)
+                    {
+                        VampireUtil.getFeedingBloodParticlePosition(player, this.feedingEntity).ifPresent(vec3 -> ModNetworkDispatcher.sendBloodParticles(player, vec3));
+                    }
                 }
                 else
                 {

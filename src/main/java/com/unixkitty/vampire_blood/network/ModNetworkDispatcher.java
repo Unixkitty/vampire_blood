@@ -3,8 +3,11 @@ package com.unixkitty.vampire_blood.network;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.network.packet.*;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
@@ -38,6 +41,7 @@ public class ModNetworkDispatcher
         registerPacket(EntityOutlineColorS2CPacket.class, false);
         registerPacket(UseCharmAbilityC2SPacket.class, true);
         registerPacket(EntityCharmedStatusS2CPacket.class, false);
+        registerPacket(BloodParticlesS2CPacket.class, false);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)
@@ -68,6 +72,11 @@ public class ModNetworkDispatcher
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
     }
 
+    public static <MSG> void sendToNearbyPlayers(MSG message, final double x, final double y, final double z, final double radius, final ResourceKey<Level> dimension)
+    {
+        INSTANCE.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, radius, dimension)), message);
+    }
+
     //========================================
 
     public static void sendPlayerEntityBlood(ServerPlayer player, int entityId, BloodType bloodType, int bloodPoints, int maxBloodPoints, boolean lookingDirectly, int charmedTicks)
@@ -78,5 +87,10 @@ public class ModNetworkDispatcher
     public static void notifyPlayerFeeding(ServerPlayer player, boolean value)
     {
         sendToClient(new PlayerFeedingStatusS2CPacket(value), player);
+    }
+
+    public static void sendBloodParticles(ServerPlayer player, Vec3 position)
+    {
+        INSTANCE.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(player, position.x, position.y, position.z, 16.0D, player.level.dimension())), new BloodParticlesS2CPacket(position));
     }
 }
