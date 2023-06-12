@@ -52,6 +52,11 @@ public class VampireUtil
         return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId()).orElse(false);
     }
 
+    public static boolean isVampire(@Nonnull ServerPlayer player)
+    {
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId()).orElse(false);
+    }
+
     public static float getHealthRegenRate(@Nonnull Player player)
     {
         return (float) ((player.getMaxHealth() / player.getAttributeBaseValue(Attributes.MAX_HEALTH) / (20.0F / Config.naturalHealingRate.get())) * Config.naturalHealingMultiplier.get());

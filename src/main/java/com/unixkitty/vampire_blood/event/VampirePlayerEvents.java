@@ -178,15 +178,9 @@ public class VampirePlayerEvents
                 charmedByPlayer = attacker.getCapability(BloodProvider.BLOOD_STORAGE).map(bloodEntityStorage -> bloodEntityStorage.isCharmedBy(player)).orElse(false);
             }
 
-            if (charmedByPlayer)
+            if (charmedByPlayer && VampireUtil.isVampire(player))
             {
-                player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-                {
-                    if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
-                    {
-                        event.setCanceled(true);
-                    }
-                });
+                event.setCanceled(true);
             }
         }
     }

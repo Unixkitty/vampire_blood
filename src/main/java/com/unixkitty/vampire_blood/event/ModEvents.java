@@ -3,16 +3,17 @@ package com.unixkitty.vampire_blood.event;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -44,7 +45,7 @@ public class ModEvents
             {
                 event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
                 {
-                    if (bloodEntityStorage.isCharmedBy(player) && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId()).orElse(false))
+                    if (bloodEntityStorage.isCharmedBy(player) && VampireUtil.isVampire(player))
                     {
                         event.setCanceled(true);
                     }
@@ -77,18 +78,30 @@ public class ModEvents
     @SubscribeEvent
     public static void onEntityJoinWorld(final EntityJoinLevelEvent event)
     {
-        if (!event.getLevel().isClientSide())
+        if (!event.getLevel().isClientSide() && event.getEntity() instanceof LivingEntity entity)
         {
-            if (event.getEntity() instanceof LivingEntity entity)
+            if (entity instanceof ServerPlayer)
             {
-                if (entity instanceof ServerPlayer)
+                entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::sync);
+            }
+            else if (entity.getEncodeId() != null)
+            {
+                entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
                 {
-                    entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::sync);
-                }
-                else if (entity.getEncodeId() != null)
-                {
-                    entity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.updateBlood(entity));
-                }
+                    bloodEntityStorage.updateBlood(entity);
+
+                    if (entity instanceof PathfinderMob mob && mob.goalSelector.availableGoals.stream().noneMatch(wrappedGoal -> wrappedGoal.getGoal() instanceof CharmedFollowGoal))
+                    {
+                        try
+                        {
+                            mob.goalSelector.addGoal(1, new CharmedFollowGoal(mob));
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                            VampireBlood.log().error("Failed to add CharmedFollowGoal to {} with uuid {}", mob.getClass().getSimpleName(), mob.getStringUUID());
+                        }
+                    }
+                });
 
                 if (Config.shouldUndeadIgnoreVampires.get() && entity instanceof Monster monster && entity.getMobType() == MobType.UNDEAD)
                 {

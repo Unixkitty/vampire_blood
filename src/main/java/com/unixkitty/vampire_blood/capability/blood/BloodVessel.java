@@ -1,25 +1,31 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
-import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageSources;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityCharmedStatusS2CPacket;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.UUID;
 
 public abstract class BloodVessel implements IBloodVessel
 {
+    @Nullable
     protected Object2IntOpenHashMap<UUID> charmedByMap = null;
+
+    @Nullable
+    private Player lastCharmedPlayer = null;
 
     public void saveNBTData(CompoundTag tag)
     {
@@ -48,37 +54,38 @@ public abstract class BloodVessel implements IBloodVessel
         }
     }
 
+    public boolean isCurrentlyCharmingPlayer(Player player)
+    {
+        return this.lastCharmedPlayer instanceof ServerPlayer serverPlayer && isCharmedBy(serverPlayer) && VampireUtil.isVampire(serverPlayer) && player.equals(this.lastCharmedPlayer);
+    }
+
     protected void handleCharmedTicks(LivingEntity entity)
     {
-        for (UUID key : this.charmedByMap.keySet())
+        if (this.charmedByMap != null)
         {
-            int value = this.charmedByMap.getInt(key);
-
-            if (value > 0)
+            for (UUID key : this.charmedByMap.keySet())
             {
-                if (value >= 20)
+                int value = this.charmedByMap.getInt(key);
+
+                if (value > 0)
                 {
-                    this.charmedByMap.addTo(key, -20);
+                    this.charmedByMap.addTo(key, value >= 20 ? -20 : -value);
                 }
-                else
+
+                if (value == 0)
                 {
-                    this.charmedByMap.addTo(key, -value);
+                    this.charmedByMap.removeInt(key);
                 }
-            }
 
-            if (value == 0)
-            {
-                this.charmedByMap.removeInt(key);
-            }
+                ServerPlayer player = (ServerPlayer) entity.level.getPlayerByUUID(key);
 
-            ServerPlayer player = (ServerPlayer) entity.level.getPlayerByUUID(key);
-
-            //Check if player is actually logged on and if they're nearby before sending packet
-            if (player != null
-                    && entity.level.getNearbyPlayers(TargetingConditions.forNonCombat().selector(target -> target.equals(player)), entity, entity.getBoundingBox().inflate(ModEffects.SENSES_DISTANCE_LIMIT)).contains(player)
-                    && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId()).orElse(false))
-            {
-                ModNetworkDispatcher.sendToClient(new EntityCharmedStatusS2CPacket(entity.getId(), value != 0), player);
+                //Check if player is actually logged on and if they're nearby before sending packet
+                if (player != null
+                        && VampireUtil.isVampire(player)
+                        && player.equals(entity.level.getNearestPlayer(TargetingConditions.forNonCombat().range(ModEffects.SENSES_DISTANCE_LIMIT).selector(target -> target.equals(player)), entity)))
+                {
+                    ModNetworkDispatcher.sendToClient(new EntityCharmedStatusS2CPacket(entity.getId(), value != 0), player);
+                }
             }
         }
     }
@@ -108,7 +115,7 @@ public abstract class BloodVessel implements IBloodVessel
     @Override
     public void handleBeingCharmedTicks(@Nonnull LivingEntity entity)
     {
-        if (entity.tickCount % 20 == 0 && this.charmedByMap != null && !this.charmedByMap.isEmpty())
+        if (entity.tickCount % 20 == 0)
         {
             handleCharmedTicks(entity);
         }
@@ -138,11 +145,18 @@ public abstract class BloodVessel implements IBloodVessel
 
         if (this.charmedByMap.containsKey(uuid))
         {
-            this.charmedByMap.removeInt(uuid);
+            this.charmedByMap.put(uuid, 0);
         }
         else
         {
             this.charmedByMap.put(uuid, (int) Config.charmEffectDuration.get());
+
+            this.lastCharmedPlayer = player;
+        }
+
+        if (this.charmedByMap.isEmpty() && this.lastCharmedPlayer != null)
+        {
+            this.lastCharmedPlayer = null;
         }
 
         return true;

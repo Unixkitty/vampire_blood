@@ -527,7 +527,7 @@ public class VampirePlayerData extends BloodVessel
     @Override
     protected void handleCharmedTicks(LivingEntity player)
     {
-        if (blood.vampireLevel == VampirismLevel.IN_TRANSITION || blood.vampireLevel == VampirismLevel.ORIGINAL)
+        if ((blood.vampireLevel == VampirismLevel.IN_TRANSITION || blood.vampireLevel == VampirismLevel.ORIGINAL) && this.charmedByMap != null)
         {
             this.charmedByMap.clear();
         }
