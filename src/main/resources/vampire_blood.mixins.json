@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "vampire_blood.refmap.json",
   "mixins": [
-    "MixinLivingEntity"
+    "MixinLivingEntity",
+    "MixinVillager"
   ],
   "client": [
     "client.MixinEntity",

@@ -29,6 +29,8 @@ import java.util.Set;
 
 public class VampireUtil
 {
+    public static final double FEEDING_DISTANCE = 1.5D;
+
     public static <E extends Enum<E>> String getEnumName(@Nonnull E e)
     {
         return e.name().toLowerCase();
@@ -98,7 +100,7 @@ public class VampireUtil
     {
         Vec3 eyePos2 = player.getEyePosition();
 
-        return target.getBoundingBox().clip(eyePos2, eyePos2.add(player.getLookAngle().scale(1.1D))).isPresent();
+        return target.getBoundingBox().clip(eyePos2, eyePos2.add(player.getLookAngle().scale(FEEDING_DISTANCE + 0.1D))).isPresent();
     }
 
     //Must send a default color that is not white to avoid confusion with the vanilla glow effect
@@ -203,5 +205,10 @@ public class VampireUtil
     public static Optional<Vec3> getFeedingBloodParticlePosition(Player vampirePlayer, LivingEntity feedingTarget)
     {
         return feedingTarget.getBoundingBox().clip(vampirePlayer.getEyePosition(), feedingTarget.getPosition(1.0F).add(0, feedingTarget.getBbHeight() / 2, 0));
+    }
+
+    public static boolean isEntityCharmedBy(LivingEntity entity, ServerPlayer player)
+    {
+        return entity.getCapability(BloodProvider.BLOOD_STORAGE).map(bloodEntityStorage -> bloodEntityStorage.isCharmedBy(player)).orElse(false);
     }
 }

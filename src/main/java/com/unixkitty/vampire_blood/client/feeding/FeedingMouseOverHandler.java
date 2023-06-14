@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.client.feeding;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,7 +30,7 @@ public class FeedingMouseOverHandler
 
             if (entity.isAlive())
             {
-                closeEnough = Minecraft.getInstance().player.isCloseEnough(entity, 1.0D);
+                closeEnough = Minecraft.getInstance().player.isCloseEnough(entity, VampireUtil.FEEDING_DISTANCE);
 
                 if (lastEntity != entity)
                 {

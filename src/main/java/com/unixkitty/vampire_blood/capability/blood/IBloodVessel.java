@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 public interface IBloodVessel
 {
     String CHARMED_BY_NBT_NAME = "charmedBy";
+    String KNOWN_VAMPIRE_PLAYERS = "knownVampirePlayers";
 
     boolean isEdible();
 
@@ -24,13 +25,13 @@ public interface IBloodVessel
 
     boolean decreaseBlood(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim);
 
-    boolean tryGetCharmed(ServerPlayer player, VampirismLevel attackerLevel);
+    boolean tryGetCharmed(@Nonnull ServerPlayer player, VampirismLevel attackerLevel, @Nonnull LivingEntity target);
 
-    boolean isCharmedBy(ServerPlayer player);
+    boolean isCharmedBy(@Nonnull ServerPlayer player);
 
-    int getCharmedByTicks(ServerPlayer player);
+    int getCharmedByTicks(@Nonnull ServerPlayer player);
 
-    boolean setCharmedBy(ServerPlayer player);
+    boolean setCharmedBy(@Nonnull ServerPlayer player, @Nonnull LivingEntity target);
 
-    void handleBeingCharmedTicks(LivingEntity entity);
+    void handleBeingCharmedTicks(@Nonnull LivingEntity entity);
 }

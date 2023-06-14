@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ReputationEventHandler;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -86,11 +87,11 @@ public class VampirePlayerData extends BloodVessel
 
             if (target instanceof Player targetPlayer && !targetPlayer.isCreative() && !targetPlayer.isSpectator())
             {
-                shouldUseBlood = target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(data -> data.tryGetCharmed(player, blood.vampireLevel)).orElse(false);
+                shouldUseBlood = target.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(data -> data.tryGetCharmed(player, blood.vampireLevel, target)).orElse(false);
             }
             else
             {
-                shouldUseBlood = target.getCapability(BloodProvider.BLOOD_STORAGE).map(data -> data.tryGetCharmed(player, blood.vampireLevel)).orElse(false);
+                shouldUseBlood = target.getCapability(BloodProvider.BLOOD_STORAGE).map(data -> data.tryGetCharmed(player, blood.vampireLevel, target)).orElse(false);
             }
 
             if (shouldUseBlood)
@@ -404,6 +405,11 @@ public class VampirePlayerData extends BloodVessel
                     if (!this.feedingEntity.isSleeping() && !this.feedingEntityBlood.isCharmedBy(player) && this.feedingEntity.getLastHurtByMob() != player)
                     {
                         this.feedingEntity.setLastHurtByMob(player);
+
+                        if (this.feedingEntity instanceof ReputationEventHandler && this.feedingEntityBlood instanceof BloodVessel)
+                        {
+                            ((BloodVessel) this.feedingEntityBlood).rememberVampirePlayer(player);
+                        }
                     }
 
                     ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntity.getId(), this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints(), true, this.feedingEntityBlood.getCharmedByTicks(player));
@@ -449,6 +455,8 @@ public class VampirePlayerData extends BloodVessel
     {
         if (isEdible())
         {
+            tellWitnessesVampirePlayer(attacker, victim);
+
             //Non-vampire player
             if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
             {

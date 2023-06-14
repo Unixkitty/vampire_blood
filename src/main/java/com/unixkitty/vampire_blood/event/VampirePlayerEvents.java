@@ -4,7 +4,6 @@ import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
-import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
@@ -175,7 +174,7 @@ public class VampirePlayerEvents
             }
             else
             {
-                charmedByPlayer = attacker.getCapability(BloodProvider.BLOOD_STORAGE).map(bloodEntityStorage -> bloodEntityStorage.isCharmedBy(player)).orElse(false);
+                charmedByPlayer = VampireUtil.isEntityCharmedBy(attacker, player);
             }
 
             if (charmedByPlayer && VampireUtil.isVampire(player))

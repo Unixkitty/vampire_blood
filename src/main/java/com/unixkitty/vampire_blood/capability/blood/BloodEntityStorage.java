@@ -5,11 +5,17 @@ import com.unixkitty.vampire_blood.config.BloodEntityConfig;
 import com.unixkitty.vampire_blood.config.BloodManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.ai.gossip.GossipType;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.UUID;
 
 public class BloodEntityStorage extends BloodVessel
 {
@@ -30,6 +36,8 @@ public class BloodEntityStorage extends BloodVessel
     private int ticksPerRegen = 0;
 
     private boolean freshEntity = true;
+
+    @Nullable public Map<UUID, Object2IntMap<GossipType>> tempGossipMap;
 
     public void tick(LivingEntity entity)
     {
@@ -67,6 +75,8 @@ public class BloodEntityStorage extends BloodVessel
         this.id = entity.getEncodeId();
 
         BloodEntityConfig bloodConfig = BloodManager.getConfigFor(this.id);
+
+        this.bloodVessel = entity;
 
         if (bloodConfig == null)
         {
@@ -111,6 +121,11 @@ public class BloodEntityStorage extends BloodVessel
         this.freshEntity = false;
     }
 
+    public boolean isKnownVampire(LivingEntity entity)
+    {
+        return entity instanceof ServerPlayer player && !player.isCreative() && !player.isSpectator() && this.knownVampirePlayers != null && this.knownVampirePlayers.contains(player.getUUID()) && !isCharmedBy(player);
+    }
+
     private void updateBloodHealth(LivingEntity entity)
     {
         this.maxBloodPoints = VampireUtil.healthToBlood(entity.getMaxHealth(), this.bloodType);
@@ -147,6 +162,8 @@ public class BloodEntityStorage extends BloodVessel
     {
         if (isEdible())
         {
+            tellWitnessesVampirePlayer(attacker, victim);
+
             if (Config.healthOrBloodPoints.get() && victim.getMobType() != MobType.UNDEAD)
             {
                 drinkFromHealth(attacker, victim, this.bloodType);

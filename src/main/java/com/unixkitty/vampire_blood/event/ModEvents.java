@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
+import com.unixkitty.vampire_blood.entity.ai.ModAIGoals;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,18 +40,9 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingChangeTarget(final LivingChangeTargetEvent event)
     {
-        if (!event.getEntity().level.isClientSide())
+        if (!event.getEntity().level.isClientSide() && event.getNewTarget() instanceof ServerPlayer player && VampireUtil.isEntityCharmedBy(event.getEntity(), player) && VampireUtil.isVampire(player))
         {
-            if (event.getNewTarget() instanceof ServerPlayer player)
-            {
-                event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
-                {
-                    if (bloodEntityStorage.isCharmedBy(player) && VampireUtil.isVampire(player))
-                    {
-                        event.setCanceled(true);
-                    }
-                });
-            }
+            event.setCanceled(true);
         }
     }
 
@@ -90,15 +82,17 @@ public class ModEvents
                 {
                     bloodEntityStorage.updateBlood(entity);
 
-                    if (entity instanceof PathfinderMob mob && mob.goalSelector.availableGoals.stream().noneMatch(wrappedGoal -> wrappedGoal.getGoal() instanceof CharmedFollowGoal))
+                    if (entity instanceof PathfinderMob mob)
                     {
                         try
                         {
-                            mob.goalSelector.addGoal(1, new CharmedFollowGoal(mob));
+                            addGoal(mob, bloodEntityStorage, ModAIGoals.CharmedFollowGoal.class);
+                            addGoal(mob, bloodEntityStorage, ModAIGoals.FleeFromKnownVampireGoal.class);
                         }
-                        catch (IllegalArgumentException e)
+                        catch (Exception e)
                         {
-                            VampireBlood.log().error("Failed to add CharmedFollowGoal to {} with uuid {}", mob.getClass().getSimpleName(), mob.getStringUUID());
+                            VampireBlood.log().error("Failed to add custom AI goal to {} with uuid {}", mob.getClass().getSimpleName(), mob.getStringUUID());
+                            VampireBlood.log().error(e);
                         }
                     }
                 });
@@ -108,6 +102,14 @@ public class ModEvents
                     noAttackUndeadPlayer(monster);
                 }
             }
+        }
+    }
+
+    private static void addGoal(PathfinderMob mob, BloodEntityStorage bloodData, Class<? extends Goal> goalClass) throws Exception
+    {
+        if (mob.goalSelector.availableGoals.stream().noneMatch(wrappedGoal -> wrappedGoal.getGoal().getClass().equals(goalClass)))
+        {
+            mob.goalSelector.addGoal(1, goalClass.getDeclaredConstructor(PathfinderMob.class, BloodEntityStorage.class).newInstance(mob, bloodData));
         }
     }
 

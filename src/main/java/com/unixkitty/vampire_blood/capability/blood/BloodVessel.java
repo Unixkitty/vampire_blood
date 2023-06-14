@@ -1,19 +1,24 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.entity.ai.ModAIGoals;
 import com.unixkitty.vampire_blood.init.ModDamageSources;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityCharmedStatusS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ReputationEventHandler;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -22,8 +27,11 @@ import java.util.UUID;
 public abstract class BloodVessel implements IBloodVessel
 {
     @Nullable
+    protected LivingEntity bloodVessel = null;
+    @Nullable
     protected Object2IntOpenHashMap<UUID> charmedByMap = null;
-
+    @Nullable
+    protected ObjectOpenHashSet<UUID> knownVampirePlayers = null;
     @Nullable
     private Player lastCharmedPlayer = null;
 
@@ -36,6 +44,20 @@ public abstract class BloodVessel implements IBloodVessel
             this.charmedByMap.forEach((uuid, integer) -> subTag.putInt(uuid.toString(), integer));
 
             tag.put(CHARMED_BY_NBT_NAME, subTag);
+        }
+
+        if (this.knownVampirePlayers != null && this.bloodVessel != null && this.bloodVessel instanceof ReputationEventHandler)
+        {
+            CompoundTag subTag = new CompoundTag();
+
+            int i = 0;
+
+            for (UUID uuid : this.knownVampirePlayers)
+            {
+                subTag.putUUID(String.valueOf(i++), uuid);
+            }
+
+            tag.put(KNOWN_VAMPIRE_PLAYERS, subTag);
         }
     }
 
@@ -52,11 +74,33 @@ public abstract class BloodVessel implements IBloodVessel
                 this.charmedByMap.put(UUID.fromString(key), subTagCharmedBy.getInt(key));
             }
         }
+
+        CompoundTag subTagKnownVampires = tag.getCompound(KNOWN_VAMPIRE_PLAYERS);
+
+        if (subTagKnownVampires.size() > 0)
+        {
+            this.knownVampirePlayers = new ObjectOpenHashSet<>();
+
+            for (int i = 0; i < subTagKnownVampires.size(); i++)
+            {
+                this.knownVampirePlayers.add(subTagKnownVampires.getUUID(String.valueOf(i)));
+            }
+        }
     }
 
-    public boolean isCurrentlyCharmingPlayer(Player player)
+    public boolean isCurrentlyCharmingPlayer(@Nonnull LivingEntity entity)
     {
-        return this.lastCharmedPlayer instanceof ServerPlayer serverPlayer && isCharmedBy(serverPlayer) && VampireUtil.isVampire(serverPlayer) && player.equals(this.lastCharmedPlayer);
+        return entity instanceof ServerPlayer player && !player.isCreative() && !player.isSpectator() && player.equals(this.lastCharmedPlayer) && isCharmedBy(player) && VampireUtil.isVampire(player);
+    }
+
+    public void rememberVampirePlayer(@Nonnull ServerPlayer player)
+    {
+        if (this.knownVampirePlayers == null)
+        {
+            this.knownVampirePlayers = new ObjectOpenHashSet<>();
+        }
+
+        this.knownVampirePlayers.add(player.getUUID());
     }
 
     protected void handleCharmedTicks(LivingEntity entity)
@@ -90,15 +134,31 @@ public abstract class BloodVessel implements IBloodVessel
         }
     }
 
+    protected void tellWitnessesVampirePlayer(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim)
+    {
+        if (attacker instanceof ServerPlayer player)
+        {
+            victim.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).ifPresent(entities -> entities.findAll(ReputationEventHandler.class::isInstance).forEach((witness) ->
+            {
+                if (!witness.isSleeping() && witness.equals(victim) ? !isCharmedBy(player) : !VampireUtil.isEntityCharmedBy(witness, player))
+                {
+                    ((ServerLevel) player.level).onReputationEvent(ModAIGoals.VAMPIRE_PLAYER, player, (ReputationEventHandler) witness);
+
+                    witness.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.rememberVampirePlayer(player));
+                }
+            }));
+        }
+    }
+
     @Override
-    public void dieFromBloodLoss(@NotNull LivingEntity victim, @NotNull LivingEntity attacker)
+    public void dieFromBloodLoss(@Nonnull LivingEntity victim, @Nonnull LivingEntity attacker)
     {
         victim.setLastHurtByMob(attacker);
         victim.hurt(ModDamageSources.BLOOD_LOSS, Float.MAX_VALUE);
     }
 
     @Override
-    public void drinkFromHealth(@NotNull LivingEntity attacker, @NotNull LivingEntity victim, @NotNull BloodType bloodType)
+    public void drinkFromHealth(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim, @Nonnull BloodType bloodType)
     {
         float resultingHealth = victim.getHealth() - (1F / bloodType.getBloodSaturationModifier());
 
@@ -122,19 +182,19 @@ public abstract class BloodVessel implements IBloodVessel
     }
 
     @Override
-    public boolean isCharmedBy(ServerPlayer player)
+    public boolean isCharmedBy(@Nonnull ServerPlayer player)
     {
         return this.charmedByMap != null && this.charmedByMap.containsKey(player.getUUID());
     }
 
     @Override
-    public int getCharmedByTicks(ServerPlayer player)
+    public int getCharmedByTicks(@Nonnull ServerPlayer player)
     {
         return this.charmedByMap == null ? -2 : this.charmedByMap.getOrDefault(player.getUUID(), -2);
     }
 
     @Override
-    public boolean setCharmedBy(ServerPlayer player)
+    public boolean setCharmedBy(@Nonnull ServerPlayer player, @Nonnull LivingEntity target)
     {
         if (this.charmedByMap == null)
         {
@@ -152,6 +212,16 @@ public abstract class BloodVessel implements IBloodVessel
             this.charmedByMap.put(uuid, (int) Config.charmEffectDuration.get());
 
             this.lastCharmedPlayer = player;
+
+            if (target instanceof ReputationEventHandler)
+            {
+                ((ServerLevel)player.level).onReputationEvent(ModAIGoals.CHARMED_BY_VAMPIRE_PLAYER, player, (ReputationEventHandler) target);
+
+                if (this.knownVampirePlayers != null)
+                {
+                    this.knownVampirePlayers.remove(player.getUUID());
+                }
+            }
         }
 
         if (this.charmedByMap.isEmpty() && this.lastCharmedPlayer != null)
@@ -163,12 +233,12 @@ public abstract class BloodVessel implements IBloodVessel
     }
 
     @Override
-    public boolean tryGetCharmed(ServerPlayer player, VampirismLevel attackerLevel)
+    public boolean tryGetCharmed(@Nonnull ServerPlayer player, VampirismLevel attackerLevel, @Nonnull LivingEntity target)
     {
         return switch (getBloodType())
         {
-            case VAMPIRE -> attackerLevel == VampirismLevel.ORIGINAL && setCharmedBy(player);
-            case CREATURE, HUMAN, PIGLIN -> setCharmedBy(player);
+            case VAMPIRE -> attackerLevel == VampirismLevel.ORIGINAL && setCharmedBy(player, target);
+            case CREATURE, HUMAN, PIGLIN -> setCharmedBy(player, target);
             default -> false;
         };
     }
