@@ -1,8 +1,8 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
+import com.unixkitty.vampire_blood.config.BloodConfigManager;
 import com.unixkitty.vampire_blood.config.BloodEntityConfig;
-import com.unixkitty.vampire_blood.config.BloodManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -67,7 +67,7 @@ public class BloodEntityStorage extends BloodVessel
     {
         this.id = entity.getEncodeId();
 
-        BloodEntityConfig bloodConfig = BloodManager.getConfigFor(this.id);
+        BloodEntityConfig bloodConfig = BloodConfigManager.getConfigFor(this.id);
 
         this.bloodVessel = entity;
 

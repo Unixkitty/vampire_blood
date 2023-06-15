@@ -56,9 +56,4 @@ public class BloodEntityConfig
             return BloodType.NONE;
         }
     }
-
-    public static BloodEntityConfig getEmptyConfig(String id)
-    {
-        return new BloodEntityConfig(id, "none", 0, false);
-    }
 }

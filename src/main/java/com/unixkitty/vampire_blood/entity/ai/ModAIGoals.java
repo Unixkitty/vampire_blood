@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.entity.ai;
 
-import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -33,30 +32,6 @@ public class ModAIGoals
             super(mob, Player.class, 16F, 0.75D, 0.75D);
 
             this.avoidEntityTargeting = TargetingConditions.forNonCombat().range(this.maxDist).selector(bloodData::isKnownVampire);
-        }
-
-        @Override
-        public boolean canUse()
-        {
-            boolean result = super.canUse();
-
-            if (result && this.toAvoid != null)
-            {
-                VampireBlood.log().debug("{} is beginning to avoid {}", this.mob.getDisplayName().getString(), this.toAvoid.getDisplayName().getString());
-            }
-
-            return result;
-        }
-
-        @Override
-        public void stop()
-        {
-            if (this.toAvoid != null)
-            {
-                VampireBlood.log().debug("{} is done avoiding {} for now", this.mob.getDisplayName().getString(), this.toAvoid.getDisplayName().getString());
-            }
-
-            super.stop();
         }
     }
 }

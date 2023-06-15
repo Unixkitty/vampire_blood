@@ -3,7 +3,9 @@ package com.unixkitty.vampire_blood.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
@@ -14,44 +16,135 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BloodManager
+public class BloodConfigManager
 {
     private static final String configName = "blood.json";
 
     private static final Object2ObjectOpenHashMap<String, BloodEntityConfig> bloodMap = new Object2ObjectOpenHashMap<>();
 
     private static boolean initialized = false;
+    private static boolean working = false;
 
-    public static void loadConfig()
+    public static void init()
     {
         if (initialized) return;
 
         initialized = true;
 
-        String configDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(VampireBlood.MODID), VampireBlood.MODID).toString();
-
-        File file = FileUtils.getFile(configDir, configName);
-
         try
         {
-            if (!FileUtils.directoryContains(new File(configDir), file))
+            if (!loadConfig())
             {
-                makeNewBloodConfig(file);
+                VampireBlood.log().error("Blood config was already being loaded during initialization!");
             }
-
-            readBloodConfig(file);
         }
         catch (Exception e)
         {
-            VampireBlood.log().error("IO error with: " + file, e);
+            fail(e);
+        }
+    }
+
+    public static boolean loadConfig() throws Exception
+    {
+        if (!working)
+        {
+            working = true;
+
+            ObjectObjectImmutablePair<File, File> config = getConfigFile();
+            boolean failedNewConfig = false;
+
+            if (!FileUtils.directoryContains(config.left(), config.right()))
+            {
+                try
+                {
+                    makeNewBloodConfig(config.right());
+                }
+                catch (Exception e)
+                {
+                    VampireBlood.log().error("Failed to create new blood config!", e);
+                    failedNewConfig = true;
+                }
+            }
+
+            if (!failedNewConfig)
+            {
+                readBloodConfig(config.right());
+            }
+
+            if (bloodMap.isEmpty()) mapList(getDefaultList());
+
+            working = false;
         }
 
-        if (bloodMap.isEmpty()) mapList(getDefaultList());
+        return !working;
+    }
+
+    public static boolean removeEntry(String id)
+    {
+        return updateEntry(id, BloodType.NONE, 0, false);
+    }
+
+    public static boolean updateEntry(String id, BloodType bloodType, int bloodPoints, boolean naturalRegen)
+    {
+        if (!working)
+        {
+            working = true;
+
+            ResourceLocation test = ResourceLocation.tryParse(id);
+
+            if (test != null)
+            {
+                if (bloodType == BloodType.NONE)
+                {
+                    bloodMap.remove(id);
+                }
+                else
+                {
+                    bloodMap.put(id, new BloodEntityConfig(id, bloodType.toString().toLowerCase(), bloodPoints, naturalRegen));
+                }
+
+                ObjectObjectImmutablePair<File, File> config = getConfigFile();
+
+                try
+                {
+                    saveBloodConfig(config.right());
+                }
+                catch (Exception e)
+                {
+                    VampireBlood.log().error("Failed to save modified blood config!", e);
+                }
+            }
+
+            working = false;
+
+            try
+            {
+                loadConfig();
+            }
+            catch (Exception e)
+            {
+                fail(e);
+            }
+        }
+
+        return !working;
     }
 
     public static BloodEntityConfig getConfigFor(String id)
     {
         return bloodMap.getOrDefault(id, null);
+    }
+
+    private static void fail(Exception e)
+    {
+        VampireBlood.log().error("IO error when loading blood config!", e);
+    }
+
+    private static ObjectObjectImmutablePair<File, File> getConfigFile()
+    {
+        String configDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(VampireBlood.MODID), VampireBlood.MODID).toString();
+
+        return new ObjectObjectImmutablePair<>(new File(configDir), FileUtils.getFile(configDir, configName));
     }
 
     private static void readBloodConfig(File file) throws Exception
@@ -73,10 +166,20 @@ public class BloodManager
         VampireBlood.log().debug("Creating new " + file.getName());
 
         PrintWriter writer = new PrintWriter(file);
-
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         writer.print(gson.toJson(getDefaultList()));
+        writer.close();
+    }
+
+    private static void saveBloodConfig(File file) throws Exception
+    {
+        VampireBlood.log().debug("Saving " + file.getName());
+
+        PrintWriter writer = new PrintWriter(file);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        writer.print(gson.toJson(new BloodEntityListHolder(new ArrayList<>(bloodMap.values()))));
         writer.close();
     }
 

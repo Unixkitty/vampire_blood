@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood;
 
-import com.unixkitty.vampire_blood.config.BloodManager;
+import com.unixkitty.vampire_blood.config.BloodConfigManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.init.ModRegistry;
@@ -45,7 +45,7 @@ public class VampireBlood
             PotionBrewing.addMix(Potions.AWKWARD, ModItems.VAMPIRE_DUST.get(), Potions.INVISIBILITY);
         });
 
-        BloodManager.loadConfig();
+        BloodConfigManager.init();
     }
 
     public static Logger log()
