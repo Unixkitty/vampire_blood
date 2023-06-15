@@ -5,17 +5,12 @@ import com.unixkitty.vampire_blood.config.BloodEntityConfig;
 import com.unixkitty.vampire_blood.config.BloodManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.ai.gossip.GossipType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
-import java.util.UUID;
 
 public class BloodEntityStorage extends BloodVessel
 {
@@ -36,8 +31,6 @@ public class BloodEntityStorage extends BloodVessel
     private int ticksPerRegen = 0;
 
     private boolean freshEntity = true;
-
-    @Nullable public Map<UUID, Object2IntMap<GossipType>> tempGossipMap;
 
     public void tick(LivingEntity entity)
     {
