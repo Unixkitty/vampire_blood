@@ -138,16 +138,36 @@ public abstract class BloodVessel implements IBloodVessel
     {
         if (attacker instanceof ServerPlayer player)
         {
-            victim.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).ifPresent(entities -> entities.findAll(ReputationEventHandler.class::isInstance).forEach((witness) ->
+            if (victim.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES))
             {
-                if (!witness.isSleeping() && witness.equals(victim) ? !isCharmedBy(player) : !VampireUtil.isEntityCharmedBy(witness, player))
+                victim.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).ifPresent(entities -> entities.findAll(ReputationEventHandler.class::isInstance).forEach(witness ->
                 {
-                    ((ServerLevel) player.level).onReputationEvent(ModAIGoals.VAMPIRE_PLAYER, player, (ReputationEventHandler) witness);
-
-                    witness.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.rememberVampirePlayer(player));
+                    if (shouldBeNotified(witness, victim, player))
+                    {
+                        notifyWitness(witness, player);
+                    }
+                }));
+            }
+            else
+            {
+                for (LivingEntity entity : player.level.getNearbyEntities(LivingEntity.class, TargetingConditions.forNonCombat().selector(witness -> witness instanceof ReputationEventHandler && shouldBeNotified(witness, victim, player)), player, victim.getBoundingBox().inflate(32.0D)))
+                {
+                    notifyWitness(entity, player);
                 }
-            }));
+            }
         }
+    }
+
+    private boolean shouldBeNotified(LivingEntity witness, LivingEntity victim, ServerPlayer player)
+    {
+        return !witness.isSleeping() && witness.equals(victim) ? !isCharmedBy(player) : !VampireUtil.isEntityCharmedBy(witness, player);
+    }
+
+    private void notifyWitness(LivingEntity witness, ServerPlayer player)
+    {
+        ((ServerLevel) player.level).onReputationEvent(ModAIGoals.VAMPIRE_PLAYER, player, (ReputationEventHandler) witness);
+
+        witness.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.rememberVampirePlayer(player));
     }
 
     @Override

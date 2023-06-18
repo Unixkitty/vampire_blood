@@ -23,6 +23,12 @@ public class ModAIGoals
 
             this.targetingConditions = TargetingConditions.forNonCombat().range(16.0D).selector(bloodData::isCurrentlyCharmingPlayer);
         }
+
+        @Override
+        public boolean canUse()
+        {
+            return !this.mob.isSleeping() && super.canUse();
+        }
     }
 
     public static class FleeFromKnownVampireGoal extends AvoidEntityGoal<Player>
@@ -32,6 +38,12 @@ public class ModAIGoals
             super(mob, Player.class, 16F, 0.75D, 0.75D);
 
             this.avoidEntityTargeting = TargetingConditions.forNonCombat().range(this.maxDist).selector(bloodData::isKnownVampire);
+        }
+
+        @Override
+        public boolean canUse()
+        {
+            return !this.mob.isSleeping() && super.canUse();
         }
     }
 }
