@@ -69,7 +69,8 @@ public class VampireCommand
                                                                             EntitySummonArgument.getSummonableEntity(context, "id").toString(),
                                                                             context.getArgument("bloodType", BloodType.class),
                                                                             IntegerArgumentType.getInteger(context, "bloodPoints"),
-                                                                            BoolArgumentType.getBool(context, "naturalRegen")
+                                                                            BoolArgumentType.getBool(context, "naturalRegen"),
+                                                                            context.getSource().getServer()
                                                                     ))
                                                                     {
                                                                         context.getSource().sendSuccess(Component.translatable("commands.vampire_blood.blood_config_updated"), true);
@@ -95,7 +96,7 @@ public class VampireCommand
                         {
                             try
                             {
-                                if (BloodConfigManager.loadConfig())
+                                if (BloodConfigManager.loadConfig(context.getSource().getServer()))
                                 {
                                     context.getSource().sendSuccess(Component.translatable("commands.vampire_blood.reloaded_blood_config"), true);
                                 }
@@ -150,7 +151,7 @@ public class VampireCommand
         {
             if (remove)
             {
-                if (BloodConfigManager.removeEntry(id))
+                if (BloodConfigManager.removeEntry(id, context.getSource().getServer()))
                 {
                     context.getSource().sendSuccess(Component.translatable("commands.vampire_blood.blood_config_removed"), true);
                 }

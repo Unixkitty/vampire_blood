@@ -4,12 +4,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FileUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -33,7 +40,7 @@ public class BloodConfigManager
 
         try
         {
-            if (!loadConfig())
+            if (!loadConfig(null))
             {
                 VampireBlood.log().error("Blood config was already being loaded during initialization!");
             }
@@ -44,7 +51,7 @@ public class BloodConfigManager
         }
     }
 
-    public static boolean loadConfig() throws Exception
+    public static boolean loadConfig(@Nullable MinecraftServer server) throws Exception
     {
         if (!working)
         {
@@ -73,18 +80,36 @@ public class BloodConfigManager
 
             if (bloodMap.isEmpty()) mapList(getDefaultList());
 
+            if (server != null)
+            {
+                VampireBlood.log().info("Updating blood values for all entities on the server...");
+
+                for (ServerLevel level : server.getAllLevels())
+                {
+                    for (Entity entity : level.getAllEntities())
+                    {
+                        if (entity instanceof LivingEntity livingEntity)
+                        {
+                            livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.updateBlood(livingEntity));
+                        }
+                    }
+                }
+
+                VampireBlood.log().info("Done updating blood values for all entities on the server!");
+            }
+
             working = false;
         }
 
         return !working;
     }
 
-    public static boolean removeEntry(String id)
+    public static boolean removeEntry(String id, @Nonnull MinecraftServer server)
     {
-        return updateEntry(id, BloodType.NONE, 0, false);
+        return updateEntry(id, BloodType.NONE, 0, false, server);
     }
 
-    public static boolean updateEntry(String id, BloodType bloodType, int bloodPoints, boolean naturalRegen)
+    public static boolean updateEntry(String id, BloodType bloodType, int bloodPoints, boolean naturalRegen, @Nonnull MinecraftServer server)
     {
         if (!working)
         {
@@ -119,7 +144,7 @@ public class BloodConfigManager
 
             try
             {
-                loadConfig();
+                loadConfig(server);
             }
             catch (Exception e)
             {
