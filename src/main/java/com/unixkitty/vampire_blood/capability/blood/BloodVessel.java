@@ -8,6 +8,7 @@ import com.unixkitty.vampire_blood.init.ModDamageSources;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityCharmedStatusS2CPacket;
+import com.unixkitty.vampire_blood.network.packet.SuccessfulCharmS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -232,6 +233,8 @@ public abstract class BloodVessel implements IBloodVessel
             this.charmedByMap.put(uuid, (int) Config.charmEffectDuration.get());
 
             this.lastCharmedPlayer = player;
+
+            ModNetworkDispatcher.sendToClient(new SuccessfulCharmS2CPacket(target.getId()), player);
 
             if (target instanceof ReputationEventHandler)
             {

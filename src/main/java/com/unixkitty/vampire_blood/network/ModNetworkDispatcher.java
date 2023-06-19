@@ -42,6 +42,7 @@ public class ModNetworkDispatcher
         registerPacket(UseCharmAbilityC2SPacket.class, true);
         registerPacket(EntityCharmedStatusS2CPacket.class, false);
         registerPacket(BloodParticlesS2CPacket.class, false);
+        registerPacket(SuccessfulCharmS2CPacket.class, false);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)

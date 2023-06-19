@@ -11,6 +11,7 @@ import com.unixkitty.vampire_blood.client.gui.abilitywheel.AbilityWheelHandler;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
+import com.unixkitty.vampire_blood.particle.CharmedFeedbackParticle;
 import com.unixkitty.vampire_blood.particle.CharmedParticle;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.client.Minecraft;
@@ -118,17 +119,6 @@ public final class ClientEvents
         }
 
         @SubscribeEvent
-        public static void onClientTick(final TickEvent.ClientTickEvent event)
-        {
-            /*if (event.phase == TickEvent.Phase.START)
-            {
-                Minecraft minecraft = Minecraft.getInstance();
-
-                AbilityWheelHandler.handleKeys(minecraft);
-            }*/
-        }
-
-        @SubscribeEvent
         public static void onLivingTick(final LivingEvent.LivingTickEvent event)
         {
             LivingEntity entity = event.getEntity();
@@ -136,12 +126,7 @@ public final class ClientEvents
 
             if (entity.level.isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DISTANCE_LIMIT))
             {
-                double d1 = entity.level.random.nextDouble() * 2.0D;
-                double d2 = entity.level.random.nextDouble() * Math.PI;
-                double d3 = Math.cos(d2) * d1;
-                double d4 = Math.sin(d2) * d1;
-
-                entity.level.addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getX() + d3 * 0.1D, entity.getY() + (entity.getBbHeight() / 2), entity.getZ() + d4 * 0.1D, d3 / 2, 0, d4 / 2);
+                entity.level.addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getRandomX(entity.getBbWidth()), entity.getRandomY() + 0.5D, entity.getRandomZ(entity.getBbWidth()), 0, 0 ,0);
             }
         }
 
@@ -200,6 +185,7 @@ public final class ClientEvents
         public static void registerParticleFactories(final RegisterParticleProvidersEvent event)
         {
             event.register(ModParticles.CHARMED_PARTICLE.get(), CharmedParticle.Provider::new);
+            event.register(ModParticles.CHARMED_FEEDBACK_PARTICLE.get(), CharmedFeedbackParticle.Provider::new);
         }
     }
 }

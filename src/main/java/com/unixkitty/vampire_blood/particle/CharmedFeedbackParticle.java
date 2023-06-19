@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.particle;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -10,44 +9,24 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 
-public class CharmedParticle extends TextureSheetParticle
+public class CharmedFeedbackParticle extends TextureSheetParticle
 {
-    protected CharmedParticle(ClientLevel level, double x, double y, double z, double ySpeed, SpriteSet spriteSet)
-    {
-        super(level, x, y, z, 0.5D - level.random.nextDouble(), ySpeed, 0.5D - level.random.nextDouble());
 
-        this.friction = 0.96F;
+    public CharmedFeedbackParticle(ClientLevel level, double x, double y, double z, SpriteSet spriteSet)
+    {
+        super(level, x, y - 0.5D, z, 0, 0, 0);
+
         this.speedUpWhenYMotionIsBlocked = true;
+        this.friction = 0.86F;
         this.xd *= 0.01F;
         this.yd *= 0.01F;
         this.zd *= 0.01F;
         this.yd += 0.1D;
-        this.quadSize *= 0.75F;
+        this.quadSize *= 1.0F;
         this.lifetime = 16;
         this.hasPhysics = false;
 
         setSpriteFromAge(spriteSet);
-
-        if (isCloseToScopingPlayer(this.x, this.y, this.z))
-        {
-            this.setAlpha(0.0F);
-        }
-    }
-
-    @Override
-    public void tick()
-    {
-        super.tick();
-
-        if (isCloseToScopingPlayer(this.x, this.y, this.z))
-        {
-            this.setAlpha(0.0F);
-        }
-        else
-        {
-            this.setAlpha(Mth.lerp(0.05F, this.alpha, 1.0F));
-        }
-
     }
 
     @Nonnull
@@ -63,13 +42,6 @@ public class CharmedParticle extends TextureSheetParticle
         return this.quadSize * Mth.clamp(((float) this.age + pScaleFactor) / (float) this.lifetime * 32.0F, 0.0F, 1.0F);
     }
 
-    public static boolean isCloseToScopingPlayer(double x, double y, double z)
-    {
-        Minecraft minecraft = Minecraft.getInstance();
-
-        return minecraft.player != null && minecraft.player.isScoping() && minecraft.options.getCameraType().isFirstPerson() && minecraft.player.getEyePosition().distanceToSqr(x, y, z) <= 9.0D;
-    }
-
     @OnlyIn(Dist.CLIENT)
     public static class Provider implements ParticleProvider<SimpleParticleType>
     {
@@ -82,7 +54,7 @@ public class CharmedParticle extends TextureSheetParticle
 
         public Particle createParticle(@Nonnull SimpleParticleType particleType, @Nonnull ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed)
         {
-            return new CharmedParticle(level, x, y, z, ySpeed, this.spriteSet);
+            return new CharmedFeedbackParticle(level, x, y, z, this.spriteSet);
         }
     }
 }

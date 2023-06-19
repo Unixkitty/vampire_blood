@@ -4,8 +4,13 @@ import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
+import com.unixkitty.vampire_blood.init.ModParticles;
 import com.unixkitty.vampire_blood.network.packet.EntityBloodInfoS2CPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -107,5 +112,41 @@ public class ClientPacketHandler
     public static void handleBloodParticles(Vec3 position)
     {
         ClientEvents.spawnBloodParticles(position, false);
+    }
+
+    public static void handleSuccessfulCharm(int entityId)
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if (minecraft.player != null && minecraft.cameraEntity == minecraft.player)
+        {
+            Entity entity = minecraft.player.level.getEntity(entityId);
+
+            if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive())
+            {
+                spawnParticlesAroundEntity(entity, ModParticles.CHARMED_FEEDBACK_PARTICLE.get());
+            }
+        }
+    }
+
+    public static void spawnParticlesAroundEntity(Entity entity, ParticleOptions particleOptions)
+    {
+        for (int i = 0; i < 5; ++i)
+        {
+            entity.level.addParticle(
+                    particleOptions,
+                    entity.getRandomX(1.0D),
+                    entity.getRandomY() + 1.0D,
+                    entity.getRandomZ(1.0D),
+                    gauss(entity.level.random),
+                    gauss(entity.level.random),
+                    gauss(entity.level.random)
+            );
+        }
+    }
+
+    private static double gauss(RandomSource random)
+    {
+        return random.nextGaussian() * 0.02D;
     }
 }
