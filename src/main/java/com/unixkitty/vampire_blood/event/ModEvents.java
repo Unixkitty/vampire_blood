@@ -91,8 +91,8 @@ public class ModEvents
                         }
                         catch (Exception e)
                         {
-                            VampireBlood.log().error("Failed to add custom AI goal to {} with uuid {}", mob.getClass().getSimpleName(), mob.getStringUUID());
-                            VampireBlood.log().error(e);
+                            VampireBlood.LOG.error("Failed to add custom AI goal to {} with uuid {}", mob.getClass().getSimpleName(), mob.getStringUUID());
+                            VampireBlood.LOG.error(e);
                         }
                     }
                 });

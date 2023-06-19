@@ -51,7 +51,7 @@ public class BloodEntityConfig
         }
         catch (IllegalArgumentException e)
         {
-            VampireBlood.log().error("Error parsing blood type from config for: " + id, e);
+            VampireBlood.LOG.error("Error parsing blood type from config for: " + id, e);
 
             return BloodType.NONE;
         }

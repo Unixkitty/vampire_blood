@@ -42,7 +42,7 @@ public class BloodConfigManager
         {
             if (!loadConfig(null))
             {
-                VampireBlood.log().error("Blood config was already being loaded during initialization!");
+                VampireBlood.LOG.error("Blood config was already being loaded during initialization!");
             }
         }
         catch (Exception e)
@@ -68,7 +68,7 @@ public class BloodConfigManager
                 }
                 catch (Exception e)
                 {
-                    VampireBlood.log().error("Failed to create new blood config!", e);
+                    VampireBlood.LOG.error("Failed to create new blood config!", e);
                     failedNewConfig = true;
                 }
             }
@@ -82,7 +82,7 @@ public class BloodConfigManager
 
             if (server != null)
             {
-                VampireBlood.log().info("Updating blood values for all entities on the server...");
+                VampireBlood.LOG.info("Updating blood values for all entities on the server...");
 
                 for (ServerLevel level : server.getAllLevels())
                 {
@@ -95,7 +95,7 @@ public class BloodConfigManager
                     }
                 }
 
-                VampireBlood.log().info("Done updating blood values for all entities on the server!");
+                VampireBlood.LOG.info("Done updating blood values for all entities on the server!");
             }
 
             working = false;
@@ -136,7 +136,7 @@ public class BloodConfigManager
                 }
                 catch (Exception e)
                 {
-                    VampireBlood.log().error("Failed to save modified blood config!", e);
+                    VampireBlood.LOG.error("Failed to save modified blood config!", e);
                 }
             }
 
@@ -162,7 +162,7 @@ public class BloodConfigManager
 
     private static void fail(Exception e)
     {
-        VampireBlood.log().error("IO error when loading blood config!", e);
+        VampireBlood.LOG.error("IO error when loading blood config!", e);
     }
 
     private static ObjectObjectImmutablePair<File, File> getConfigFile()
@@ -174,7 +174,7 @@ public class BloodConfigManager
 
     private static void readBloodConfig(File file) throws Exception
     {
-        VampireBlood.log().debug("Reading " + file.getName());
+        VampireBlood.LOG.debug("Reading " + file.getName());
 
         Gson gson = new Gson();
         String json = Files.readString(file.toPath());
@@ -183,12 +183,12 @@ public class BloodConfigManager
 
         mapList(entities);
 
-        VampireBlood.log().debug("Finished reading " + file.getName());
+        VampireBlood.LOG.debug("Finished reading " + file.getName());
     }
 
     private static void makeNewBloodConfig(File file) throws Exception
     {
-        VampireBlood.log().debug("Creating new " + file.getName());
+        VampireBlood.LOG.debug("Creating new " + file.getName());
 
         PrintWriter writer = new PrintWriter(file);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -199,7 +199,7 @@ public class BloodConfigManager
 
     private static void saveBloodConfig(File file) throws Exception
     {
-        VampireBlood.log().debug("Saving " + file.getName());
+        VampireBlood.LOG.debug("Saving " + file.getName());
 
         PrintWriter writer = new PrintWriter(file);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -225,7 +225,7 @@ public class BloodConfigManager
 
     private static BloodEntityListHolder getDefaultList()
     {
-        VampireBlood.log().debug("Creating default entity blood list");
+        VampireBlood.LOG.debug("Creating default entity blood list");
 
         List<BloodEntityConfig> list = new ArrayList<>();
 

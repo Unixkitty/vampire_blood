@@ -108,7 +108,7 @@ public class VampireCommand
                             catch (Exception e)
                             {
                                 context.getSource().sendFailure(Component.translatable("commands.vampire_blood.exception_generic", e.getLocalizedMessage()));
-                                VampireBlood.log().error("Error reloading blood config on command", e);
+                                VampireBlood.LOG.error("Error reloading blood config on command", e);
                             }
 
                             return 0;
@@ -240,7 +240,7 @@ public class VampireCommand
         }
         catch (Exception e)
         {
-            VampireBlood.log().error(e);
+            VampireBlood.LOG.error(e);
         }
 
         return 0;

@@ -23,7 +23,7 @@ public class VampireBlood
     public static final String MODID = "vampire_blood";
     public static final String MODNAME = "Vampire Blood";
 
-    private static final Logger LOG = LogManager.getLogger(MODNAME);
+    public static final Logger LOG = LogManager.getLogger(MODNAME);
 
     public VampireBlood()
     {
@@ -46,10 +46,5 @@ public class VampireBlood
         });
 
         BloodConfigManager.init();
-    }
-
-    public static Logger log()
-    {
-        return LOG;
     }
 }
