@@ -30,6 +30,7 @@
   "key.vampire_blood.enhanced_senses": "Vampiric Senses",
   "key.vampire_blood.enhanced_speed": "Vampiric Speed",
   "key.vampire_blood.charm": "Charm",
+  "key.vampire_blood.ability_wheel": "Ability Wheel",
   "vampire_blood.death.attack.sunlight_1": "%1$s forgot to apply sunscreen",
   "vampire_blood.death.attack.sunlight_2": "Looks like %1$s was allergic to sunshine",
   "vampire_blood.death.attack.sunlight_3": "For %1$s, death came with the dawn",
@@ -55,5 +56,6 @@
   "effect.vampire_blood.enhanced_speed": "Vampiric Speed",
   "effect.vampire_blood.charmed": "Enthralled",
   "text.vampire_blood.charmed_for": "Enthralled for %ss",
-  "text.vampire_blood.health": "Health: %s/%s"
+  "text.vampire_blood.health": "Health: %s/%s",
+  "screen.vampire_blood.title.ability_wheel": "Vampire Ability Wheel"
 }

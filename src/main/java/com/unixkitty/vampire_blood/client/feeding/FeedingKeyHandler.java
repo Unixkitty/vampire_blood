@@ -14,10 +14,10 @@ public class FeedingKeyHandler
 {
     private static int lastFeedKeyAction = InputConstants.RELEASE;
 
-    static void handle(final InputEvent.Key event)
+    static void handle(final InputEvent.Key event, Minecraft minecraft)
     {
         final boolean feedKeyTouched = event.getKey() == KeyBindings.FEED_KEY.getKey().getValue();
-        final boolean movementKeysTouched = Minecraft.getInstance().options.keyUp.isDown() || Minecraft.getInstance().options.keyDown.isDown() || Minecraft.getInstance().options.keyLeft.isDown() || Minecraft.getInstance().options.keyRight.isDown() || Minecraft.getInstance().options.keyJump.isDown() || Minecraft.getInstance().options.keyShift.isDown() || Minecraft.getInstance().options.keyAttack.isDown() || Minecraft.getInstance().options.keyUse.isDown();
+        final boolean movementKeysTouched = minecraft.options.keyUp.isDown() || minecraft.options.keyDown.isDown() || minecraft.options.keyLeft.isDown() || minecraft.options.keyRight.isDown() || minecraft.options.keyJump.isDown() || minecraft.options.keyShift.isDown() || minecraft.options.keyAttack.isDown() || minecraft.options.keyUse.isDown();
 
         if (feedKeyTouched)
         {
@@ -44,14 +44,14 @@ public class FeedingKeyHandler
         //No movement during feeding
         if (FeedingHandler.isFeeding() && movementKeysTouched)
         {
-            Minecraft.getInstance().options.keyUp.setDown(false);
-            Minecraft.getInstance().options.keyDown.setDown(false);
-            Minecraft.getInstance().options.keyLeft.setDown(false);
-            Minecraft.getInstance().options.keyRight.setDown(false);
-            Minecraft.getInstance().options.keyJump.setDown(false);
-            Minecraft.getInstance().options.keyShift.setDown(false);
-            Minecraft.getInstance().options.keyAttack.setDown(false);
-            Minecraft.getInstance().options.keyUse.setDown(false);
+            minecraft.options.keyUp.setDown(false);
+            minecraft.options.keyDown.setDown(false);
+            minecraft.options.keyLeft.setDown(false);
+            minecraft.options.keyRight.setDown(false);
+            minecraft.options.keyJump.setDown(false);
+            minecraft.options.keyShift.setDown(false);
+            minecraft.options.keyAttack.setDown(false);
+            minecraft.options.keyUse.setDown(false);
         }
     }
 }

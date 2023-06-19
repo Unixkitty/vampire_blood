@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
+import com.unixkitty.vampire_blood.client.gui.abilitywheel.AbilityWheelHandler;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
@@ -70,7 +71,13 @@ public final class ClientEvents
         @SubscribeEvent
         public static void onRenderGuiOverlay(final RenderGuiOverlayEvent.Pre event)
         {
-            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && Minecraft.getInstance().player != null && ClientCache.canFeed() && Minecraft.getInstance().player.isAlive() && Minecraft.getInstance().gameMode != null && Minecraft.getInstance().gameMode.hasExperience())
+            Minecraft minecraft = Minecraft.getInstance();
+
+            if (event.getOverlay().id() == VanillaGuiOverlay.FOOD_LEVEL.id() && minecraft.player != null && ClientCache.canFeed() && minecraft.player.isAlive() && minecraft.gameMode != null && minecraft.gameMode.hasExperience())
+            {
+                event.setCanceled(true);
+            }
+            else if (event.getOverlay().id() == VanillaGuiOverlay.CROSSHAIR.id() && minecraft.screen instanceof AbilityWheelHandler.AbilityWheelScreen)
             {
                 event.setCanceled(true);
             }
@@ -99,7 +106,7 @@ public final class ClientEvents
         }
 
         @SubscribeEvent
-        public static void onClientTick(final TickEvent.PlayerTickEvent event)
+        public static void onClientPlayerTick(final TickEvent.PlayerTickEvent event)
         {
             if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.END && ClientCache.isVampire())
             {
@@ -108,6 +115,17 @@ public final class ClientEvents
                     ClientCache.getDebugVars().updateThirstExhaustionIncrementRate(event.player.tickCount);
                 }
             }
+        }
+
+        @SubscribeEvent
+        public static void onClientTick(final TickEvent.ClientTickEvent event)
+        {
+            /*if (event.phase == TickEvent.Phase.START)
+            {
+                Minecraft minecraft = Minecraft.getInstance();
+
+                AbilityWheelHandler.handleKeys(minecraft);
+            }*/
         }
 
         @SubscribeEvent

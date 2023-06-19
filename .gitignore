@@ -17,13 +17,14 @@ out
 build
 .gradle
 
+# Files from Forge MDK
+forge*changelog.txt
+logs
+
 # other
 eclipse
 run
 src/generated/resources/.cache
 libs
 notes
-
-# Files from Forge MDK
-forge*changelog.txt
-logs
+/.lastactionnote

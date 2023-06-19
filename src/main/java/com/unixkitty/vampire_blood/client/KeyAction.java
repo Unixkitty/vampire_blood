@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.client;
 
+import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
@@ -11,24 +12,29 @@ import com.unixkitty.vampire_blood.network.packet.UseCharmAbilityC2SPacket;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @OnlyIn(Dist.CLIENT)
 public enum KeyAction
 {
     FEED_START,
     FEED_STOP,
-    NIGHT_VISION_TOGGLE(KeyBindings.NIGHT_VISION_KEY, VampireActiveAbility.NIGHT_VISION),
-    BLOOD_VISION_TOGGLE(KeyBindings.BLOOD_VISION_KEY, VampireActiveAbility.BLOOD_VISION),
-    SPEED_TOGGLE(KeyBindings.SPEED_KEY, VampireActiveAbility.SPEED),
-    SENSES_TOGGLE(KeyBindings.SENSES_KEY, VampireActiveAbility.SENSES),
-    CHARM(KeyBindings.CHARM_KEY);
+    NIGHT_VISION_TOGGLE("mob_effect/night_vision.png", KeyBindings.NIGHT_VISION_KEY, VampireActiveAbility.NIGHT_VISION),
+    BLOOD_VISION_TOGGLE("mob_effect/blood_vision.png", KeyBindings.BLOOD_VISION_KEY, VampireActiveAbility.BLOOD_VISION),
+    SPEED_TOGGLE("mob_effect/enhanced_speed.png", KeyBindings.SPEED_KEY, VampireActiveAbility.SPEED),
+    SENSES_TOGGLE("mob_effect/enhanced_senses.png", KeyBindings.SENSES_KEY, VampireActiveAbility.SENSES),
+    CHARM("gui/charm.png", KeyBindings.CHARM_KEY);
 
     private static final Int2IntOpenHashMap timeStampMap = new Int2IntOpenHashMap();
 
+    @Nullable
+    public final ResourceLocation texture;
     private final KeyMapping key;
     private final VampireActiveAbility ability;
 
@@ -37,20 +43,34 @@ public enum KeyAction
         this(null, null);
     }
 
-    KeyAction(KeyMapping key)
+    KeyAction(String texturePath, KeyMapping key)
     {
-        this(key, null);
+        this(texturePath, key, null);
     }
 
-    KeyAction(KeyMapping key, VampireActiveAbility ability)
+    KeyAction(String texturePath, KeyMapping key, VampireActiveAbility ability)
     {
+        if (texturePath == null)
+        {
+            this.texture = null;
+        }
+        else
+        {
+            this.texture = new ResourceLocation(ability == VampireActiveAbility.NIGHT_VISION ? "minecraft" : VampireBlood.MODID, "textures/" + texturePath);
+        }
+
         this.key = key;
         this.ability = ability;
     }
 
+    public KeyMapping getKey()
+    {
+        return this.key;
+    }
+
     public void handleKey()
     {
-        if (this.key != null && this.key.consumeClick())
+        if (this.key != null && !this.key.isUnbound() && this.key.consumeClick())
         {
             handle(this);
         }
@@ -74,26 +94,31 @@ public enum KeyAction
 
     private static void handle(@Nonnull KeyAction action)
     {
-        int delta = Minecraft.getInstance().player.tickCount - timeStampMap.getOrDefault(action.ordinal(), 0);
+        final LocalPlayer player = Minecraft.getInstance().player;
 
-        if (delta >= 10 || delta < 0)
+        if (player != null)
         {
-            switch (action)
-            {
-                case FEED_START ->
-                        ModNetworkDispatcher.sendToServer(new RequestFeedingC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
-                case FEED_STOP -> ModNetworkDispatcher.sendToServer(new RequestStopFeedingC2SPacket());
-                case CHARM ->
-                {
-                    if (FeedingMouseOverHandler.isCloseEnough())
-                    {
-                        ModNetworkDispatcher.sendToServer(new UseCharmAbilityC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
-                    }
-                }
-                default -> ModNetworkDispatcher.sendToServer(new ToggleActiveAbilityC2SPacket(action.ability));
-            }
+            int delta = player.tickCount - timeStampMap.getOrDefault(action.ordinal(), 0);
 
-            timeStampMap.put(action.ordinal(), Minecraft.getInstance().player.tickCount);
+            if (delta >= 10 || delta < 0)
+            {
+                switch (action)
+                {
+                    case FEED_START ->
+                            ModNetworkDispatcher.sendToServer(new RequestFeedingC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
+                    case FEED_STOP -> ModNetworkDispatcher.sendToServer(new RequestStopFeedingC2SPacket());
+                    case CHARM ->
+                    {
+                        if (FeedingMouseOverHandler.isCloseEnough())
+                        {
+                            ModNetworkDispatcher.sendToServer(new UseCharmAbilityC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
+                        }
+                    }
+                    default -> ModNetworkDispatcher.sendToServer(new ToggleActiveAbilityC2SPacket(action.ability));
+                }
+
+                timeStampMap.put(action.ordinal(), player.tickCount);
+            }
         }
     }
 }

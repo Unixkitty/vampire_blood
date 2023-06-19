@@ -29,25 +29,27 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
     public static final BloodBarOverlay INSTANCE = new BloodBarOverlay();
 
     protected final RandomSource random = RandomSource.create();
+    private final Minecraft minecraft;
 
     private BloodBarOverlay()
     {
+        this.minecraft = Minecraft.getInstance();
     }
 
     @Override
     public void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
     {
-        if (Minecraft.getInstance().player != null && Minecraft.getInstance().player.isAlive() && !Minecraft.getInstance().options.hideGui && gui.shouldDrawSurvivalElements())
+        if (minecraft.player != null && minecraft.player.isAlive() && !minecraft.options.hideGui && gui.shouldDrawSurvivalElements())
         {
             //Thirst level bar
-            if (ClientCache.isVampire() && !(Minecraft.getInstance().player.getVehicle() instanceof LivingEntity))
+            if (ClientCache.isVampire() && !(minecraft.player.getVehicle() instanceof LivingEntity))
             {
-                Minecraft.getInstance().getProfiler().push("blood_bar_overlay");
+                minecraft.getProfiler().push("blood_bar_overlay");
 
                 RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
 
-                int startX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 + 91;
-                int startY = Minecraft.getInstance().getWindow().getGuiScaledHeight() - gui.rightHeight;
+                int startX = minecraft.getWindow().getGuiScaledWidth() / 2 + 91;
+                int startY = minecraft.getWindow().getGuiScaledHeight() - gui.rightHeight;
                 gui.rightHeight += 10;
 
                 if (Config.showBloodbarExhaustionUnderlay.get())
@@ -118,21 +120,21 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
                 RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
 
-                Minecraft.getInstance().getProfiler().pop();
+                minecraft.getProfiler().pop();
             }
 
             //Entity blood HUD
-            renderEntityBlood(gui, poseStack, screenWidth, screenHeight);
+            renderEntityBlood(minecraft, gui, poseStack, screenWidth, screenHeight);
         }
     }
 
-    private void renderEntityBlood(ForgeGui gui, PoseStack poseStack, int screenWidth, int screenHeight)
+    private void renderEntityBlood(Minecraft minecraft, ForgeGui gui, PoseStack poseStack, int screenWidth, int screenHeight)
     {
         if (ClientCache.canFeed())
         {
-            Minecraft.getInstance().getProfiler().push("entity_blood_overlay");
+            minecraft.getProfiler().push("entity_blood_overlay");
 
-            if (FeedingMouseOverHandler.isLookingAtEdible() && Minecraft.getInstance().hitResult instanceof EntityHitResult)
+            if (FeedingMouseOverHandler.isLookingAtEdible() && minecraft.hitResult instanceof EntityHitResult)
             {
                 int renderStartX = (screenWidth / 2) + (MARGIN_PX * 3);
                 int renderStartY = screenHeight / 2;
@@ -180,7 +182,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 }
             }
 
-            Minecraft.getInstance().getProfiler().pop();
+            minecraft.getProfiler().pop();
         }
     }
 

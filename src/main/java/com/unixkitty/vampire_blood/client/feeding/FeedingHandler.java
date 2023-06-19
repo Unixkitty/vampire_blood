@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.client.feeding;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.InputEvent;
@@ -16,9 +17,9 @@ public class FeedingHandler
         FeedingMouseOverHandler.handle(event);
     }
 
-    public static void handleKeys(final InputEvent.Key event)
+    public static void handleKeys(final InputEvent.Key event, Minecraft minecraft)
     {
-        FeedingKeyHandler.handle(event);
+        FeedingKeyHandler.handle(event, minecraft);
     }
 
     public static boolean canFeed()

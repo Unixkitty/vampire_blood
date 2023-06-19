@@ -47,6 +47,10 @@ public class Config
     public static ForgeConfigSpec.BooleanValue showBloodbarExhaustionUnderlay;
     public static ForgeConfigSpec.BooleanValue detailedEntityBloodHUD;
     public static ForgeConfigSpec.BooleanValue entityBloodHUDshowHP;
+
+    public static ForgeConfigSpec.BooleanValue clipMouseToRadialMenu;
+    public static ForgeConfigSpec.BooleanValue allowRadialMenuClickOutsideBounds;
+    public static ForgeConfigSpec.BooleanValue releaseRadialMenuButtonToActivate;
     /* END ENTRIES */
 
     static
@@ -101,6 +105,12 @@ public class Config
                 showBloodbarExhaustionUnderlay = clientConfig.comment("Render exhaustion meter under the bloodbar like in Apple Skin mod").define("showBloodbarExhaustionUnderlay", true);
                 detailedEntityBloodHUD = clientConfig.comment("Alternate detailed entity blood HUD with numbers").define("detailedEntityBloodHUD", false);
                 entityBloodHUDshowHP = clientConfig.comment("Additionally show entity HP with detailed blood HUD").define("entityBloodHUDshowHP", false);
+
+                clientConfig.push("Ability wheel");
+                clipMouseToRadialMenu = clientConfig.comment("When ability wheel is open, restrict mouse movement to be within the wheel's bounds?").define("clipMouseToRadialMenu", false);
+                allowRadialMenuClickOutsideBounds = clientConfig.define("allowRadialMenuClickOutsideBounds", false);
+                releaseRadialMenuButtonToActivate = clientConfig.comment("Should releasing the ability wheel button activate chosen ability?").define("releaseRadialMenuButtonToActivate", true);
+                clientConfig.pop();
             }
             clientConfig.pop();
 
