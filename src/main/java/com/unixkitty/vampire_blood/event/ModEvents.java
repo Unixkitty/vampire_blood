@@ -7,7 +7,7 @@ import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
-import com.unixkitty.vampire_blood.entity.ai.ModAIGoals;
+import com.unixkitty.vampire_blood.entity.ai.CharmedFollowGoal;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,7 +40,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingChangeTarget(final LivingChangeTargetEvent event)
     {
-        if (!event.getEntity().level.isClientSide() && event.getNewTarget() instanceof ServerPlayer player && VampireUtil.isEntityCharmedBy(event.getEntity(), player) && VampireUtil.isVampire(player))
+        if (!event.getEntity().level.isClientSide && event.getNewTarget() instanceof ServerPlayer player && VampireUtil.isEntityCharmedBy(event.getEntity(), player) && VampireUtil.isVampire(player))
         {
             event.setCanceled(true);
         }
@@ -49,7 +49,7 @@ public class ModEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
     {
-        if (!event.getEntity().getLevel().isClientSide())
+        if (!event.getEntity().level.isClientSide)
         {
             if (event.getEffectInstance().getEffect() instanceof BasicStatusEffect)
             {
@@ -61,7 +61,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingTick(final LivingEvent.LivingTickEvent event)
     {
-        if (!event.getEntity().level.isClientSide() && !(event.getEntity() instanceof Player))
+        if (!event.getEntity().level.isClientSide && !(event.getEntity() instanceof Player))
         {
             event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tick(event.getEntity()));
         }
@@ -70,7 +70,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onEntityJoinWorld(final EntityJoinLevelEvent event)
     {
-        if (!event.getLevel().isClientSide() && event.getEntity() instanceof LivingEntity entity)
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof LivingEntity entity)
         {
             if (entity instanceof ServerPlayer)
             {
@@ -84,16 +84,25 @@ public class ModEvents
 
                     if (entity instanceof PathfinderMob mob)
                     {
+//                        if (mob instanceof Villager || mob instanceof Piglin)
+//                        {
+//                            //TODO Villagers and Piglins use the new Activity, Sensor and Brain system
+//                        }
+//                        else
+//                        {
                         try
                         {
-                            addGoal(mob, bloodEntityStorage, ModAIGoals.CharmedFollowGoal.class);
-                            addGoal(mob, bloodEntityStorage, ModAIGoals.FleeFromKnownVampireGoal.class);
+                            if (mob.goalSelector.availableGoals.stream().noneMatch(wrappedGoal -> wrappedGoal.getGoal() instanceof CharmedFollowGoal))
+                            {
+                                mob.goalSelector.addGoal(0, new CharmedFollowGoal(mob, bloodEntityStorage));
+                            }
                         }
                         catch (Exception e)
                         {
                             VampireBlood.LOG.error("Failed to add custom AI goal to {} with uuid {}", mob.getClass().getSimpleName(), mob.getStringUUID());
                             VampireBlood.LOG.error(e);
                         }
+//                        }
                     }
                 });
 
@@ -102,14 +111,6 @@ public class ModEvents
                     noAttackUndeadPlayer(monster);
                 }
             }
-        }
-    }
-
-    private static void addGoal(PathfinderMob mob, BloodEntityStorage bloodData, Class<? extends Goal> goalClass) throws Exception
-    {
-        if (mob.goalSelector.availableGoals.stream().noneMatch(wrappedGoal -> wrappedGoal.getGoal().getClass().equals(goalClass)))
-        {
-            mob.goalSelector.addGoal(1, goalClass.getDeclaredConstructor(PathfinderMob.class, BloodEntityStorage.class).newInstance(mob, bloodData));
         }
     }
 

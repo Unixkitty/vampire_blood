@@ -24,10 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -57,7 +54,7 @@ public class VampirePlayerEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
     {
-        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             var effect = event.getEffectInstance().getEffect();
 
@@ -78,7 +75,7 @@ public class VampirePlayerEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerCloned(final PlayerEvent.Clone event)
     {
-        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             event.getOriginal().reviveCaps();
 
@@ -91,7 +88,7 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingDeath(final LivingDeathEvent event)
     {
-        if (!event.getEntity().level.isClientSide() && event.getEntity() instanceof Player player)
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof Player player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
@@ -100,13 +97,6 @@ public class VampirePlayerEvents
                     if (Config.vampireDustDropAmount.get() > 0 && event.getSource() != DamageSource.LAVA)
                     {
                         player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModItems.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
-                    }
-
-                    //TODO replace with knockout mechanic in the future
-                    if (vampirePlayerData.getNoRegenTicks() <= 0)
-                    {
-                        player.setHealth(1);
-                        event.setCanceled(true);
                     }
                 }
             });
@@ -129,9 +119,29 @@ public class VampirePlayerEvents
     }
 
     @SubscribeEvent
+    public static void onLivingDamaged(final LivingDamageEvent event)
+    {
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
+        {
+            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+            {
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId())
+                {
+                    //TODO replace with knockout mechanic in the future
+                    if (event.getAmount() >= player.getHealth() && event.getAmount() < player.getMaxHealth() / 5F && vampirePlayerData.getNoRegenTicks() <= 0)
+                    {
+                        event.setAmount(0);
+                        player.setHealth(1F);
+                    }
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent
     public static void onLivingHurt(final LivingHurtEvent event)
     {
-        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
@@ -162,7 +172,7 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event)
     {
-        if (!event.getEntity().getLevel().isClientSide() && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             boolean charmedByPlayer;
 

@@ -323,7 +323,7 @@ public class VampirePlayerData extends BloodVessel
     {
         player.level.getProfiler().push("vampire_catching_sun_logic");
 
-        if (player.level.skyDarken < 4 && Config.sunnyDimensions.get().contains(player.level.dimension().location().toString()))
+        if (player.level.dimensionType().hasSkyLight() && Config.sunnyDimensions.get().contains(player.level.dimension().location().toString()))
         {
             //Cache the check for performance
             if (this.catchingUVTicks <= 0)
@@ -375,6 +375,8 @@ public class VampirePlayerData extends BloodVessel
         else
         {
             this.ticksInSun = 0;
+            this.catchingUVTicks = 0;
+            this.catchingUV = false;
         }
 
         player.level.getProfiler().pop();

@@ -50,10 +50,9 @@ public enum BloodType implements VampirismTier<BloodType>
         {
             case NONE -> 0.0F;
             case FRAIL -> bloodPointGained ? 1F : 3.75F;
-            case CREATURE -> bloodPointGained ? 2F : 2.5F;
+            case CREATURE, PIGLIN -> bloodPointGained ? 2F : 2.5F;
             case HUMAN -> bloodPointGained ? 3.75F : 1.5F;
             case VAMPIRE -> bloodPointGained ? 3F : 1.25F;
-            case PIGLIN -> bloodPointGained ? 2F : 2.5F;
         };
     }
 

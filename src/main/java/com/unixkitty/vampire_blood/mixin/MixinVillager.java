@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.mixin;
 
-import com.unixkitty.vampire_blood.entity.ai.ModAIGoals;
+import com.unixkitty.vampire_blood.init.ModRegistry;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.gossip.GossipContainer;
 import net.minecraft.world.entity.ai.gossip.GossipType;
@@ -23,11 +23,11 @@ public class MixinVillager
     @Inject(at = @At("TAIL"), method = "onReputationEventFrom(Lnet/minecraft/world/entity/ai/village/ReputationEventType;Lnet/minecraft/world/entity/Entity;)V")
     public void onReputationEventFrom(ReputationEventType eventType, Entity target, CallbackInfo ci)
     {
-        if (eventType == ModAIGoals.VAMPIRE_PLAYER)
+        if (eventType == ModRegistry.REPUTATION_VAMPIRE_PLAYER)
         {
             this.gossips.add(target.getUUID(), GossipType.MAJOR_NEGATIVE, GossipType.MAJOR_NEGATIVE.max);
         }
-        else if (eventType == ModAIGoals.CHARMED_BY_VAMPIRE_PLAYER)
+        else if (eventType == ModRegistry.REPUTATION_CHARMED_BY_VAMPIRE_PLAYER)
         {
             this.gossips.add(target.getUUID(), GossipType.MAJOR_POSITIVE, GossipType.MAJOR_POSITIVE.max);
         }

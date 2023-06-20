@@ -27,6 +27,8 @@ public final class SunExposurer
 
     public static boolean isCatchingUV(Player player)
     {
+        if (player.level.skyDarken >= 4) return false;
+
         final BlockPos playerEyePos = new BlockPos(player.getX(), player.getEyeY(), player.getZ());
 
         //If fully submerged, including eyes, check if deep enough (4 blocks) or if the block above the liquid can't see the sky

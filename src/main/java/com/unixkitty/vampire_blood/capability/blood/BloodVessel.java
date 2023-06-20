@@ -3,9 +3,9 @@ package com.unixkitty.vampire_blood.capability.blood;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.config.Config;
-import com.unixkitty.vampire_blood.entity.ai.ModAIGoals;
 import com.unixkitty.vampire_blood.init.ModDamageSources;
 import com.unixkitty.vampire_blood.init.ModEffects;
+import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityCharmedStatusS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.SuccessfulCharmS2CPacket;
@@ -166,7 +166,7 @@ public abstract class BloodVessel implements IBloodVessel
 
     private void notifyWitness(LivingEntity witness, ServerPlayer player)
     {
-        ((ServerLevel) player.level).onReputationEvent(ModAIGoals.VAMPIRE_PLAYER, player, (ReputationEventHandler) witness);
+        ((ServerLevel) player.level).onReputationEvent(ModRegistry.REPUTATION_VAMPIRE_PLAYER, player, (ReputationEventHandler) witness);
 
         witness.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.rememberVampirePlayer(player));
     }
@@ -227,6 +227,8 @@ public abstract class BloodVessel implements IBloodVessel
         if (this.charmedByMap.containsKey(uuid))
         {
             this.charmedByMap.put(uuid, 0);
+
+            return false;
         }
         else
         {
@@ -238,11 +240,13 @@ public abstract class BloodVessel implements IBloodVessel
 
             if (target instanceof ReputationEventHandler)
             {
-                ((ServerLevel)player.level).onReputationEvent(ModAIGoals.CHARMED_BY_VAMPIRE_PLAYER, player, (ReputationEventHandler) target);
+                ((ServerLevel)player.level).onReputationEvent(ModRegistry.REPUTATION_CHARMED_BY_VAMPIRE_PLAYER, player, (ReputationEventHandler) target);
 
                 if (this.knownVampirePlayers != null)
                 {
                     this.knownVampirePlayers.remove(player.getUUID());
+
+                    this.lastCharmedPlayer = null;
                 }
             }
         }
