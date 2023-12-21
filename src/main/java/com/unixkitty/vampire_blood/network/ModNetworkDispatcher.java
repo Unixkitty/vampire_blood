@@ -23,7 +23,7 @@ public class ModNetworkDispatcher
 
     public static void register()
     {
-        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID, "messages"), () -> PROTOCOL_VERSION, s -> true, s -> true);
+        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(VampireBlood.MODID, "messages"), () -> PROTOCOL_VERSION, ModNetworkDispatcher::shouldAcceptPacket, ModNetworkDispatcher::shouldAcceptPacket);
 
         //================================================================================================
 
@@ -48,14 +48,15 @@ public class ModNetworkDispatcher
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)
     {
         INSTANCE.messageBuilder(packetClass, packetId++, toServer ? NetworkDirection.PLAY_TO_SERVER : NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(buf -> {
+                .decoder(buf ->
+                {
                     try
                     {
                         return packetClass.getDeclaredConstructor(buf.getClass()).newInstance(buf);
                     }
                     catch (Exception e)
                     {
-                        throw new RuntimeException("Failed to decode packet", e);
+                        throw new RuntimeException("Failed to decode packet " + packetClass.getSimpleName(), e);
                     }
                 })
                 .encoder(BasePacket::toBytes)
@@ -63,17 +64,22 @@ public class ModNetworkDispatcher
                 .add();
     }
 
-    public static <MSG> void sendToServer(MSG message)
+    private static boolean shouldAcceptPacket(String protocolVersion)
+    {
+        return PROTOCOL_VERSION.equals(protocolVersion);
+    }
+
+    public static void sendToServer(BasePacket message)
     {
         INSTANCE.sendToServer(message);
     }
 
-    public static <MSG> void sendToClient(MSG message, ServerPlayer player)
+    public static void sendToClient(BasePacket message, ServerPlayer player)
     {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
     }
 
-    public static <MSG> void sendToNearbyPlayers(MSG message, final double x, final double y, final double z, final double radius, final ResourceKey<Level> dimension)
+    public static void sendToNearbyPlayers(BasePacket message, final double x, final double y, final double z, final double radius, final ResourceKey<Level> dimension)
     {
         INSTANCE.send(PacketDistributor.NEAR.with(PacketDistributor.TargetPoint.p(x, y, z, radius, dimension)), message);
     }
