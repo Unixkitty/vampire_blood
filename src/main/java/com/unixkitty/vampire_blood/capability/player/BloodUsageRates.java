@@ -11,7 +11,7 @@ public enum BloodUsageRates
     {
         return switch (this)
         {
-            case HEALING -> (Config.bloodUsageRate.get() / 2) * Config.naturalHealingRate.get();
+            case HEALING -> (Config.bloodUsageRate.get() * 2) * Config.naturalHealingRate.get();
             case IDLE -> 1;
         };
     }
@@ -20,8 +20,8 @@ public enum BloodUsageRates
     {
         return switch (ability)
         {
-            case SPEED -> Config.bloodUsageRate.get() / 18;
-            case SENSES -> Config.bloodUsageRate.get() / 36;
+            case SPEED -> Config.bloodUsageRate.get();
+            case SENSES -> Config.bloodUsageRate.get() / 18;
             default -> 0;
         };
     }

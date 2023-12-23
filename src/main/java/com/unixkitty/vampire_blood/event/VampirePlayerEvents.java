@@ -58,9 +58,11 @@ public class VampirePlayerEvents
         {
             var effect = event.getEffectInstance().getEffect();
 
-            if (VampireUtil.isUndead(player))
+            final VampirismLevel vampirismLevel = player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(VampirePlayerData::getVampireLevel).orElse(VampirismLevel.NOT_VAMPIRE);
+
+            if (vampirismLevel.getId() > VampirismLevel.NOT_VAMPIRE.getId())
             {
-                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.FIRE_RESISTANCE || effect == MobEffects.NIGHT_VISION || effect instanceof BasicStatusEffect)
+                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || (effect == MobEffects.FIRE_RESISTANCE && vampirismLevel != VampirismLevel.ORIGINAL) || effect == MobEffects.NIGHT_VISION || effect instanceof BasicStatusEffect)
                 {
                     event.setResult(Event.Result.DENY);
                 }
@@ -125,13 +127,15 @@ public class VampirePlayerEvents
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId())
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                 {
                     //TODO replace with knockout mechanic in the future
                     if (event.getAmount() >= player.getHealth() && event.getAmount() < player.getMaxHealth() / 5F && vampirePlayerData.getNoRegenTicks() <= 0)
                     {
                         event.setAmount(0);
                         player.setHealth(1F);
+
+                        vampirePlayerData.decreaseBlood(player, 2, false);
                     }
                 }
             });
@@ -155,9 +159,16 @@ public class VampirePlayerEvents
                     }
                     else if (event.getSource().isFire())
                     {
-                        event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
+                        if (vampirePlayerData.getVampireLevel() == VampirismLevel.ORIGINAL)
+                        {
+                            event.setAmount(event.getAmount() > 0 ? event.getAmount() * 0.5F : event.getAmount());
+                        }
+                        else
+                        {
+                            event.setAmount(event.getAmount() > 0 ? event.getAmount() * 2 : event.getAmount());
 
-                        vampirePlayerData.addPreventRegenTicks(player, 20);
+                            vampirePlayerData.addPreventRegenTicks(player, 20);
+                        }
                     }
 
                     if (event.getAmount() > 0 && vampirePlayerData.isFeeding())

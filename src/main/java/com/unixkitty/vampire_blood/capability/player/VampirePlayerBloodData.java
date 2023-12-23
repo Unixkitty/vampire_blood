@@ -54,7 +54,7 @@ public class VampirePlayerBloodData
 
             if (!isPeaceful)
             {
-                decreaseBlood(true);
+                decreaseBlood(1, true);
             }
         }
 
@@ -98,9 +98,9 @@ public class VampirePlayerBloodData
         updateWithAttributes(player, false);
     }
 
-    void decreaseBlood(boolean natural)
+    void decreaseBlood(int points, boolean natural)
     {
-        this.thirstLevel = Math.max(this.thirstLevel - 1, 0);
+        this.thirstLevel = Math.max(this.thirstLevel - points, 0);
 
         if (natural)
         {

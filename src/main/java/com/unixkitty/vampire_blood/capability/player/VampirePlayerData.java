@@ -281,6 +281,11 @@ public class VampirePlayerData extends BloodVessel
         blood.addBlood(player, points, bloodType);
     }
 
+    public void decreaseBlood(ServerPlayer player, int points, boolean natural)
+    {
+        blood.decreaseBlood(points, natural);
+    }
+
     public void sync()
     {
         blood.sync();
@@ -472,7 +477,7 @@ public class VampirePlayerData extends BloodVessel
 
                 if (resultingThirstLevel >= 0)
                 {
-                    blood.decreaseBlood(false);
+                    blood.decreaseBlood(1, false);
 
                     return true;
                 }
