@@ -43,6 +43,8 @@ public class ModNetworkDispatcher
         registerPacket(EntityCharmedStatusS2CPacket.class, false);
         registerPacket(BloodParticlesS2CPacket.class, false);
         registerPacket(SuccessfulCharmS2CPacket.class, false);
+        registerPacket(RequestOtherPlayerVampireVarsC2SPacket.class, true);
+        registerPacket(PlayerVampireVarsResponseS2CPacket.class, false);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)

@@ -51,5 +51,7 @@ public class ClientCache
         return vampirePlayerVars != null && vampirePlayerVars.thirstLevel <= VampirePlayerBloodData.MAX_THIRST / 6;
     }
 
-    public record EntityBlood(int bloodPoints, int maxBloodPoints, BloodType bloodType){}
+    public record EntityBlood(int bloodPoints, int maxBloodPoints, BloodType bloodType)
+    {
+    }
 }

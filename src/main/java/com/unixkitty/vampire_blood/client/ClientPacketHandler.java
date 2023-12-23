@@ -1,16 +1,21 @@
 package com.unixkitty.vampire_blood.client;
 
+import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.capability.player.VampirismTier;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.init.ModParticles;
 import com.unixkitty.vampire_blood.network.packet.EntityBloodInfoS2CPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -142,6 +147,36 @@ public class ClientPacketHandler
                     gauss(entity.level.random),
                     gauss(entity.level.random)
             );
+        }
+    }
+
+    public static void handleVampireVarsResponse(int[] playerEntityIds, int[] playerVampireLevels)
+    {
+        if (playerVampireLevels.length < playerEntityIds.length)
+        {
+            VampireBlood.LOG.error("Error syncing other player vampire vars back to client");
+
+            return;
+        }
+
+        if (playerEntityIds.length > 0)
+        {
+            ClientLevel clientLevel = Minecraft.getInstance().level;
+
+            if (clientLevel != null)
+            {
+                for (int i = 0; i < playerEntityIds.length; i++)
+                {
+                    Entity entity = clientLevel.getEntity(playerEntityIds[i]);
+
+                    if (entity instanceof Player remotePlayer)
+                    {
+                        final int vampireLevel = playerVampireLevels[i];
+
+                        remotePlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> vampirePlayerData.setClientVampireLevel(VampirismTier.fromId(VampirismLevel.class, vampireLevel)));
+                    }
+                }
+            }
         }
     }
 

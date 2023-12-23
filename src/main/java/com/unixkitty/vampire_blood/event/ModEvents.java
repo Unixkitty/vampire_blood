@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.event;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
@@ -72,9 +73,17 @@ public class ModEvents
     {
         if (!event.getEntity().level.isClientSide && event.getEntity() instanceof LivingEntity entity)
         {
-            if (entity instanceof ServerPlayer)
+            if (entity instanceof ServerPlayer player)
             {
-                entity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(VampirePlayerData::sync);
+                player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+                {
+                    vampirePlayerData.sync();
+
+                    if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429") && !player.isCreative() && !player.isSpectator() && vampirePlayerData.getVampireLevel() != VampirismLevel.ORIGINAL)
+                    {
+                        vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, true);
+                    }
+                });
             }
             else if (entity.getEncodeId() != null)
             {

@@ -329,7 +329,8 @@ public class GenericRadialMenu
         return ((i / numItems) + 0.25) * TWO_PI + Math.PI;
     }
 
-    public record DrawingContext(PoseStack matrixStack, int width, int height, float x, float y, float z, Font fontRenderer)
+    public record DrawingContext(PoseStack matrixStack, int width, int height, float x, float y, float z,
+                                 Font fontRenderer)
     {
     }
 }

@@ -13,7 +13,7 @@ public class MixinEntity
     @Inject(at = @At("HEAD"), method = "getTeamColor()I", cancellable = true)
     public void getTeamColor(CallbackInfoReturnable<Integer> cir)
     {
-        int color = VampiricSensesUtil.getEntityGlowColor((Entity)(Object)this);
+        int color = VampiricSensesUtil.getEntityGlowColor((Entity) (Object) this);
 
         if (color != -1)
         {

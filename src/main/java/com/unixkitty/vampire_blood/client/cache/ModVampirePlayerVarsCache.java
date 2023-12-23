@@ -24,7 +24,7 @@ public class ModVampirePlayerVarsCache
     private static final int ENTITY_BLOOD_VALUES = 3;
     private static final int MOUSE_OVER_HANDLER = 4;
     private static final int CHARMED_ENTITIES = 5;
-    
+
     private final Int2ObjectOpenHashMap<Object> cache = new Int2ObjectOpenHashMap<>();
 
     //General
@@ -55,7 +55,7 @@ public class ModVampirePlayerVarsCache
     {
         if (this.cache.containsKey(CHARMED_ENTITIES))
         {
-            return ((IntOpenHashSet)this.cache.get(CHARMED_ENTITIES)).contains(entityId);
+            return ((IntOpenHashSet) this.cache.get(CHARMED_ENTITIES)).contains(entityId);
         }
 
         return false;
@@ -64,7 +64,7 @@ public class ModVampirePlayerVarsCache
     @SuppressWarnings("unchecked")
     public void setEntityBloodValues(int entityId, int bloodPoints, int maxBloodPoints, BloodType bloodType)
     {
-        ((Int2ObjectOpenHashMap<ClientCache.EntityBlood>)this.cache.computeIfAbsent(ENTITY_BLOOD_VALUES, k -> new Int2ObjectOpenHashMap<ClientCache.EntityBlood>())).put(entityId, new ClientCache.EntityBlood(bloodPoints, maxBloodPoints, bloodType));
+        ((Int2ObjectOpenHashMap<ClientCache.EntityBlood>) this.cache.computeIfAbsent(ENTITY_BLOOD_VALUES, k -> new Int2ObjectOpenHashMap<ClientCache.EntityBlood>())).put(entityId, new ClientCache.EntityBlood(bloodPoints, maxBloodPoints, bloodType));
     }
 
     @SuppressWarnings("unchecked")
@@ -72,7 +72,7 @@ public class ModVampirePlayerVarsCache
     {
         if (this.cache.containsKey(ENTITY_BLOOD_VALUES))
         {
-            return ((Int2ObjectOpenHashMap<ClientCache.EntityBlood>)this.cache.get(ENTITY_BLOOD_VALUES)).getOrDefault(entityId, null);
+            return ((Int2ObjectOpenHashMap<ClientCache.EntityBlood>) this.cache.get(ENTITY_BLOOD_VALUES)).getOrDefault(entityId, null);
         }
 
         return null;
@@ -87,7 +87,7 @@ public class ModVampirePlayerVarsCache
     {
         if (this.cache.containsKey(ENTITY_OUTLINE_COLORS))
         {
-            return !((Int2IntOpenHashMap)this.cache.get(ENTITY_OUTLINE_COLORS)).containsKey(entityId);
+            return !((Int2IntOpenHashMap) this.cache.get(ENTITY_OUTLINE_COLORS)).containsKey(entityId);
         }
         else
         {
@@ -97,14 +97,14 @@ public class ModVampirePlayerVarsCache
 
     public void setEntityOutlineColor(int entityId, int color)
     {
-        ((Int2IntOpenHashMap)this.cache.computeIfAbsent(ENTITY_OUTLINE_COLORS, k -> new Int2IntOpenHashMap())).put(entityId, color);
+        ((Int2IntOpenHashMap) this.cache.computeIfAbsent(ENTITY_OUTLINE_COLORS, k -> new Int2IntOpenHashMap())).put(entityId, color);
     }
 
     public int getEntityOutlineColor(int entityId)
     {
         if (this.cache.containsKey(ENTITY_OUTLINE_COLORS))
         {
-            return ((Int2IntOpenHashMap)this.cache.get(ENTITY_OUTLINE_COLORS)).getOrDefault(entityId, -1);
+            return ((Int2IntOpenHashMap) this.cache.get(ENTITY_OUTLINE_COLORS)).getOrDefault(entityId, -1);
         }
 
         return -1;

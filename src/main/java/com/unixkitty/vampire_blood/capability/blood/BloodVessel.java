@@ -240,7 +240,7 @@ public abstract class BloodVessel implements IBloodVessel
 
             if (target instanceof ReputationEventHandler)
             {
-                ((ServerLevel)player.level).onReputationEvent(ModRegistry.REPUTATION_CHARMED_BY_VAMPIRE_PLAYER, player, (ReputationEventHandler) target);
+                ((ServerLevel) player.level).onReputationEvent(ModRegistry.REPUTATION_CHARMED_BY_VAMPIRE_PLAYER, player, (ReputationEventHandler) target);
 
                 if (this.knownVampirePlayers != null)
                 {
