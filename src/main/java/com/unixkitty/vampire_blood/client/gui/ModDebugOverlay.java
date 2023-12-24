@@ -134,6 +134,7 @@ public class ModDebugOverlay
         if (ClientCache.canFeed())
         {
             craftLine(ChatFormatting.YELLOW, "ticksInSun: ", ClientCache.getDebugVars().ticksInSun);
+            craftLine(ChatFormatting.YELLOW, "isCatchingUV: ", ClientCache.getDebugVars().catchingUV);
             craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", FeedingMouseOverHandler.isLookingAtEdible());
             craftLine(ChatFormatting.DARK_GRAY, "feeding: ", ClientCache.getVampireVars().feeding);
 

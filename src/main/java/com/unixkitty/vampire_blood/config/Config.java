@@ -60,7 +60,7 @@ public class Config
 
             commonConfig.push("General");
             {
-                debug = commonConfig.comment("Enable debug features (lots of network traffic and additional HUDs)").define("debug", true);
+                debug = commonConfig.comment("Enable debug features (lots of network traffic and additional HUDs)").define("debug", false);
                 shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").comment("Requires world restart").worldRestart().define("shouldUndeadIgnoreVampires", true);
                 increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define("increasedDamageFromWood", true);
                 ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);

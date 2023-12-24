@@ -6,6 +6,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ModDebugVarsCache
 {
+    public boolean catchingUV = false;
     public int ticksInSun;
     public int thirstExhaustionIncrement;
     public int thirstTickTimer;

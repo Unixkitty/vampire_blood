@@ -62,8 +62,9 @@ public class ClientPacketHandler
         }
     }
 
-    public static void handleDebugData(int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
+    public static void handleDebugData(boolean catchingUV, int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
+        ClientCache.getDebugVars().catchingUV = catchingUV;
         ClientCache.getDebugVars().ticksInSun = ticksInSun;
         ClientCache.getDebugVars().noRegenTicks = noRegenTicks;
 

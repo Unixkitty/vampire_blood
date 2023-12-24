@@ -29,7 +29,7 @@ import java.util.Set;
 
 public class VampireUtil
 {
-    public static final double FEEDING_DISTANCE = 1.5D;
+    public static final double FEEDING_DISTANCE = 2.0D;
 
     public static <E extends Enum<E>> String getEnumName(@Nonnull E e)
     {

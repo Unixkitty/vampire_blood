@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.IndirectEntityDamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -135,7 +136,11 @@ public class VampirePlayerEvents
                         event.setAmount(0);
                         player.setHealth(1F);
 
-                        vampirePlayerData.decreaseBlood(player, 2, false);
+                        vampirePlayerData.decreaseBlood(2, false);
+
+                        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0, false, false, true));
+                        player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 100, 0, false, false, true));
+                        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0, false, false, true));
                     }
                 }
             });

@@ -281,7 +281,7 @@ public class VampirePlayerData extends BloodVessel
         blood.addBlood(player, points, bloodType);
     }
 
-    public void decreaseBlood(ServerPlayer player, int points, boolean natural)
+    public void decreaseBlood(int points, boolean natural)
     {
         blood.decreaseBlood(points, natural);
     }
@@ -663,6 +663,7 @@ public class VampirePlayerData extends BloodVessel
         if (Config.debug.get())
         {
             ModNetworkDispatcher.sendToClient(new DebugDataSyncS2CPacket(
+                    this.catchingUV,
                     this.ticksInSun,
                     blood.noRegenTicks,
                     blood.thirstExhaustionIncrement,
