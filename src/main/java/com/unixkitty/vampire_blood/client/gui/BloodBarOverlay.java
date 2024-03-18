@@ -81,7 +81,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                         //Alternate dancing-like animation
                         if (Config.alternateBloodbarFeedingAnimation.get())
                         {
-                            offsetY -= ((gui.getGuiTicks() - i) % 10.0) / 5.0;
+                            offsetY -= (int) (((gui.getGuiTicks() - i) % 10.0) / 5.0);
                         }
                         else if (((gui.getGuiTicks() + (9 - i)) % 10) == 0)
                         {
@@ -141,7 +141,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
 
                 if (Config.detailedEntityBloodHUD.get())
                 {
-                    renderStartY -= gui.getFont().lineHeight * 1.5;
+                    renderStartY -= (int) (gui.getFont().lineHeight * 1.5);
                     int lineNum = 0;
 
                     drawLine(FeedingMouseOverHandler.bloodType.getTranslation(), poseStack, gui, renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
