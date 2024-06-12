@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "vampire_blood:custom/tail_sitting"
+    "layer0": "vampire_blood:item/tail_sitting"
   }
 }
