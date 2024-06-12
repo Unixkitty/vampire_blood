@@ -269,6 +269,8 @@ public class BloodConfigManager
         list.add(new BloodEntityConfig("minecraft:zombie_horse", "frail", 5, false));
         list.add(new BloodEntityConfig("minecraft:zombie_villager", "frail", 7, false));
         list.add(new BloodEntityConfig("minecraft:zombified_piglin", "frail", 7, false));
+        list.add(new BloodEntityConfig("minecraft:camel", "creature", 60, true));
+        list.add(new BloodEntityConfig("minecraft:sniffer", "creature", 50, true));
 
         return new BloodEntityListHolder(list);
     }
