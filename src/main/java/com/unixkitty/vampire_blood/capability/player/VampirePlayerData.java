@@ -64,8 +64,6 @@ public class VampirePlayerData extends BloodVessel
 
             blood.tick(player);
 
-            handleAbilities(player);
-
             syncDebugData(player);
         }
 
@@ -112,14 +110,16 @@ public class VampirePlayerData extends BloodVessel
 
                 blood.updateWithAttributes(player, true);
             }
-            else
+            else if (!this.catchingUV && (blood.thirstLevel >= Config.abilityHungerThreshold.get() || (ability == VampireActiveAbility.BLOOD_VISION || ability == VampireActiveAbility.NIGHT_VISION)))
             {
-                if (!this.catchingUV && (ability == VampireActiveAbility.BLOOD_VISION || ability == VampireActiveAbility.NIGHT_VISION) || blood.thirstLevel > Config.abilityHungerThreshold.get())
+                if (ability == VampireActiveAbility.SPEED && isWearingHeavyArmour(player))
                 {
-                    blood.activeAbilities.add(ability);
-
-                    blood.updateWithAttributes(player, true);
+                    return;
                 }
+
+                blood.activeAbilities.add(ability);
+
+                blood.updateWithAttributes(player, true);
             }
         }
     }
@@ -291,6 +291,25 @@ public class VampirePlayerData extends BloodVessel
         blood.sync();
     }
 
+    public boolean isZooming()
+    {
+        return blood.activeAbilities.contains(VampireActiveAbility.SPEED);
+    }
+
+    //Checks whether the player is wearing any armour that has actual defense stat to at least allow "clothing"
+    private boolean isWearingHeavyArmour(ServerPlayer player)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (VampireUtil.isArmour(player.getInventory().getArmor(i)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void updateBloodForFeeding(ServerPlayer player, BloodType bloodType)
     {
         if (blood.vampireLevel == VampirismLevel.NOT_VAMPIRE)
@@ -302,25 +321,6 @@ public class VampirePlayerData extends BloodVessel
         {
             this.maxBloodPoints = VampirePlayerBloodData.MAX_THIRST;
             this.bloodPoints = blood.thirstLevel;
-        }
-    }
-
-    private void handleAbilities(ServerPlayer player)
-    {
-        boolean veryHungry = blood.thirstLevel <= Config.abilityHungerThreshold.get();
-
-        //Turn off abilities when exposed to sunlight or at low hunger
-        if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && player.tickCount % 20 == 0 && !blood.activeAbilities.isEmpty() && (this.catchingUV || veryHungry))
-        {
-            for (VampireActiveAbility ability : blood.activeAbilities)
-            {
-                if (veryHungry && (ability == VampireActiveAbility.BLOOD_VISION || ability == VampireActiveAbility.NIGHT_VISION))
-                {
-                    continue;
-                }
-
-                toggleAbility(player, ability);
-            }
         }
     }
 
@@ -363,6 +363,12 @@ public class VampirePlayerData extends BloodVessel
                 {
                     if (blood.vampireLevel != VampirismLevel.IN_TRANSITION)
                     {
+                        //Stop active abilities
+                        for (VampireActiveAbility ability : blood.activeAbilities)
+                        {
+                            toggleAbility(player, ability);
+                        }
+
                         player.hurt(ModDamageTypes.source(ModDamageTypes.SUN_DAMAGE, player.level()), ((player.getMaxHealth() / 3) / 1.5f) / (player.level().isRaining() ? 2 : 1));
                         player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
 

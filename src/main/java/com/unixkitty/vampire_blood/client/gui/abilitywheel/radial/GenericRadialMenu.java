@@ -2,7 +2,10 @@ package com.unixkitty.vampire_blood.client.gui.abilitywheel.radial;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.unixkitty.vampire_blood.client.gui.abilitywheel.AbilityRadialMenuItem;
 import com.unixkitty.vampire_blood.config.Config;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

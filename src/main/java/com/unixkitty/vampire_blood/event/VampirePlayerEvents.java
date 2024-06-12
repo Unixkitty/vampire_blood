@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
@@ -15,6 +16,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -33,6 +35,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
+@SuppressWarnings("unused")
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class VampirePlayerEvents
 {
@@ -72,6 +75,30 @@ public class VampirePlayerEvents
                     event.getEffectInstance().duration = event.getEffectInstance().getDuration() / 2;
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerEquipmentChange(final LivingEquipmentChangeEvent event)
+    {
+        final ItemStack itemStack = event.getTo();
+
+        if (event.getEntity() instanceof ServerPlayer player && !itemStack.isEmpty())
+        {
+            player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
+            {
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId() && vampirePlayerData.isZooming())
+                {
+                    if ((event.getSlot() == EquipmentSlot.HEAD
+                            || event.getSlot() == EquipmentSlot.CHEST
+                            || event.getSlot() == EquipmentSlot.LEGS
+                            || event.getSlot() == EquipmentSlot.FEET)
+                            && VampireUtil.isArmour(itemStack))
+                    {
+                        vampirePlayerData.toggleAbility(player, VampireActiveAbility.SPEED);
+                    }
+                }
+            });
         }
     }
 

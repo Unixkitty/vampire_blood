@@ -290,11 +290,11 @@ public class VampireCommand
                             vampirePlayerData.setBloodType(player, type, true);
 
                             context.getSource().sendSuccess(() ->
-                                    Component.translatable(
-                                            "commands.vampire_blood.blood_change",
-                                            Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),
-                                            player.getDisplayName()
-                                    ),
+                                            Component.translatable(
+                                                    "commands.vampire_blood.blood_change",
+                                                    Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),
+                                                    player.getDisplayName()
+                                            ),
                                     true
                             );
                         }
@@ -311,11 +311,11 @@ public class VampireCommand
                         }
 
                         context.getSource().sendSuccess(() ->
-                                Component.translatable(
-                                        "commands.vampire_blood.level_change",
-                                        Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),
-                                        player.getDisplayName()
-                                ),
+                                        Component.translatable(
+                                                "commands.vampire_blood.level_change",
+                                                Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),
+                                                player.getDisplayName()
+                                        ),
                                 true
                         );
                     }

@@ -21,6 +21,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
@@ -210,5 +212,10 @@ public class VampireUtil
     public static boolean isEntityCharmedBy(LivingEntity entity, ServerPlayer player)
     {
         return entity.getCapability(BloodProvider.BLOOD_STORAGE).map(bloodEntityStorage -> bloodEntityStorage.isCharmedBy(player)).orElse(false);
+    }
+
+    public static boolean isArmour(final ItemStack itemStack)
+    {
+        return itemStack.getItem() instanceof ArmorItem armorItem && armorItem.getDefense() > 0;
     }
 }
