@@ -36,7 +36,7 @@ public class BloodEntityStorage extends BloodVessel
     {
         if (this.bloodType == BloodType.NONE) return;
 
-        entity.level.getProfiler().push("entity_blood_tick");
+        entity.level().getProfiler().push("entity_blood_tick");
 
         if (Config.healthOrBloodPoints.get() && entity.getMobType() != MobType.UNDEAD)
         {
@@ -60,7 +60,7 @@ public class BloodEntityStorage extends BloodVessel
 
         handleBeingCharmedTicks(entity);
 
-        entity.level.getProfiler().pop();
+        entity.level().getProfiler().pop();
     }
 
     public void updateBlood(LivingEntity entity)

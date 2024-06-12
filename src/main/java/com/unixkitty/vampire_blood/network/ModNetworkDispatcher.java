@@ -100,6 +100,6 @@ public class ModNetworkDispatcher
 
     public static void sendBloodParticles(ServerPlayer player, Vec3 position)
     {
-        INSTANCE.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(player, position.x, position.y, position.z, 16.0D, player.level.dimension())), new BloodParticlesS2CPacket(position));
+        INSTANCE.send(PacketDistributor.NEAR.with(() -> new PacketDistributor.TargetPoint(player, position.x, position.y, position.z, 16.0D, player.level().dimension())), new BloodParticlesS2CPacket(position));
     }
 }

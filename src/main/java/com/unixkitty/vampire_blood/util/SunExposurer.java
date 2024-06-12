@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.util;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -27,9 +28,9 @@ public final class SunExposurer
 
     public static boolean isCatchingUV(Player player)
     {
-        if (player.level.skyDarken >= 4) return false;
+        if (player.level().skyDarken >= 4) return false;
 
-        final BlockPos playerEyePos = new BlockPos(player.getX(), player.getEyeY(), player.getZ());
+        final BlockPos playerEyePos = new BlockPos(Mth.floor(player.getX()), Mth.floor(player.getEyeY()), Mth.floor(player.getZ()));
 
         //If fully submerged, including eyes, check if deep enough (4 blocks) or if the block above the liquid can't see the sky
         if (player.isUnderWater())
@@ -41,7 +42,7 @@ public final class SunExposurer
             {
                 abovePos = playerEyePos.above(i);
 
-                if (!player.level.getBlockState(abovePos).getMaterial().isLiquid())
+                if (!player.level().getBlockState(abovePos).liquid())
                 {
                     blockPosAboveLiquid = abovePos;
                     break;
@@ -49,11 +50,11 @@ public final class SunExposurer
             }
 
             //If shallow enough liquid and found nonwater above, can it see sky
-            return blockPosAboveLiquid != null && player.level.canSeeSky(blockPosAboveLiquid);
+            return blockPosAboveLiquid != null && player.level().canSeeSky(blockPosAboveLiquid);
         }
         else //If Player not in water and can see sky
         {
-            return player.level.canSeeSky(playerEyePos);
+            return player.level().canSeeSky(playerEyePos);
         }
     }
 }

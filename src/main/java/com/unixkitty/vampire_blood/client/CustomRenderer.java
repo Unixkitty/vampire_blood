@@ -1,7 +1,7 @@
 package com.unixkitty.vampire_blood.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
@@ -91,7 +91,8 @@ public class CustomRenderer
 
                         ((HumanoidModel<LivingEntity>) model).head.translateAndRotate(poseStack);
 
-                        poseStack.mulPose(Vector3f.XN.rotationDegrees(5F));
+                        poseStack.mulPose(Axis.XN.rotationDegrees(5F));
+
                         poseStack.translate(-0.25F, 0.05F, -0.25F);
                         poseStack.scale(0.5F, -0.5F, 0.5F);
 
@@ -109,8 +110,8 @@ public class CustomRenderer
                         {
                             renderable = tailSpeedRenderable;
 
-                            poseStack.mulPose(Vector3f.YP.rotationDegrees(-90F));
-                            poseStack.mulPose(Vector3f.XP.rotationDegrees(180F));
+                            poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
+                            poseStack.mulPose(Axis.XP.rotationDegrees(180F));
                             poseStack.translate(0.05F, -2.45F, -0.75F);
                             poseStack.scale(2.0F, 2.0F, 1.5F);
                         }
@@ -118,7 +119,7 @@ public class CustomRenderer
                         {
                             renderable = tailSittingRenderable;
 
-                            poseStack.mulPose(Vector3f.XP.rotationDegrees(90F));
+                            poseStack.mulPose(Axis.XP.rotationDegrees(90F));
                             poseStack.translate(-0.125F, -1.625F, -1.45F);
                             poseStack.scale(2.0F, 2.0F, 1.5F);
                         }
@@ -126,7 +127,7 @@ public class CustomRenderer
                         {
                             renderable = tailSittingRenderable;
 
-                            poseStack.mulPose(Vector3f.XP.rotationDegrees(180F));
+                            poseStack.mulPose(Axis.XP.rotationDegrees(180F));
                             poseStack.translate(-0.05F, -2.45F, -0.85F);
                             poseStack.scale(2.0F, 2.0F, 1.5F);
                         }
@@ -134,8 +135,8 @@ public class CustomRenderer
                         {
                             renderable = tailMainRenderable;
 
-                            poseStack.mulPose(Vector3f.YP.rotationDegrees(-90F));
-                            poseStack.mulPose(Vector3f.XP.rotationDegrees(180F));
+                            poseStack.mulPose(Axis.YP.rotationDegrees(-90F));
+                            poseStack.mulPose(Axis.XP.rotationDegrees(180F));
                             poseStack.translate(0.05F, -1.5F, -0.75F);
                             poseStack.scale(1.0F, 1.0F, 1.5F);
                         }

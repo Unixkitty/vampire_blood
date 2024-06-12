@@ -10,7 +10,7 @@ import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL11;
 import static com.unixkitty.vampire_blood.client.ClientEvents.MARGIN_PX;
 
 @OnlyIn(Dist.CLIENT)
-public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
+public class BloodBarOverlay implements IGuiOverlay
 {
     public static final BloodBarOverlay INSTANCE = new BloodBarOverlay();
 
@@ -37,7 +37,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
     }
 
     @Override
-    public void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
+    public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight)
     {
         if (minecraft.player != null && minecraft.player.isAlive() && !minecraft.options.hideGui && gui.shouldDrawSurvivalElements())
         {
@@ -45,8 +45,6 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
             if (ClientCache.isVampire() && !(minecraft.player.getVehicle() instanceof LivingEntity))
             {
                 minecraft.getProfiler().push("blood_bar_overlay");
-
-                RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
 
                 int startX = minecraft.getWindow().getGuiScaledWidth() / 2 + 91;
                 int startY = minecraft.getWindow().getGuiScaledHeight() - gui.rightHeight;
@@ -61,7 +59,7 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
                     //Exhaustion underlay
-                    blit(poseStack, startX - width, startY, 126 - width, 0, width, 9);
+                    guiGraphics.blit(ClientEvents.ICONS_PNG, startX - width, startY, 126 - width, 0, width, 9);
 
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.disableBlend();
@@ -97,38 +95,36 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     }
 
                     //Background
-                    blit(poseStack, x, startY + backgroundOffsetY, 0, 0, 9, 9);
+                    guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + backgroundOffsetY, 0, 0, 9, 9);
 
                     //Power of Canada
                     if (idx2 < ClientCache.getVampireVars().thirstLevel)
                     {
-                        blit(poseStack, x, startY + offsetY, 36, 0, 9, 9); //Double full
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 36, 0, 9, 9); //Double full
                     }
                     else if (idx2 == ClientCache.getVampireVars().thirstLevel)
                     {
-                        blit(poseStack, x, startY + offsetY, 27, 0, 9, 9); //Double half full
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 27, 0, 9, 9); //Double half full
                     }
                     else if (idx < ClientCache.getVampireVars().thirstLevel)
                     {
-                        blit(poseStack, x, startY + offsetY, 18, 0, 9, 9); //Full
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 18, 0, 9, 9); //Full
                     }
                     else if (idx == ClientCache.getVampireVars().thirstLevel)
                     {
-                        blit(poseStack, x, startY + offsetY, 9, 0, 9, 9); //Half
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 9, 0, 9, 9); //Half
                     }
                 }
-
-                RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
 
                 minecraft.getProfiler().pop();
             }
 
             //Entity blood HUD
-            renderEntityBlood(minecraft, gui, poseStack, screenWidth, screenHeight);
+            renderEntityBlood(minecraft, gui, guiGraphics, screenWidth, screenHeight);
         }
     }
 
-    private void renderEntityBlood(Minecraft minecraft, ForgeGui gui, PoseStack poseStack, int screenWidth, int screenHeight)
+    private void renderEntityBlood(Minecraft minecraft, ForgeGui gui, GuiGraphics guiGraphics, int screenWidth, int screenHeight)
     {
         if (ClientCache.canFeed())
         {
@@ -139,22 +135,24 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                 int renderStartX = (screenWidth / 2) + (MARGIN_PX * 3);
                 int renderStartY = screenHeight / 2;
 
+                PoseStack poseStack = guiGraphics.pose();
+
                 if (Config.detailedEntityBloodHUD.get())
                 {
                     renderStartY -= (int) (gui.getFont().lineHeight * 1.5);
                     int lineNum = 0;
 
-                    drawLine(FeedingMouseOverHandler.bloodType.getTranslation(), poseStack, gui, renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
-                    drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_RED);
+                    drawLine(FeedingMouseOverHandler.bloodType.getTranslation(), gui, guiGraphics, renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
+                    drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_RED);
 
                     if (Config.entityBloodHUDshowHP.get())
                     {
-                        drawLine(Component.translatable("text.vampire_blood.health", VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getHealth()), VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getMaxHealth())), poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.RED);
+                        drawLine(Component.translatable("text.vampire_blood.health", VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getHealth()), VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getMaxHealth())), gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.RED);
                     }
 
                     if (FeedingMouseOverHandler.charmedSeconds != -2)
                     {
-                        drawLine(Component.translatable("text.vampire_blood.charmed_for", FeedingMouseOverHandler.charmedSeconds), poseStack, gui, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_PURPLE);
+                        drawLine(Component.translatable("text.vampire_blood.charmed_for", FeedingMouseOverHandler.charmedSeconds), gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_PURPLE);
                     }
                 }
                 else
@@ -164,11 +162,9 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
                     poseStack.pushPose();
 
                     RenderSystem.enableBlend();
-                    RenderSystem.setShaderTexture(0, ClientEvents.ICONS_PNG);
 
-                    gui.blit(poseStack, renderStartX, renderStartY, getIconIndex(), FeedingMouseOverHandler.bloodType.getId() * 9, 9, 9);
+                    guiGraphics.blit(ClientEvents.ICONS_PNG, renderStartX, renderStartY, getIconIndex(), FeedingMouseOverHandler.bloodType.getId() * 9, 9, 9);
 
-                    RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
                     RenderSystem.disableBlend();
 
                     poseStack.popPose();
@@ -199,14 +195,14 @@ public class BloodBarOverlay extends GuiComponent implements IGuiOverlay
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private void drawLine(String text, PoseStack poseStack, ForgeGui gui, int renderStartX, int renderStartY, ChatFormatting format)
+    private void drawLine(String text, ForgeGui gui, GuiGraphics guiGraphics, int renderStartX, int renderStartY, ChatFormatting format)
     {
-        gui.getFont().drawShadow(poseStack, text, renderStartX, renderStartY, format.getColor(), false);
+        guiGraphics.drawString(gui.getFont(), text, renderStartX, renderStartY, format.getColor(), true);
     }
 
     @SuppressWarnings("DataFlowIssue")
-    private void drawLine(Component text, PoseStack poseStack, ForgeGui gui, int renderStartX, int renderStartY, ChatFormatting format)
+    private void drawLine(Component text, ForgeGui gui, GuiGraphics guiGraphics, int renderStartX, int renderStartY, ChatFormatting format)
     {
-        gui.getFont().drawShadow(poseStack, text, renderStartX, renderStartY, format.getColor());
+        guiGraphics.drawString(gui.getFont(), text, renderStartX, renderStartY, format.getColor(), true);
     }
 }

@@ -3,10 +3,12 @@ package com.unixkitty.vampire_blood.client.gui.abilitywheel.radial;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.unixkitty.vampire_blood.client.gui.abilitywheel.AbilityRadialMenuItem;
 import com.unixkitty.vampire_blood.config.Config;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -105,7 +107,7 @@ public class GenericRadialMenu
         this.open = false;
     }
 
-    public void draw(PoseStack matrixStack, int mouseX, int mouseY)
+    public void draw(GuiGraphics graphics, int mouseX, int mouseY)
     {
         if (isClosed())
         {
@@ -127,18 +129,19 @@ public class GenericRadialMenu
         int x = owner.width / 2;
         int y = owner.height / 2;
 
-        matrixStack.pushPose();
-        matrixStack.translate(0, 0, 0);
+        var poseStack = graphics.pose();
+        poseStack.pushPose();
+        poseStack.translate(0, 0, 0);
 
         drawBackground(x, y, this.radiusIn, this.radiusOut);
 
-        matrixStack.popPose();
+        poseStack.popPose();
 
         if (isReady())
         {
-            matrixStack.pushPose();
-            drawItems(matrixStack, x, y, owner.width, owner.height, fontRenderer);
-            matrixStack.popPose();
+            poseStack.pushPose();
+            drawItems(graphics, x, y, owner.width, owner.height, fontRenderer);
+            poseStack.popPose();
 
             Component currentCentralText = null;
 
@@ -158,20 +161,20 @@ public class GenericRadialMenu
                 float textX = (owner.width - fontRenderer.width(text)) / 2.0f;
                 float textY = (owner.height - fontRenderer.lineHeight) / 2.0f;
 
-                fontRenderer.drawShadow(matrixStack, text, textX, textY, 0xFFFFFFFF);
+                graphics.drawString(fontRenderer, text, textX, textY, 0xFFFFFFFF, true);
             }
         }
     }
 
-    private void drawItems(PoseStack matrixStack, int x, int y, int width, int height, Font font)
+    private void drawItems(GuiGraphics graphics, int x, int y, int width, int height, Font font)
     {
-        iterateVisible((item, s, e) -> {
+        iterateVisible((item, s, e) ->
+        {
             float middle = (s + e) * 0.5f;
-            float posX = x + this.itemRadius * (float) Math.cos(middle);
-            float posY = y + this.itemRadius * (float) Math.sin(middle);
+            float posX = x + itemRadius * (float) Math.cos(middle);
+            float posY = y + itemRadius * (float) Math.sin(middle);
 
-            DrawingContext context = new DrawingContext(matrixStack, width, height, posX, posY, 0, font);
-
+            DrawingContext context = new DrawingContext(graphics, width, height, posX, posY, font);
             item.draw(context);
         });
     }
@@ -193,21 +196,18 @@ public class GenericRadialMenu
     private void drawBackground(float x, float y, float radiusIn, float radiusOut)
     {
         RenderSystem.enableBlend();
-        RenderSystem.disableTexture();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         Tesselator tessellator = Tesselator.getInstance();
         BufferBuilder buffer = tessellator.getBuilder();
-
         buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         iterateVisible((item, s, e) -> {
             int color = item.isHovered() ? 0x3FFFFFFF : 0x3F000000;
             drawPieArc(buffer, x, y, radiusIn, radiusOut, s, e, color);
         });
         tessellator.end();
-        RenderSystem.enableTexture();
         RenderSystem.disableBlend();
     }
 
@@ -329,8 +329,7 @@ public class GenericRadialMenu
         return ((i / numItems) + 0.25) * TWO_PI + Math.PI;
     }
 
-    public record DrawingContext(PoseStack matrixStack, int width, int height, float x, float y, float z,
-                                 Font fontRenderer)
+    public record DrawingContext(GuiGraphics graphics, int width, int height, float x, float y, Font font)
     {
     }
 }

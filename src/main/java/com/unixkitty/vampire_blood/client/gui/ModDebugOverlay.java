@@ -15,12 +15,12 @@ import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -52,18 +52,19 @@ public class ModDebugOverlay
             final int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
             final int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
 
-            PoseStack poseStack = event.getPoseStack();
+            GuiGraphics guiGraphics = event.getGuiGraphics();
+            PoseStack poseStack = guiGraphics.pose();
 
             poseStack.pushPose();
 
             if (mainEnabled)
             {
-                renderDebugText(poseStack, Minecraft.getInstance().font, screenWidth, screenHeight, player);
+                renderDebugText(guiGraphics, poseStack, Minecraft.getInstance().font, screenWidth, screenHeight, player);
             }
 
             if (secondaryElement != SecondaryElement.OFF)
             {
-                renderSecondary(poseStack, Minecraft.getInstance().font, screenWidth, screenHeight);
+                renderSecondary(guiGraphics, poseStack, Minecraft.getInstance().font, screenWidth, screenHeight);
             }
 
             poseStack.popPose();
@@ -72,7 +73,7 @@ public class ModDebugOverlay
         }
     }
 
-    private static void renderSecondary(PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight)
+    private static void renderSecondary(GuiGraphics guiGraphics, PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight)
     {
         drawList.clear();
         crafter.clear();
@@ -104,10 +105,10 @@ public class ModDebugOverlay
             }
         }
 
-        drawList(poseStack, fontRenderer, screenWidth, screenHeight, false);
+        drawList(guiGraphics, poseStack, fontRenderer, screenWidth, screenHeight, false);
     }
 
-    private static void renderDebugText(PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight, Player player)
+    private static void renderDebugText(GuiGraphics guiGraphics, PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight, Player player)
     {
         drawList.clear();
         crafter.clear();
@@ -141,11 +142,11 @@ public class ModDebugOverlay
             addAttributes(player);
         }
 
-        drawList(poseStack, fontRenderer, screenWidth, screenHeight, true);
+        drawList(guiGraphics, poseStack, fontRenderer, screenWidth, screenHeight, true);
     }
 
     @SuppressWarnings("unused")
-    private static void drawList(PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight, boolean leftOrRight)
+    private static void drawList(GuiGraphics guiGraphics, PoseStack poseStack, Font fontRenderer, int screenWidth, int screenHeight, boolean leftOrRight)
     {
         final int drawWidth = fontRenderer.width(crafter.getLongestLine() + 1) + (ClientEvents.MARGIN_PX * 4);
         final int drawHeight = (fontRenderer.lineHeight * drawList.size()) + (ClientEvents.MARGIN_PX * 3);
@@ -168,7 +169,7 @@ public class ModDebugOverlay
         final int boxEndX = boxStartX + drawWidth - ClientEvents.MARGIN_PX;
         final int boxEndY = boxStartY + drawHeight - ClientEvents.MARGIN_PX;
 
-        ForgeGui.fill(poseStack, boxStartX, boxStartY, boxEndX, boxEndY, Minecraft.getInstance().options.getBackgroundColor(0.4F));
+        guiGraphics.fill(boxStartX, boxStartY, boxEndX, boxEndY, Minecraft.getInstance().options.getBackgroundColor(0.4F));
 
         //TEXT LINES
         final int textStartX = boxStartX + ClientEvents.MARGIN_PX;
@@ -178,7 +179,7 @@ public class ModDebugOverlay
         {
             var line = drawList.get(i);
 
-            drawLine(line.getLeft(), poseStack, fontRenderer, textStartX, textStartY + (fontRenderer.lineHeight * i), line.getRight());
+            drawLine(line.getLeft(), fontRenderer, guiGraphics, textStartX, textStartY + (fontRenderer.lineHeight * i), line.getRight());
         }
     }
 
@@ -206,9 +207,9 @@ public class ModDebugOverlay
         }
     }
 
-    private static void drawLine(String text, PoseStack poseStack, Font fontRenderer, int renderStartX, int renderStartY, int color)
+    private static void drawLine(String text, Font font, GuiGraphics guiGraphics, int renderStartX, int renderStartY, int color)
     {
-        fontRenderer.drawShadow(poseStack, text, renderStartX, renderStartY, color, false);
+        guiGraphics.drawString(font, text, renderStartX, renderStartY, color, true);
     }
 
     public enum SecondaryElement

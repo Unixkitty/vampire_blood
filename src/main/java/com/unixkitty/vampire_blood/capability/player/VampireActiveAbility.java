@@ -27,7 +27,7 @@ public enum VampireActiveAbility
 
     public void refresh(Player player)
     {
-        if (player.level.isClientSide())
+        if (player.level().isClientSide())
         {
             switch (this)
             {
@@ -51,7 +51,7 @@ public enum VampireActiveAbility
 
     public void stop(Player player)
     {
-        if (player.level.isClientSide())
+        if (player.level().isClientSide())
         {
             if (player.getEffect(this.effect) instanceof FakeEffectInstance)
             {

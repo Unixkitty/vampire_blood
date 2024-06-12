@@ -44,7 +44,7 @@ public class RequestEntityBloodC2SPacket extends BasePacket
 
             if (player != null)
             {
-                if (player.level.getEntity(this.id) instanceof LivingEntity livingEntity)
+                if (player.level().getEntity(this.id) instanceof LivingEntity livingEntity)
                 {
                     if (livingEntity instanceof Player)
                     {

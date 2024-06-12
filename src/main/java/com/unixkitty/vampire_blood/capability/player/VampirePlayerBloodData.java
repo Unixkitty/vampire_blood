@@ -9,7 +9,6 @@ import com.unixkitty.vampire_blood.util.VampireUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.damagesource.DamageSource;
 
 public class VampirePlayerBloodData
 {
@@ -37,9 +36,9 @@ public class VampirePlayerBloodData
 
     void tick(ServerPlayer player)
     {
-        player.level.getProfiler().push("vampire_blood_tick");
+        player.level().getProfiler().push("vampire_blood_tick");
 
-        boolean isPeaceful = player.level.getDifficulty() == Difficulty.PEACEFUL;
+        boolean isPeaceful = player.level().getDifficulty() == Difficulty.PEACEFUL;
 
         float vanillaExhaustionDelta = player.getFoodData().getExhaustionLevel() * Config.bloodUsageRate.get();
 
@@ -79,7 +78,7 @@ public class VampirePlayerBloodData
 
         this.syncData(player);
 
-        player.level.getProfiler().pop();
+        player.level().getProfiler().pop();
     }
 
     void sync()
@@ -232,9 +231,9 @@ public class VampirePlayerBloodData
 
             if (this.thirstTickTimer >= 80)
             {
-                if (player.getHealth() > 10.0F || player.level.getDifficulty() == Difficulty.HARD || player.getHealth() > 1.0F && player.level.getDifficulty() == Difficulty.NORMAL)
+                if (player.getHealth() > 10.0F || player.level().getDifficulty() == Difficulty.HARD || player.getHealth() > 1.0F && player.level().getDifficulty() == Difficulty.NORMAL)
                 {
-                    player.hurt(DamageSource.STARVE, 1.0F);
+                    player.hurt(player.damageSources().starve(), 1.0F);
                 }
 
                 this.thirstTickTimer = 0;
@@ -256,11 +255,11 @@ public class VampirePlayerBloodData
 
     private void exhaustionIncrementFromVanilla(float vanillaExhaustionDelta)
     {
-        this.thirstExhaustionIncrement += (vanillaExhaustionDelta < 1.0F ? 1 : vanillaExhaustionDelta) * this.vampireLevel.getBloodUsageMultiplier();
+        this.thirstExhaustionIncrement += (int) ((vanillaExhaustionDelta < 1.0F ? 1 : vanillaExhaustionDelta) * this.vampireLevel.getBloodUsageMultiplier());
     }
 
     private void exhaustionIncrement(BloodUsageRates rate)
     {
-        this.thirstExhaustionIncrement += rate.get() * this.vampireLevel.getBloodUsageMultiplier();
+        this.thirstExhaustionIncrement += (int) (rate.get() * this.vampireLevel.getBloodUsageMultiplier());
     }
 }

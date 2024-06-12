@@ -10,8 +10,8 @@ import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.IndirectEntityDamageSource;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -55,7 +55,7 @@ public class VampirePlayerEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             var effect = event.getEffectInstance().getEffect();
 
@@ -78,7 +78,7 @@ public class VampirePlayerEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onPlayerCloned(final PlayerEvent.Clone event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             event.getOriginal().reviveCaps();
 
@@ -91,15 +91,15 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingDeath(final LivingDeathEvent event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof Player player)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof Player player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                 {
-                    if (Config.vampireDustDropAmount.get() > 0 && event.getSource() != DamageSource.LAVA)
+                    if (Config.vampireDustDropAmount.get() > 0 && !event.getSource().is(DamageTypes.LAVA))
                     {
-                        player.level.addFreshEntity(new ItemEntity(player.level, player.getX(), player.getY(), player.getZ(), new ItemStack(ModItems.VAMPIRE_DUST.get(), player.level.random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
+                        player.level().addFreshEntity(new ItemEntity(player.level(), player.getX(), player.getY(), player.getZ(), new ItemStack(ModItems.VAMPIRE_DUST.get(), player.level().random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
                     }
                 }
             });
@@ -124,7 +124,7 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingDamaged(final LivingDamageEvent event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
@@ -150,19 +150,19 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingHurt(final LivingHurtEvent event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId())
                 {
-                    if (event.getSource().getEntity() instanceof LivingEntity attacker && !(event.getSource() instanceof IndirectEntityDamageSource) && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
+                    if (event.getSource().getEntity() instanceof LivingEntity attacker && !event.getSource().isIndirect() && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
                     {
                         event.setAmount(event.getAmount() * 1.25F);
 
                         vampirePlayerData.addPreventRegenTicks(player, 60);
                     }
-                    else if (event.getSource().isFire())
+                    else if (event.getSource().is(DamageTypeTags.IS_FIRE))
                     {
                         if (vampirePlayerData.getVampireLevel() == VampirismLevel.ORIGINAL)
                         {
@@ -188,7 +188,7 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onLivingAttack(final LivingAttackEvent event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof ServerPlayer player)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof ServerPlayer player)
         {
             boolean charmedByPlayer;
 

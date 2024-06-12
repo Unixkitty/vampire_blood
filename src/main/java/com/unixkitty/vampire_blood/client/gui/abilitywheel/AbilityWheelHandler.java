@@ -1,18 +1,15 @@
 package com.unixkitty.vampire_blood.client.gui.abilitywheel;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.client.KeyAction;
 import com.unixkitty.vampire_blood.client.KeyBindings;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
-import com.unixkitty.vampire_blood.client.gui.abilitywheel.radial.AbilityRadialMenuItem;
 import com.unixkitty.vampire_blood.client.gui.abilitywheel.radial.GenericRadialMenu;
 import com.unixkitty.vampire_blood.client.gui.abilitywheel.radial.IRadialMenuHost;
 import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.InputEvent;
@@ -94,10 +91,7 @@ public class AbilityWheelHandler
                         @Override
                         public void draw(@Nonnull GenericRadialMenu.DrawingContext context)
                         {
-                            context.matrixStack().pushPose();
-                            RenderSystem.setShaderTexture(0, keyAction.texture);
-                            GuiComponent.blit(context.matrixStack(), (int) (context.x() - 9), (int) (context.y() - 9), AbilityWheelScreen.this.getBlitOffset(), 0, 0, 18, 18, 18, 18);
-                            context.matrixStack().popPose();
+                            context.graphics().blit(keyAction.texture, (int) (context.x() - 9), (int) (context.y() - 9), 0, 0, 18, 18, 18, 18);
                         }
                     });
                 }
@@ -140,15 +134,11 @@ public class AbilityWheelHandler
         }
 
         @Override
-        public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks)
+        public void render(@Nonnull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks)
         {
-            poseStack.pushPose();
+            super.render(guiGraphics, mouseX, mouseY, partialTicks);
 
-            super.render(poseStack, mouseX, mouseY, partialTicks);
-
-            poseStack.popPose();
-
-            this.menu.draw(poseStack, mouseX, mouseY);
+            this.menu.draw(guiGraphics, mouseX, mouseY);
         }
 
         @Override

@@ -6,7 +6,7 @@ import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
-import com.unixkitty.vampire_blood.init.ModDamageSources;
+import com.unixkitty.vampire_blood.init.ModDamageTypes;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
@@ -54,7 +54,7 @@ public class VampirePlayerData extends BloodVessel
 
     public void tick(ServerPlayer player)
     {
-        player.level.getProfiler().push("vampire_player_tick");
+        player.level().getProfiler().push("vampire_player_tick");
 
         if (blood.vampireLevel != VampirismLevel.NOT_VAMPIRE)
         {
@@ -76,7 +76,7 @@ public class VampirePlayerData extends BloodVessel
             updateBloodForFeeding(player, getBloodType());
         }
 
-        player.level.getProfiler().pop();
+        player.level().getProfiler().pop();
     }
 
     public void charmTarget(@Nonnull LivingEntity target, ServerPlayer player)
@@ -326,9 +326,9 @@ public class VampirePlayerData extends BloodVessel
 
     private void handleSunlight(ServerPlayer player)
     {
-        player.level.getProfiler().push("vampire_catching_sun_logic");
+        player.level().getProfiler().push("vampire_catching_sun_logic");
 
-        if (player.level.dimensionType().hasSkyLight() && Config.sunnyDimensions.get().contains(player.level.dimension().location().toString()))
+        if (player.level().dimensionType().hasSkyLight() && Config.sunnyDimensions.get().contains(player.level().dimension().location().toString()))
         {
             //Cache the check for performance
             if (this.catchingUVTicks <= 0)
@@ -349,8 +349,8 @@ public class VampirePlayerData extends BloodVessel
                 if (this.ticksInSun == Config.ticksToSunDamage.get() / 6)
                 {
                     //Do common effects
-                    SunExposurer.chanceEffect(player, MobEffects.WEAKNESS, 10, player.level.isRaining() ? 0 : 1, 100);
-                    SunExposurer.chanceEffect(player, MobEffects.DIG_SLOWDOWN, 10, player.level.isRaining() ? 0 : 1, 100);
+                    SunExposurer.chanceEffect(player, MobEffects.WEAKNESS, 10, player.level().isRaining() ? 0 : 1, 100);
+                    SunExposurer.chanceEffect(player, MobEffects.DIG_SLOWDOWN, 10, player.level().isRaining() ? 0 : 1, 100);
                 }
 
                 if (this.ticksInSun == Config.ticksToSunDamage.get() / 2)
@@ -363,7 +363,7 @@ public class VampirePlayerData extends BloodVessel
                 {
                     if (blood.vampireLevel != VampirismLevel.IN_TRANSITION)
                     {
-                        player.hurt(ModDamageSources.SUN_DAMAGE, ((player.getMaxHealth() / 3) / 1.5f) / (player.level.isRaining() ? 2 : 1));
+                        player.hurt(ModDamageTypes.source(ModDamageTypes.SUN_DAMAGE, player.level()), ((player.getMaxHealth() / 3) / 1.5f) / (player.level().isRaining() ? 2 : 1));
                         player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
 
                         addPreventRegenTicks(player, Config.ticksToSunDamage.get());
@@ -384,7 +384,7 @@ public class VampirePlayerData extends BloodVessel
             this.catchingUV = false;
         }
 
-        player.level.getProfiler().pop();
+        player.level().getProfiler().pop();
     }
 
     private float getBloodlustFactor()
@@ -424,7 +424,7 @@ public class VampirePlayerData extends BloodVessel
                     addBlood(player, 1, this.feedingEntityBlood.getBloodType());
 
                     //Tell other clients to spawn blood particles
-                    if (player.level.players().size() > 1)
+                    if (player.level().players().size() > 1)
                     {
                         VampireUtil.getFeedingBloodParticlePosition(player, this.feedingEntity).ifPresent(vec3 -> ModNetworkDispatcher.sendBloodParticles(player, vec3));
                     }

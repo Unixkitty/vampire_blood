@@ -35,6 +35,7 @@ public class VampireBlood
         ModRegistry.register(modEventBus);
 
         modEventBus.addListener(this::onCommonSetup);
+        modEventBus.addListener(ModItems::onBuildCreativeTabs);
     }
 
     private void onCommonSetup(final FMLCommonSetupEvent event)

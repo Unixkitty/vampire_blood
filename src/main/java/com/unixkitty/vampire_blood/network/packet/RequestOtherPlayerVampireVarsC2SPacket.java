@@ -42,7 +42,7 @@ public class RequestOtherPlayerVampireVarsC2SPacket extends BasePacket
 
                 for (int id : this.playerEntityIds)
                 {
-                    if (id != senderPlayer.getId() && senderPlayer.level.getEntity(id) instanceof ServerPlayer player && !player.isSpectator())
+                    if (id != senderPlayer.getId() && senderPlayer.level().getEntity(id) instanceof ServerPlayer player && !player.isSpectator())
                     {
                         int playerVampireLevelId = -737;
 

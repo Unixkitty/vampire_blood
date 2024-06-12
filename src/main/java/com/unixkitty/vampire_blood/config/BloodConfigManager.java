@@ -167,7 +167,7 @@ public class BloodConfigManager
 
     private static ObjectObjectImmutablePair<File, File> getConfigFile()
     {
-        String configDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(VampireBlood.MODID), VampireBlood.MODID).toString();
+        String configDir = FMLPaths.getOrCreateGameRelativePath(FMLPaths.CONFIGDIR.get().resolve(VampireBlood.MODID).resolveSibling(VampireBlood.MODID)).toString();
 
         return new ObjectObjectImmutablePair<>(new File(configDir), FileUtils.getFile(configDir, configName));
     }

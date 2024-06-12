@@ -62,6 +62,7 @@ public class ClientPacketHandler
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public static void handleDebugData(boolean catchingUV, int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
         ClientCache.getDebugVars().catchingUV = catchingUV;
@@ -126,7 +127,7 @@ public class ClientPacketHandler
 
         if (minecraft.player != null && minecraft.cameraEntity == minecraft.player)
         {
-            Entity entity = minecraft.player.level.getEntity(entityId);
+            Entity entity = minecraft.player.level().getEntity(entityId);
 
             if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive())
             {
@@ -139,14 +140,14 @@ public class ClientPacketHandler
     {
         for (int i = 0; i < 5; ++i)
         {
-            entity.level.addParticle(
+            entity.level().addParticle(
                     particleOptions,
                     entity.getRandomX(1.0D),
                     entity.getRandomY() + 1.0D,
                     entity.getRandomZ(1.0D),
-                    gauss(entity.level.random),
-                    gauss(entity.level.random),
-                    gauss(entity.level.random)
+                    gauss(entity.level().random),
+                    gauss(entity.level().random),
+                    gauss(entity.level().random)
             );
         }
     }

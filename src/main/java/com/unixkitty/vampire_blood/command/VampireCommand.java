@@ -1,4 +1,4 @@
-package com.unixkitty.vampire_blood;
+package com.unixkitty.vampire_blood.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.ArgumentType;
@@ -10,6 +10,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
@@ -24,7 +25,6 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.EntitySummonArgument;
 import net.minecraft.commands.arguments.selector.EntitySelector;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.nbt.CompoundTag;
@@ -73,7 +73,7 @@ public class VampireCommand
                                                                             context.getSource().getServer()
                                                                     ))
                                                                     {
-                                                                        context.getSource().sendSuccess(Component.translatable("commands.vampire_blood.blood_config_updated"), true);
+                                                                        context.getSource().sendSuccess(() -> Component.translatable("commands.vampire_blood.blood_config_updated"), true);
                                                                     }
                                                                     else
                                                                     {
@@ -98,7 +98,7 @@ public class VampireCommand
                             {
                                 if (BloodConfigManager.loadConfig(context.getSource().getServer()))
                                 {
-                                    context.getSource().sendSuccess(Component.translatable("commands.vampire_blood.reloaded_blood_config"), true);
+                                    context.getSource().sendSuccess(() -> Component.translatable("commands.vampire_blood.reloaded_blood_config"), true);
                                 }
                                 else
                                 {
@@ -153,7 +153,7 @@ public class VampireCommand
             {
                 if (BloodConfigManager.removeEntry(id, context.getSource().getServer()))
                 {
-                    context.getSource().sendSuccess(Component.translatable("commands.vampire_blood.blood_config_removed"), true);
+                    context.getSource().sendSuccess(() -> Component.translatable("commands.vampire_blood.blood_config_removed"), true);
                 }
                 else
                 {
@@ -169,7 +169,7 @@ public class VampireCommand
                 tag.putInt("bloodPoints", config.getBloodPoints());
                 tag.putBoolean("naturalRegen", config.isNaturalRegen());
 
-                context.getSource().sendSuccess(NbtUtils.toPrettyComponent(tag), false);
+                context.getSource().sendSuccess(() -> NbtUtils.toPrettyComponent(tag), false);
             }
         }
 
@@ -289,7 +289,7 @@ public class VampireCommand
 
                             vampirePlayerData.setBloodType(player, type, true);
 
-                            context.getSource().sendSuccess(
+                            context.getSource().sendSuccess(() ->
                                     Component.translatable(
                                             "commands.vampire_blood.blood_change",
                                             Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),
@@ -310,7 +310,7 @@ public class VampireCommand
                             vampirePlayerData.updateLevel(player, stage, true);
                         }
 
-                        context.getSource().sendSuccess(
+                        context.getSource().sendSuccess(() ->
                                 Component.translatable(
                                         "commands.vampire_blood.level_change",
                                         Component.literal(String.valueOf(value)).withStyle(ChatFormatting.BOLD),

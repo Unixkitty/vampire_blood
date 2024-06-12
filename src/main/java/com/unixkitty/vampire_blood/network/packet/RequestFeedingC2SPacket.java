@@ -38,7 +38,7 @@ public class RequestFeedingC2SPacket extends BasePacket
 
             if (player != null)
             {
-                Entity entity = player.level.getEntity(this.entityId);
+                Entity entity = player.level().getEntity(this.entityId);
 
                 if (entity instanceof LivingEntity victim)
                 {

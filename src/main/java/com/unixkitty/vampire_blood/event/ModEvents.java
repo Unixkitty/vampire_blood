@@ -41,7 +41,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingChangeTarget(final LivingChangeTargetEvent event)
     {
-        if (!event.getEntity().level.isClientSide && event.getNewTarget() instanceof ServerPlayer player && VampireUtil.isEntityCharmedBy(event.getEntity(), player) && VampireUtil.isVampire(player))
+        if (!event.getEntity().level().isClientSide && event.getNewTarget() instanceof ServerPlayer player && VampireUtil.isEntityCharmedBy(event.getEntity(), player) && VampireUtil.isVampire(player))
         {
             event.setCanceled(true);
         }
@@ -50,7 +50,7 @@ public class ModEvents
     @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onApplyMobEffect(final MobEffectEvent.Applicable event)
     {
-        if (!event.getEntity().level.isClientSide)
+        if (!event.getEntity().level().isClientSide)
         {
             if (event.getEffectInstance().getEffect() instanceof BasicStatusEffect)
             {
@@ -62,7 +62,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onLivingTick(final LivingEvent.LivingTickEvent event)
     {
-        if (!event.getEntity().level.isClientSide && !(event.getEntity() instanceof Player))
+        if (!event.getEntity().level().isClientSide && !(event.getEntity() instanceof Player))
         {
             event.getEntity().getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage -> bloodEntityStorage.tick(event.getEntity()));
         }
@@ -71,7 +71,7 @@ public class ModEvents
     @SubscribeEvent
     public static void onEntityJoinWorld(final EntityJoinLevelEvent event)
     {
-        if (!event.getEntity().level.isClientSide && event.getEntity() instanceof LivingEntity entity)
+        if (!event.getEntity().level().isClientSide && event.getEntity() instanceof LivingEntity entity)
         {
             if (entity instanceof ServerPlayer player)
             {

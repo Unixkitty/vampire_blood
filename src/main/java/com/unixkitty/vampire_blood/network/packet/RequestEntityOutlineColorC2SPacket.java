@@ -35,7 +35,7 @@ public class RequestEntityOutlineColorC2SPacket extends BasePacket
         {
             ServerPlayer player = context.getSender();
 
-            if (player != null && player.level.getEntity(this.id) instanceof LivingEntity entity)
+            if (player != null && player.level().getEntity(this.id) instanceof LivingEntity entity)
             {
                 VampireUtil.computeEntityOutlineColorFor(player, entity);
             }

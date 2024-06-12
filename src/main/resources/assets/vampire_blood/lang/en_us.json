@@ -11,6 +11,7 @@
   "commands.vampire_blood.blood_config_removed": "Successfully removed blood config for entity",
   "commands.vampire_blood.blood_config_updated": "Successfully updated entity blood config",
   "commands.vampire_blood.blood_config_busy": "Blood config is already being modified, try again later",
+  "commands.vampire_blood.entity.notFound": "Unknown entity: %s",
   "vampire_blood.level.not_vampire": "Not a vampire",
   "vampire_blood.level.in_transition": "In transition",
   "vampire_blood.level.fledgling": "Fledgling",

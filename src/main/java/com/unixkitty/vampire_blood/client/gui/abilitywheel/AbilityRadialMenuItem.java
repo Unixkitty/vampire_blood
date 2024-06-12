@@ -1,6 +1,7 @@
-package com.unixkitty.vampire_blood.client.gui.abilitywheel.radial;
+package com.unixkitty.vampire_blood.client.gui.abilitywheel;
 
 import com.unixkitty.vampire_blood.client.KeyAction;
+import com.unixkitty.vampire_blood.client.gui.abilitywheel.radial.GenericRadialMenu;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;

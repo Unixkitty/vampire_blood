@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.client;
 
-import com.mojang.math.Vector3f;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
@@ -36,6 +35,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import org.joml.Vector3f;
 
 public final class ClientEvents
 {
@@ -129,9 +129,9 @@ public final class ClientEvents
             LivingEntity entity = event.getEntity();
             LocalPlayer player = Minecraft.getInstance().player;
 
-            if (entity.level.isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DISTANCE_LIMIT))
+            if (entity.level().isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DISTANCE_LIMIT))
             {
-                entity.level.addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getRandomX(entity.getBbWidth()), entity.getRandomY() + 0.5D, entity.getRandomZ(entity.getBbWidth()), 0, 0, 0);
+                entity.level().addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getRandomX(entity.getBbWidth()), entity.getRandomY() + 0.5D, entity.getRandomZ(entity.getBbWidth()), 0, 0, 0);
             }
         }
 
@@ -154,7 +154,7 @@ public final class ClientEvents
                 //Request info about nearby players
                 if (event.player.tickCount % 20 == 0)
                 {
-                    ModNetworkDispatcher.sendToServer(new RequestOtherPlayerVampireVarsC2SPacket(event.player.level.players().stream().filter(player -> !player.isSpectator()).mapToInt(Player::getId).toArray()));
+                    ModNetworkDispatcher.sendToServer(new RequestOtherPlayerVampireVarsC2SPacket(event.player.level().players().stream().filter(player -> !player.isSpectator()).mapToInt(Player::getId).toArray()));
 
 //                    VampireBlood.LOG.warn("Unixkitty vampire level is {}", event.player.level.getPla);
                 }
@@ -201,8 +201,8 @@ public final class ClientEvents
         @SubscribeEvent
         public static void registerParticleFactories(final RegisterParticleProvidersEvent event)
         {
-            event.register(ModParticles.CHARMED_PARTICLE.get(), CharmedParticle.Provider::new);
-            event.register(ModParticles.CHARMED_FEEDBACK_PARTICLE.get(), CharmedFeedbackParticle.Provider::new);
+            event.registerSpriteSet(ModParticles.CHARMED_PARTICLE.get(), CharmedParticle.Provider::new);
+            event.registerSpriteSet(ModParticles.CHARMED_FEEDBACK_PARTICLE.get(), CharmedFeedbackParticle.Provider::new);
         }
 
         @SubscribeEvent

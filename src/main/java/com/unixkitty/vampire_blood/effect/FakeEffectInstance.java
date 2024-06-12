@@ -18,7 +18,7 @@ public class FakeEffectInstance extends MobEffectInstance
     }
 
     @Override
-    public boolean isNoCounter()
+    public boolean isInfiniteDuration()
     {
         return true;
     }
