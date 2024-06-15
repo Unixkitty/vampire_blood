@@ -5,11 +5,11 @@ import net.minecraft.ChatFormatting;
 public enum VampirismLevel implements VampirismTier<VampirismLevel>
 {
     NOT_VAMPIRE(-1, 1, 1, 1, 0, ChatFormatting.WHITE),
-    IN_TRANSITION(0, 1, 2, 1.25, 0, ChatFormatting.GRAY),
-    FLEDGLING(1, 3, 3, 3, 1.25F, ChatFormatting.RED),
-    VAMPIRE(2, 4, 4, 4, 1.0F, ChatFormatting.LIGHT_PURPLE),
-    MATURE(3, 5, 5, 5, 0.75F, ChatFormatting.DARK_PURPLE),
-    ORIGINAL(999, 10, 6, 6, 0.5F, ChatFormatting.DARK_RED);
+    IN_TRANSITION(0, 1.5, 1.5, 1.5, 0, ChatFormatting.GRAY),
+    FLEDGLING(1, 2.5, 2.5, 2, 1.25F, ChatFormatting.RED),
+    VAMPIRE(2, 4, 4, 3, 1.0F, ChatFormatting.LIGHT_PURPLE),
+    MATURE(3, 5, 5, 4, 0.75F, ChatFormatting.DARK_PURPLE),
+    ORIGINAL(999, 5, 6, 5, 0.5F, ChatFormatting.DARK_RED);
 
     private final int id;
     private final double healthMultiplier;
