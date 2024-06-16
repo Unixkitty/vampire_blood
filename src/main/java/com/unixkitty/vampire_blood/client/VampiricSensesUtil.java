@@ -47,11 +47,11 @@ public final class VampiricSensesUtil
 
     public static int getEntityGlowColor(@Nonnull Entity entity)
     {
-        if (entity instanceof Player && ((Player) entity).isCreative())
+        if (entity instanceof Player player && player.isCreative())
         {
             return Color.HSBtoRGB((entity.tickCount % 100) / 100F, 1.0F, 1.0F);
         }
-        else if (entity instanceof PathfinderMob)
+        else if (entity instanceof PathfinderMob || entity instanceof Player)
         {
             return ClientCache.getVampireVars().getEntityOutlineColor(entity.getId());
         }

@@ -46,7 +46,7 @@ public class RequestEntityBloodC2SPacket extends BasePacket
             {
                 if (player.level().getEntity(this.id) instanceof LivingEntity livingEntity)
                 {
-                    if (livingEntity instanceof Player)
+                    if (livingEntity instanceof Player targetPlayer && !targetPlayer.isCreative() && !targetPlayer.isSpectator())
                     {
                         livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData -> ModNetworkDispatcher.sendPlayerEntityBlood(player, this.id, vampirePlayerData.getBloodType(), vampirePlayerData.getBloodPoints(), vampirePlayerData.getMaxBloodPoints(), this.lookingDirectly, vampirePlayerData.getCharmedByTicks(player)));
                     }
