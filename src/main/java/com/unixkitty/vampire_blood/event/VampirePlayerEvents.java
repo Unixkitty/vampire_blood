@@ -159,7 +159,7 @@ public class VampirePlayerEvents
             {
                 if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                 {
-                    //TODO replace with knockout mechanic in the future
+                    //TODO replace with knockout mechanic in the future?
                     if (event.getAmount() >= player.getHealth() && event.getAmount() < player.getMaxHealth() / 5F && vampirePlayerData.getNoRegenTicks() <= 0)
                     {
                         event.setAmount(0);
@@ -167,9 +167,9 @@ public class VampirePlayerEvents
 
                         vampirePlayerData.decreaseBlood(2, false);
 
-                        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0, false, false, true));
-                        player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 100, 0, false, false, true));
-                        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 0, false, false, true));
+                        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 600, 0, false, false, true));
+                        player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 600, 0, false, false, true));
+                        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600, 0, false, false, true));
                     }
                 }
             });
