@@ -138,6 +138,7 @@ public class ModDebugOverlay
             craftLine(ChatFormatting.YELLOW, "isCatchingUV: ", ClientCache.getDebugVars().catchingUV);
             craftLine(ChatFormatting.DARK_PURPLE, "lookingAtEdible: ", FeedingMouseOverHandler.isLookingAtEdible());
             craftLine(ChatFormatting.DARK_GRAY, "feeding: ", ClientCache.getVampireVars().feeding);
+            craftLine(ChatFormatting.GOLD, "armourUVCoverage: ", ClientCache.getDebugVars().armourUVCoverage);
 
             addAttributes(player);
         }

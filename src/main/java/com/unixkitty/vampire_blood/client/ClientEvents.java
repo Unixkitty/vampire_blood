@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.client.gui.BloodBarOverlay;
 import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.client.gui.abilitywheel.AbilityWheelHandler;
+import com.unixkitty.vampire_blood.config.ArmourUVCoverageManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
@@ -15,15 +16,18 @@ import com.unixkitty.vampire_blood.network.packet.RequestOtherPlayerVampireVarsC
 import com.unixkitty.vampire_blood.particle.CharmedFeedbackParticle;
 import com.unixkitty.vampire_blood.particle.CharmedParticle;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -31,12 +35,15 @@ import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import org.joml.Vector3f;
 
+@SuppressWarnings("unused")
 public final class ClientEvents
 {
     public static final int MARGIN_PX = 5;
@@ -72,6 +79,25 @@ public final class ClientEvents
         public static void onKeyInput(final InputEvent.Key event)
         {
             KeyBindings.handleKeys(event);
+        }
+
+        @SubscribeEvent(priority = EventPriority.LOW)
+        public static void onItemTooltip(final ItemTooltipEvent event)
+        {
+            Player player = event.getEntity();
+
+            if (event.getEntity() != null
+                    && ArmourUVCoverageManager.hasEntries()
+                    && event.getItemStack().getItem() instanceof ArmorItem item
+                    && ClientCache.isVampire())
+            {
+                float coverage = ArmourUVCoverageManager.getCoverage(item);
+
+                if (coverage > ArmourUVCoverageManager.ZERO_COVERAGE)
+                {
+                    event.getToolTip().add(2, Component.translatable("text.vampire_blood.sun_coverage_tooltip", String.format("%.0f%%", coverage * 100)).withStyle(ChatFormatting.YELLOW));
+                }
+            }
         }
 
         @SubscribeEvent

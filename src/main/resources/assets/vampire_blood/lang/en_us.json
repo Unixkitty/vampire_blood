@@ -58,5 +58,6 @@
   "effect.vampire_blood.charmed": "Enthralled",
   "text.vampire_blood.charmed_for": "Enthralled for %ss",
   "text.vampire_blood.health": "Health: %s/%s",
-  "screen.vampire_blood.title.ability_wheel": "Vampire Ability Wheel"
+  "screen.vampire_blood.title.ability_wheel": "Vampire Ability Wheel",
+  "text.vampire_blood.sun_coverage_tooltip": "☀ Coverage: %s"
 }

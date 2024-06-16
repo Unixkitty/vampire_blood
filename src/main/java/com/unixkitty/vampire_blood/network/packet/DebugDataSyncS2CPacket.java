@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 public class DebugDataSyncS2CPacket extends BasePacket
 {
     private final boolean catchingUV;
+    private final float armourUVCoverage;
     private final int ticksInSun;
     private final int noRegenTicks;
 
@@ -16,9 +17,10 @@ public class DebugDataSyncS2CPacket extends BasePacket
     private final int thirstTickTimer;
     private final int[] diet;
 
-    public DebugDataSyncS2CPacket(boolean catchingUV, int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
+    public DebugDataSyncS2CPacket(boolean catchingUV, float armourUVCoverage, int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
         this.catchingUV = catchingUV;
+        this.armourUVCoverage = armourUVCoverage;
         this.ticksInSun = ticksInSun;
         this.noRegenTicks = noRegenTicks;
 
@@ -30,6 +32,7 @@ public class DebugDataSyncS2CPacket extends BasePacket
     public DebugDataSyncS2CPacket(FriendlyByteBuf buffer)
     {
         this.catchingUV = buffer.readBoolean();
+        this.armourUVCoverage = buffer.readFloat();
         this.ticksInSun = buffer.readInt();
         this.noRegenTicks = buffer.readVarInt();
 
@@ -41,6 +44,7 @@ public class DebugDataSyncS2CPacket extends BasePacket
     public void toBytes(FriendlyByteBuf buffer)
     {
         buffer.writeBoolean(this.catchingUV);
+        buffer.writeFloat(this.armourUVCoverage);
         buffer.writeInt(this.ticksInSun);
         buffer.writeVarInt(this.noRegenTicks);
 
@@ -53,7 +57,7 @@ public class DebugDataSyncS2CPacket extends BasePacket
     {
         NetworkEvent.Context context = contextSupplier.get();
 
-        context.enqueueWork(() -> ClientPacketHandler.handleDebugData(this.catchingUV, this.ticksInSun, this.noRegenTicks, this.thirstExhaustionIncrement, this.thirstTickTimer, this.diet));
+        context.enqueueWork(() -> ClientPacketHandler.handleDebugData(this.catchingUV, this.armourUVCoverage, this.ticksInSun, this.noRegenTicks, this.thirstExhaustionIncrement, this.thirstTickTimer, this.diet));
 
         context.setPacketHandled(true);
 

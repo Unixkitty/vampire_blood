@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
@@ -16,11 +17,14 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config
 {
-    public static ForgeConfigSpec COMMON_CONFIG;
-    public static ForgeConfigSpec CLIENT_CONFIG;
+    private static final ForgeConfigSpec CLIENT_CONFIG;
+    private static final ForgeConfigSpec COMMON_CONFIG;
+    private static final ForgeConfigSpec SERVER_CONFIG;
 
     /* BEGIN COMMON CONFIG ENTRIES */
     public static ForgeConfigSpec.BooleanValue debug;
+
+    public static final ForgeConfigSpec.ConfigValue<List<? extends String>> armourUVCoveragePercentages;
 
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
     public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
@@ -56,47 +60,6 @@ public class Config
     static
     {
         {
-            ForgeConfigSpec.Builder commonConfig = new ForgeConfigSpec.Builder();
-
-            commonConfig.push("General");
-            {
-                debug = commonConfig.comment("Enable debug features (lots of network traffic and additional HUDs)").define("debug", false);
-                shouldUndeadIgnoreVampires = commonConfig.comment("Should undead mobs be neutral to vampires").comment("Requires world restart").worldRestart().define("shouldUndeadIgnoreVampires", true);
-                increasedDamageFromWood = commonConfig.comment("Do wooden tools have 1.25x increased damage against vampires").define("increasedDamageFromWood", true);
-                ticksToSunDamage = commonConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
-                vampireDustDropAmount = commonConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
-                sunnyDimensions = commonConfig.comment("List of dimensions vampires should get sun damage in").defineListAllowEmpty(Lists.newArrayList("sunnyDimensions"), () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
-            }
-            commonConfig.pop();
-
-            commonConfig.push("Health regen");
-            {
-                naturalHealingRate = commonConfig.comment("Every N (this value) ticks regenerate health when above 1/6th blood").defineInRange("naturalHealingRate", 20, 1, Integer.MAX_VALUE);
-                naturalHealingMultiplier = commonConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange("naturalHealingMultiplier", 1.0D, 0.001, 100.0D);
-                noRegenTicksLimit = commonConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange("noRegenTicksLimit", 100, 1, Integer.MAX_VALUE);
-            }
-            commonConfig.pop();
-
-            commonConfig.push("Blood");
-            {
-                bloodUsageRate = commonConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange("bloodUsageRate", 720, 1, Integer.MAX_VALUE);
-                healthOrBloodPoints = commonConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points, and non-vampire players who always use health").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
-                entityRegen = commonConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", false);
-                entityRegenTime = commonConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
-            }
-            commonConfig.pop();
-
-            commonConfig.push("Abilities");
-            {
-                abilityHungerThreshold = commonConfig.comment("Hunger level at which abilities can no longer be used by a vampire player").defineInRange("abilityHungerThreshold", VampirePlayerBloodData.MAX_THIRST / 20, 0, VampirePlayerBloodData.MAX_THIRST);
-                charmEffectDuration = commonConfig.comment("How many ticks charm effect lasts on targets, -1 for unlimited duration").defineInRange("charmEffectDuration", 1200, -1, Integer.MAX_VALUE);
-            }
-            commonConfig.pop();
-
-            COMMON_CONFIG = commonConfig.build();
-        }
-
-        {
             ForgeConfigSpec.Builder clientConfig = new ForgeConfigSpec.Builder();
 
             clientConfig.push("GUI");
@@ -114,13 +77,77 @@ public class Config
             }
             clientConfig.pop();
 
-            clientConfig.push("debug");
+            clientConfig.push("Debug");
             {
-                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define("renderDebugOverlay", true);
+                renderDebugOverlay = clientConfig.comment("Render debug overlay with some data during gameplay").define("renderDebugOverlay", false);
             }
             clientConfig.pop();
 
             CLIENT_CONFIG = clientConfig.build();
+        }
+
+        {
+            ForgeConfigSpec.Builder commonConfig = new ForgeConfigSpec.Builder();
+
+            commonConfig.push("General");
+            {
+                debug = commonConfig.comment("Enable debug features (lots of network traffic and additional HUDs)").define("debug", false);
+            }
+            commonConfig.pop();
+
+            COMMON_CONFIG = commonConfig.build();
+        }
+
+        {
+            ForgeConfigSpec.Builder serverConfig = new ForgeConfigSpec.Builder();
+
+            serverConfig.push("General");
+            {
+                shouldUndeadIgnoreVampires = serverConfig.comment("Should undead mobs be neutral to vampires").comment("Requires world restart").worldRestart().define("shouldUndeadIgnoreVampires", true);
+                increasedDamageFromWood = serverConfig.comment("Do wooden tools have 2x increased damage against vampires").define("increasedDamageFromWood", true);
+                ticksToSunDamage = serverConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
+                vampireDustDropAmount = serverConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
+                sunnyDimensions = serverConfig
+                        .comment("List of dimensions vampires should get sun damage in")
+                        .defineListAllowEmpty("sunnyDimensions", () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));
+                armourUVCoveragePercentages = serverConfig
+                        .comment("List of armour items to assign some UV coverage percentages. Only actual armour items will be checked in code")
+                        .comment("For example if you assign 4 armour pieces 25% coverage each and then wear them together - you'll achieve full coverage from the sun and will no longer be in danger in daylight as long as you keep yourself covered")
+                        .comment("Will need to re-equip items if changing the config on a live server")
+                        .comment("Example entry: \"minecraft:diamond_leggings|0.25\"")
+                        .defineListAllowEmpty("armourUVCoveragePercentages", Lists::newArrayList, ArmourUVCoverageManager::isValidConfigListEntry);
+            }
+            serverConfig.pop();
+
+            serverConfig.push("Balance");
+            {
+                serverConfig.push("Health regen");
+                {
+                    naturalHealingRate = serverConfig.comment("Every N (this value) ticks regenerate health when above 1/6th blood").defineInRange("naturalHealingRate", 20, 1, Integer.MAX_VALUE);
+                    naturalHealingMultiplier = serverConfig.comment("By default, vampires regenerate their health fully in 20 seconds. This value can multiply this speed. More than 1 will mean faster regen, less than 1 - slower.").defineInRange("naturalHealingMultiplier", 1.0D, 0.001, 100.0D);
+                    noRegenTicksLimit = serverConfig.comment("Maximum ticks a vampire can't regenerate health for after getting damaged by things vampires are weak to").defineInRange("noRegenTicksLimit", 100, 1, Integer.MAX_VALUE);
+                }
+                serverConfig.pop();
+
+                serverConfig.push("Blood");
+                {
+                    bloodUsageRate = serverConfig.comment("Base blood usage rate, higher the number == slower usage").defineInRange("bloodUsageRate", 720, 1, Integer.MAX_VALUE);
+                    healthOrBloodPoints = serverConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points, and non-vampire players who always use health").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
+                    entityRegen = serverConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", false);
+                    entityRegenTime = serverConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
+                }
+                serverConfig.pop();
+
+                serverConfig.push("Abilities");
+                {
+                    abilityHungerThreshold = serverConfig.comment("Hunger level at which abilities can no longer be used by a vampire player").defineInRange("abilityHungerThreshold", VampirePlayerBloodData.MAX_THIRST / 20, 0, VampirePlayerBloodData.MAX_THIRST);
+                    charmEffectDuration = serverConfig.comment("How many ticks charm effect lasts on targets, -1 for unlimited duration").defineInRange("charmEffectDuration", 1200, -1, Integer.MAX_VALUE);
+                }
+                serverConfig.pop();
+            }
+            serverConfig.pop();
+
+            SERVER_CONFIG = serverConfig.build();
         }
     }
 
@@ -130,6 +157,11 @@ public class Config
         {
             case CLIENT -> CLIENT_CONFIG.setConfig(config.getConfigData());
             case COMMON -> COMMON_CONFIG.setConfig(config.getConfigData());
+            case SERVER ->
+            {
+                SERVER_CONFIG.setConfig(config.getConfigData());
+                ArmourUVCoverageManager.updateMap();
+            }
         }
     }
 
@@ -147,5 +179,12 @@ public class Config
         if (!event.getConfig().getModId().equals(VampireBlood.MODID)) return;
 
         reload(event.getConfig(), event.getConfig().getType());
+    }
+
+    public static void register(ModLoadingContext modLoadingContext)
+    {
+        modLoadingContext.registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG);
+        modLoadingContext.registerConfig(ModConfig.Type.COMMON, COMMON_CONFIG);
+        modLoadingContext.registerConfig(ModConfig.Type.SERVER, SERVER_CONFIG);
     }
 }

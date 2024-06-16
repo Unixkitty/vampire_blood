@@ -16,7 +16,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -79,21 +78,23 @@ public class VampirePlayerEvents
     }
 
     @SubscribeEvent
-    public static void onPlayerEquipmentChange(final LivingEquipmentChangeEvent event)
+    public static void onLivingEquipmentChange(final LivingEquipmentChangeEvent event)
     {
         final ItemStack itemStack = event.getTo();
 
-        if (event.getEntity() instanceof ServerPlayer player && !itemStack.isEmpty())
+        if (event.getEntity() instanceof ServerPlayer player)
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId() && vampirePlayerData.isZooming())
+                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
                 {
-                    if ((event.getSlot() == EquipmentSlot.HEAD
+                    vampirePlayerData.updateSunCoverage(player);
+
+                    if (/*(event.getSlot() == EquipmentSlot.HEAD
                             || event.getSlot() == EquipmentSlot.CHEST
                             || event.getSlot() == EquipmentSlot.LEGS
                             || event.getSlot() == EquipmentSlot.FEET)
-                            && VampireUtil.isArmour(itemStack))
+                            && */vampirePlayerData.isZooming() && VampireUtil.isArmour(itemStack))
                     {
                         vampirePlayerData.toggleAbility(player, VampireActiveAbility.SPEED);
                     }
@@ -185,7 +186,7 @@ public class VampirePlayerEvents
                 {
                     if (event.getSource().getEntity() instanceof LivingEntity attacker && !event.getSource().isIndirect() && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
                     {
-                        event.setAmount(event.getAmount() * 1.25F);
+                        event.setAmount(event.getAmount() * 2F);
 
                         vampirePlayerData.addPreventRegenTicks(player, 60);
                     }
@@ -223,6 +224,7 @@ public class VampirePlayerEvents
 
             if (attacker instanceof ServerPlayer)
             {
+                //TODO Doesn't seem to work?
                 charmedByPlayer = attacker.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.isCharmedBy(player)).orElse(false);
             }
             else

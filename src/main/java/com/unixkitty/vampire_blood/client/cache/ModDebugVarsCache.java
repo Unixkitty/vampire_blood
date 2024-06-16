@@ -7,6 +7,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ModDebugVarsCache
 {
     public boolean catchingUV = false;
+    public float armourUVCoverage;
     public int ticksInSun;
     public int thirstExhaustionIncrement;
     public int thirstTickTimer;

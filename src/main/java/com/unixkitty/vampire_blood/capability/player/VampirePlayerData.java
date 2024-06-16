@@ -5,6 +5,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
+import com.unixkitty.vampire_blood.config.ArmourUVCoverageManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageTypes;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
@@ -13,10 +14,13 @@ import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ReputationEventHandler;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +42,7 @@ public class VampirePlayerData extends BloodVessel
     private int ticksInSun;
     private boolean catchingUV = false;
     private int catchingUVTicks;
+    private float armourUVCoverage = 0F;
 
     private boolean feeding = false;
 
@@ -75,6 +80,21 @@ public class VampirePlayerData extends BloodVessel
         }
 
         player.level().getProfiler().pop();
+    }
+
+    public void updateSunCoverage(ServerPlayer player)
+    {
+        float coverage = ArmourUVCoverageManager.ZERO_COVERAGE;
+
+        for (ItemStack itemStack : player.getArmorSlots())
+        {
+            if (itemStack.getItem() instanceof ArmorItem armorItem)
+            {
+                coverage += ArmourUVCoverageManager.getCoverage(armorItem);
+            }
+        }
+
+        this.armourUVCoverage = Mth.clamp(coverage, 0F, 1F);
     }
 
     public void charmTarget(@Nonnull LivingEntity target, ServerPlayer player)
@@ -335,6 +355,11 @@ public class VampirePlayerData extends BloodVessel
             {
                 this.catchingUV = SunExposurer.isCatchingUV(player);
                 this.catchingUVTicks = 20;
+
+                if (this.catchingUV && this.armourUVCoverage >= 1.0F)
+                {
+                    this.catchingUV = false;
+                }
             }
             else
             {
@@ -670,6 +695,7 @@ public class VampirePlayerData extends BloodVessel
         {
             ModNetworkDispatcher.sendToClient(new DebugDataSyncS2CPacket(
                     this.catchingUV,
+                    this.armourUVCoverage,
                     this.ticksInSun,
                     blood.noRegenTicks,
                     blood.thirstExhaustionIncrement,
