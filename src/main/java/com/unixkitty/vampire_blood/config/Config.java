@@ -17,13 +17,26 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config
 {
+    /* BEGIN CLIENT CONFIG ENTRIES */
     private static final ForgeConfigSpec CLIENT_CONFIG;
-    private static final ForgeConfigSpec COMMON_CONFIG;
-    private static final ForgeConfigSpec SERVER_CONFIG;
+    public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
+    public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
+    public static ForgeConfigSpec.BooleanValue showBloodbarExhaustionUnderlay;
+    public static ForgeConfigSpec.BooleanValue detailedEntityBloodHUD;
+    public static ForgeConfigSpec.BooleanValue entityBloodHUDshowHP;
+
+    public static ForgeConfigSpec.BooleanValue clipMouseToRadialMenu;
+    public static ForgeConfigSpec.BooleanValue allowRadialMenuClickOutsideBounds;
+    public static ForgeConfigSpec.BooleanValue releaseRadialMenuButtonToActivate;
+    /* END ENTRIES */
 
     /* BEGIN COMMON CONFIG ENTRIES */
+    private static final ForgeConfigSpec COMMON_CONFIG;
     public static ForgeConfigSpec.BooleanValue debug;
+    /* END ENTRIES */
 
+    /* BEGIN SERVER CONFIG ENTRIES */
+    private static final ForgeConfigSpec SERVER_CONFIG;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> armourUVCoveragePercentages;
 
     public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
@@ -43,18 +56,6 @@ public class Config
 
     public static ForgeConfigSpec.IntValue abilityHungerThreshold;
     public static ForgeConfigSpec.IntValue charmEffectDuration;
-    /* END ENTRIES */
-
-    /* BEGIN CLIENT CONFIG ENTRIES */
-    public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
-    public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
-    public static ForgeConfigSpec.BooleanValue showBloodbarExhaustionUnderlay;
-    public static ForgeConfigSpec.BooleanValue detailedEntityBloodHUD;
-    public static ForgeConfigSpec.BooleanValue entityBloodHUDshowHP;
-
-    public static ForgeConfigSpec.BooleanValue clipMouseToRadialMenu;
-    public static ForgeConfigSpec.BooleanValue allowRadialMenuClickOutsideBounds;
-    public static ForgeConfigSpec.BooleanValue releaseRadialMenuButtonToActivate;
     /* END ENTRIES */
 
     static
@@ -165,6 +166,7 @@ public class Config
         }
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public static void onLoad(final ModConfigEvent.Loading event)
     {
@@ -173,6 +175,7 @@ public class Config
         reload(event.getConfig(), event.getConfig().getType());
     }
 
+    @SuppressWarnings("unused")
     @SubscribeEvent
     public static void onFileChange(final ModConfigEvent.Reloading event)
     {
