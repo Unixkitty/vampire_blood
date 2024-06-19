@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    " i",
+    "s "
+  ],
+  "result": {
+    "item": "vampire_blood:bloodletting_knife"
+  },
+  "show_notification": true
+}

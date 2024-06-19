@@ -35,6 +35,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
+@SuppressWarnings("unused")
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class ModEvents
 {

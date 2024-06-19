@@ -4,6 +4,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraftforge.common.ForgeMod;
 
 import java.util.Collection;
 import java.util.Set;
@@ -14,6 +15,7 @@ public enum VampireAttributeModifier
     HEALTH(Attributes.MAX_HEALTH, "VampireHealthModifier", "43f72fe4-af73-4412-a5fc-a60f3a250aed", AttributeModifier.Operation.ADDITION),
     STRENGTH(Attributes.ATTACK_DAMAGE, "VampireStrengthModifier", "0a0caf30-6479-4e32-8ca9-42a84f1bd4ff", AttributeModifier.Operation.MULTIPLY_BASE),
     BASE_SPEED(Attributes.MOVEMENT_SPEED, "VampireBaseSpeedModifier", "036ae219-2165-410b-a8f1-c961ca7fc0c9", AttributeModifier.Operation.MULTIPLY_BASE),
+    STEP_HEIGHT(ForgeMod.STEP_HEIGHT_ADDITION.get(), "VampireStepHeightModifier", "16d4a29e-cb6a-4018-b90c-f67424e9e6b3", AttributeModifier.Operation.ADDITION),
     ATTACK_SPEED(Attributes.ATTACK_SPEED, "VampireAttackSpeedModifier", "175de42f-e55e-4694-bcaf-5a094ef7f380", AttributeModifier.Operation.MULTIPLY_BASE);
 
     private final Attribute baseAttribute;
@@ -53,7 +55,7 @@ public enum VampireAttributeModifier
                 case MULTIPLY_BASE ->
                         (vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - 1.0D;
                 case ADDITION ->
-                        Math.round(((baseValue * vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
+                        this == STEP_HEIGHT ? 1D : Math.round(((baseValue * vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
                 case MULTIPLY_TOTAL -> -1;
             };
         }
@@ -67,7 +69,7 @@ public enum VampireAttributeModifier
         {
             case HEALTH -> stage.getId() > VampirismLevel.IN_TRANSITION.getId();
             case STRENGTH -> stage.getId() > VampirismLevel.NOT_VAMPIRE.getId();
-            case BASE_SPEED ->
+            case BASE_SPEED, STEP_HEIGHT ->
                     stage == VampirismLevel.IN_TRANSITION || (stage.getId() > VampirismLevel.IN_TRANSITION.getId() && activeAbilities.contains(VampireActiveAbility.SPEED));
             case ATTACK_SPEED ->
                     stage.getId() > VampirismLevel.IN_TRANSITION.getId() && activeAbilities.contains(VampireActiveAbility.SPEED);

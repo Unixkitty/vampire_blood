@@ -64,6 +64,7 @@ public enum BloodType implements VampirismTier<BloodType>
             case HEALTH -> healthMultiplier;
             case STRENGTH -> strengthMultiplier;
             case BASE_SPEED, ATTACK_SPEED -> speedBoostModifier;
+            case STEP_HEIGHT -> 1D;
         };
     }
 
