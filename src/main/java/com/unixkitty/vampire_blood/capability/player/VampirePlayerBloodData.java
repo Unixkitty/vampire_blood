@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
+import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
@@ -88,13 +89,43 @@ public class VampirePlayerBloodData
 
     void addBlood(ServerPlayer player, int points, BloodType bloodType)
     {
-        this.thirstLevel = Math.min(this.thirstLevel + points, VampirePlayerBloodData.MAX_THIRST);
+        if (points == 1)
+        {
+            addOneBloodpoint(bloodType);
+        }
+        else if (points > 0)
+        {
+            int newThirstLevel = this.thirstLevel;
+
+            newThirstLevel += points;
+
+            if (newThirstLevel > MAX_THIRST)
+            {
+                points -= newThirstLevel - MAX_THIRST;
+            }
+
+            for (int i = 0; i < points; i++)
+            {
+                addOneBloodpoint(bloodType);
+            }
+        }
+        else
+        {
+            VampireBlood.LOG.warn("VampirePlayerBloodData.addBlood() called with negative ({}) blood points!", points);
+
+            return;
+        }
+
+        updateWithAttributes(player, false);
+    }
+
+    private void addOneBloodpoint(BloodType bloodType)
+    {
+        this.thirstLevel = Math.min(this.thirstLevel + 1, MAX_THIRST);
 
         updateDiet(bloodType);
 
         updateBloodlust(true);
-
-        updateWithAttributes(player, false);
     }
 
     void decreaseBlood(int points, boolean natural)

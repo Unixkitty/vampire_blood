@@ -3,8 +3,14 @@ package com.unixkitty.vampire_blood.datagen;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.init.ModItems;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Objects;
 
 public class ModItemModels extends ItemModelProvider
 {
@@ -17,6 +23,25 @@ public class ModItemModels extends ItemModelProvider
     protected void registerModels()
     {
         basicItem(ModItems.VAMPIRE_DUST.get());
-        basicItem(ModItems.BLOODLETTING_KNIFE.get());
+
+        tool(ModItems.BLOODLETTING_KNIFE.get());
+
+        basicItem(ModItems.HUMAN_BLOOD_BOTTLE.get());
+        basicItem(ModItems.FRAIL_BLOOD_BOTTLE.get());
+        basicItem(ModItems.CREATURE_BLOOD_BOTTLE.get());
+        basicItem(ModItems.VAMPIRE_BLOOD_BOTTLE.get());
+        basicItem(ModItems.PIGLIN_BLOOD_BOTTLE.get());
+    }
+
+    private void tool(Item item)
+    {
+        tool(Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item)));
+    }
+
+    private void tool(ResourceLocation item)
+    {
+        getBuilder(item.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/handheld"))
+                .texture("layer0", new ResourceLocation(item.getNamespace(), "item/" + item.getPath()));
     }
 }

@@ -31,6 +31,7 @@ public class CustomRenderer
     public static final ResourceLocation TAIL_MAIN = new ResourceLocation(VampireBlood.MODID, "custom/tail_main");
     public static final ResourceLocation TAIL_SITTING = new ResourceLocation(VampireBlood.MODID, "custom/tail_sitting");
     public static final ResourceLocation TAIL_SPEED = new ResourceLocation(VampireBlood.MODID, "custom/tail_speed");
+    public static final ResourceLocation WINGS = new ResourceLocation(VampireBlood.MODID, "custom/wing");
 
     public static class CosmeticLayer<T extends LivingEntity, M extends EntityModel<T>> extends
             RenderLayer<T, M>
@@ -39,6 +40,7 @@ public class CustomRenderer
         private static IRenderable<ModelData> tailMainRenderable;
         private static IRenderable<ModelData> tailSittingRenderable;
         private static IRenderable<ModelData> tailSpeedRenderable;
+        private static IRenderable<ModelData> wingsRenderable;
 
         public CosmeticLayer(RenderLayerParent<T, M> renderer)
         {
@@ -52,7 +54,7 @@ public class CustomRenderer
                     livingEntity instanceof Player player
                             && player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429")
                             && !player.isSpectator()
-                            && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismLevel.ORIGINAL).orElse(false)
+                            && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismLevel.ORIGINAL).orElse(player.isCreative())
             )
             {
 
@@ -80,6 +82,11 @@ public class CustomRenderer
                     tailSpeedRenderable = BakedModelRenderable.of(TAIL_SPEED).withModelDataContext();
                 }
 
+                if (wingsRenderable == null)
+                {
+                    wingsRenderable = BakedModelRenderable.of(WINGS).withModelDataContext();
+                }
+
                 if (render instanceof LivingEntityRenderer)
                 {
                     @SuppressWarnings("unchecked") LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>> livingRenderer = (LivingEntityRenderer<LivingEntity, EntityModel<LivingEntity>>) render;
@@ -87,6 +94,7 @@ public class CustomRenderer
 
                     if (model instanceof HumanoidModel)
                     {
+                        //HORNS
                         poseStack.pushPose();
 
                         ((HumanoidModel<LivingEntity>) model).head.translateAndRotate(poseStack);
@@ -100,6 +108,13 @@ public class CustomRenderer
 
                         poseStack.popPose();
 
+                        //WING LEFT
+                        renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 147.5F, -0.4F); //157.5F
+
+                        //WING RIGHT
+                        renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 32.5F, -0.6F); //22.5F
+
+                        //TAIL
                         poseStack.pushPose();
 
                         ((HumanoidModel<LivingEntity>) model).body.translateAndRotate(poseStack);
@@ -149,6 +164,22 @@ public class CustomRenderer
 
                 poseStack.popPose();
             }
+        }
+
+        private static void renderWing(PoseStack poseStack, EntityModel<LivingEntity> model, MultiBufferSource renderTypeBuffer, int light, float partialTicks, float yRotation, float zTranslate)
+        {
+            poseStack.pushPose();
+
+            ((HumanoidModel<LivingEntity>) model).body.translateAndRotate(poseStack);
+
+            poseStack.mulPose(Axis.YP.rotationDegrees(yRotation));
+            poseStack.mulPose(Axis.XP.rotationDegrees(180F));
+            poseStack.translate(-2.075F, -1.375F, zTranslate);
+            poseStack.scale(2F, 2F, 1F);
+
+            wingsRenderable.render(poseStack, renderTypeBuffer, RenderType::entityTranslucent, light, OverlayTexture.NO_OVERLAY, partialTicks, ModelData.EMPTY);
+
+            poseStack.popPose();
         }
     }
 }

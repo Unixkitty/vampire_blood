@@ -238,6 +238,7 @@ public final class ClientEvents
             event.register(CustomRenderer.TAIL_MAIN);
             event.register(CustomRenderer.TAIL_SITTING);
             event.register(CustomRenderer.TAIL_SPEED);
+            event.register(CustomRenderer.WINGS);
         }
 
         @SubscribeEvent

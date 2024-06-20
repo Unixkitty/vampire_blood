@@ -19,43 +19,44 @@ public class Config
 {
     /* BEGIN CLIENT CONFIG ENTRIES */
     private static final ForgeConfigSpec CLIENT_CONFIG;
-    public static ForgeConfigSpec.BooleanValue renderDebugOverlay;
-    public static ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
-    public static ForgeConfigSpec.BooleanValue showBloodbarExhaustionUnderlay;
-    public static ForgeConfigSpec.BooleanValue detailedEntityBloodHUD;
-    public static ForgeConfigSpec.BooleanValue entityBloodHUDshowHP;
+    public static final ForgeConfigSpec.BooleanValue renderDebugOverlay;
+    public static final ForgeConfigSpec.BooleanValue alternateBloodbarFeedingAnimation;
+    public static final ForgeConfigSpec.BooleanValue showBloodbarExhaustionUnderlay;
+    public static final ForgeConfigSpec.BooleanValue detailedEntityBloodHUD;
+    public static final ForgeConfigSpec.BooleanValue entityBloodHUDshowHP;
 
-    public static ForgeConfigSpec.BooleanValue clipMouseToRadialMenu;
-    public static ForgeConfigSpec.BooleanValue allowRadialMenuClickOutsideBounds;
-    public static ForgeConfigSpec.BooleanValue releaseRadialMenuButtonToActivate;
+    public static final ForgeConfigSpec.BooleanValue clipMouseToRadialMenu;
+    public static final ForgeConfigSpec.BooleanValue allowRadialMenuClickOutsideBounds;
+    public static final ForgeConfigSpec.BooleanValue releaseRadialMenuButtonToActivate;
     /* END ENTRIES */
 
     /* BEGIN COMMON CONFIG ENTRIES */
     private static final ForgeConfigSpec COMMON_CONFIG;
-    public static ForgeConfigSpec.BooleanValue debug;
+    public static final ForgeConfigSpec.BooleanValue debug;
     /* END ENTRIES */
 
     /* BEGIN SERVER CONFIG ENTRIES */
     private static final ForgeConfigSpec SERVER_CONFIG;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> armourUVCoveragePercentages;
 
-    public static ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
-    public static ForgeConfigSpec.BooleanValue increasedDamageFromWood;
-    public static ForgeConfigSpec.IntValue ticksToSunDamage;
-    public static ForgeConfigSpec.IntValue vampireDustDropAmount;
+    public static final ForgeConfigSpec.BooleanValue shouldUndeadIgnoreVampires;
+    public static final ForgeConfigSpec.BooleanValue increasedDamageFromWood;
+    public static final ForgeConfigSpec.IntValue ticksToSunDamage;
+    public static final ForgeConfigSpec.IntValue vampireDustDropAmount;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> sunnyDimensions;
 
-    public static ForgeConfigSpec.IntValue naturalHealingRate;
-    public static ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
-    public static ForgeConfigSpec.IntValue noRegenTicksLimit;
+    public static final ForgeConfigSpec.IntValue naturalHealingRate;
+    public static final ForgeConfigSpec.DoubleValue naturalHealingMultiplier;
+    public static final ForgeConfigSpec.IntValue noRegenTicksLimit;
 
-    public static ForgeConfigSpec.IntValue bloodUsageRate;
-    public static ForgeConfigSpec.BooleanValue healthOrBloodPoints;
-    public static ForgeConfigSpec.BooleanValue entityRegen;
-    public static ForgeConfigSpec.IntValue entityRegenTime;
+    public static final ForgeConfigSpec.IntValue bloodUsageRate;
+    public static final ForgeConfigSpec.BooleanValue healthOrBloodPoints;
+    public static final ForgeConfigSpec.BooleanValue entityRegen;
+    public static final ForgeConfigSpec.IntValue entityRegenTime;
+    public static final ForgeConfigSpec.IntValue bloodPointsFromBottles;
 
-    public static ForgeConfigSpec.IntValue abilityHungerThreshold;
-    public static ForgeConfigSpec.IntValue charmEffectDuration;
+    public static final ForgeConfigSpec.IntValue abilityHungerThreshold;
+    public static final ForgeConfigSpec.IntValue charmEffectDuration;
     /* END ENTRIES */
 
     static
@@ -136,6 +137,7 @@ public class Config
                     healthOrBloodPoints = serverConfig.comment("Global toggle for whether to tie drinkable blood points directly to entity health or a separate value").comment("true = health, false = separate blood points").comment("Except undead, which always use blood points, and non-vampire players who always use health").comment("Requires world restart").worldRestart().define("healthOrBloodPoints", true);
                     entityRegen = serverConfig.comment("Should entities regenerate either their blood points or health, depending on healthOrBloodPoints?").define("entityRegen", false);
                     entityRegenTime = serverConfig.comment("How long in ticks it takes an entity to regenerate blood/health to full").defineInRange("entityRegenTime", 24000, 1200, Integer.MAX_VALUE);
+                    bloodPointsFromBottles = serverConfig.comment("How many blood points are restored per bottle").defineInRange("bloodPointsFromBottles", 4, 1, VampirePlayerBloodData.MAX_THIRST);
                 }
                 serverConfig.pop();
 

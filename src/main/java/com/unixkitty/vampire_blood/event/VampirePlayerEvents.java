@@ -5,13 +5,18 @@ import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import com.unixkitty.vampire_blood.init.ModItems;
+import com.unixkitty.vampire_blood.item.BloodBottleItem;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -24,11 +29,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -39,6 +46,57 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = VampireBlood.MODID)
 public class VampirePlayerEvents
 {
+    @SubscribeEvent
+    public static void onPlayerInteract(final PlayerInteractEvent.EntityInteract event)
+    {
+        Player player = event.getEntity();
+
+        if (event.getHand() == InteractionHand.OFF_HAND)
+        {
+            return;
+        }
+
+        ItemStack knifeStack = player.getMainHandItem();
+        ItemStack bottleStack = player.getOffhandItem();
+
+        if (player instanceof ServerPlayer serverPlayer
+                && event.getTarget() instanceof LivingEntity livingEntity
+                && livingEntity.isAlive()
+                && knifeStack.getItem() == ModItems.BLOODLETTING_KNIFE.get()
+                && bottleStack.getItem() == Items.GLASS_BOTTLE)
+        {
+            livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
+            {
+                int count = Config.bloodPointsFromBottles.get();
+
+                if (bloodEntityStorage.getBloodPoints() >= count)
+                {
+                    boolean success = false;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        success = bloodEntityStorage.decreaseBlood(serverPlayer, livingEntity);
+                    }
+
+                    if (success)
+                    {
+                        if (!bloodEntityStorage.isCharmedBy(serverPlayer))
+                        {
+                            livingEntity.level().registryAccess().registry(Registries.DAMAGE_TYPE).ifPresent(damageTypes ->
+                                    livingEntity.hurt(new DamageSource(damageTypes.getHolderOrThrow(DamageTypes.PLAYER_ATTACK), serverPlayer), 1F));
+                        }
+
+                        knifeStack.hurt(1, serverPlayer.level().random, serverPlayer);
+                        bottleStack.shrink(1);
+                        serverPlayer.addItem(BloodBottleItem.createItemStack(bloodEntityStorage.getBloodType()));
+
+                        event.setCanceled(true);
+                    }
+                }
+            });
+        }
+    }
+
     @SubscribeEvent
     public static void onPlayerGetBreakSpeed(final PlayerEvent.BreakSpeed event)
     {

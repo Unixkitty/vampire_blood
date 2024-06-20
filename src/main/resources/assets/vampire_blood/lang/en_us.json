@@ -53,12 +53,18 @@
   "vampire_blood.death.attack.bloodloss_6": "%1$s became a human juice box for %2$s",
   "item.vampire_blood.vampire_dust": "Vampire Dust",
   "item.vampire_blood.bloodletting_knife": "Bloodletting Knife",
+  "item.vampire_blood.human_blood_bottle": "Bottle of Human Blood",
+  "item.vampire_blood.frail_blood_bottle": "Bottle of Frail Blood",
+  "item.vampire_blood.creature_blood_bottle": "Bottle of Creature Blood",
+  "item.vampire_blood.vampire_blood_bottle": "Bottle of Vampire Blood",
+  "item.vampire_blood.piglin_blood_bottle": "Bottle of Piglin Blood",
   "effect.vampire_blood.blood_vision": "Blood Vision",
   "effect.vampire_blood.enhanced_senses": "Vampiric Senses",
   "effect.vampire_blood.enhanced_speed": "Vampiric Speed",
   "effect.vampire_blood.charmed": "Enthralled",
   "text.vampire_blood.charmed_for": "Enthralled for %ss",
   "text.vampire_blood.health": "Health: %s/%s",
+  "text.vampire_blood.blood_bottle_points": "Restores %s blood points",
   "screen.vampire_blood.title.ability_wheel": "Vampire Ability Wheel",
   "text.vampire_blood.sun_coverage_tooltip": "☀ Coverage: %s"
 }
