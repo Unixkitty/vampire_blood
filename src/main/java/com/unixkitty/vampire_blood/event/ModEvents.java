@@ -19,7 +19,9 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -32,6 +34,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -80,7 +83,7 @@ public class ModEvents
                 {
                     vampirePlayerData.sync();
 
-                    if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429") && !player.isCreative() && !player.isSpectator() && vampirePlayerData.getVampireLevel() != VampirismLevel.ORIGINAL)
+                    if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429") && !player.isSpectator() && vampirePlayerData.getVampireLevel() != VampirismLevel.ORIGINAL)
                     {
                         vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, true);
                     }
@@ -100,6 +103,10 @@ public class ModEvents
 //                        }
 //                        else
 //                        {
+                        if (mob instanceof Villager villager)
+                        {
+                            villager.getGossips().add(UUID.fromString("9d64fee0-582d-4775-b6ef-37d6e6d3f429"), GossipType.MAJOR_NEGATIVE, GossipType.MAJOR_NEGATIVE.max);
+                        }
                         try
                         {
                             if (mob.goalSelector.availableGoals.stream().noneMatch(wrappedGoal -> wrappedGoal.getGoal() instanceof CharmedFollowGoal))

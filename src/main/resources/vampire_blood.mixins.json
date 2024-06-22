@@ -5,7 +5,8 @@
   "refmap": "vampire_blood.refmap.json",
   "mixins": [
     "MixinLivingEntity",
-    "MixinVillager"
+    "MixinVillager",
+    "compat.MixinComfortsEvents"
   ],
   "client": [
     "client.MixinEntity",

@@ -232,7 +232,7 @@ public abstract class BloodVessel implements IBloodVessel
         }
         else
         {
-            this.charmedByMap.put(uuid, (int) Config.charmEffectDuration.get());
+            this.charmedByMap.put(uuid, player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429") ? -1 : Config.charmEffectDuration.get());
 
             this.lastCharmedPlayer = player;
 

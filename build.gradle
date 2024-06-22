@@ -178,6 +178,9 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:mmmmmmmmmmmm-225738:5319203")
 
     runtimeOnly fg.deobf("curse.maven:configured-457570:5180900")
+    runtimeOnly fg.deobf("curse.maven:guard-villagers-360203:5425458")
+    implementation fg.deobf("curse.maven:comforts-276951:5068863")
+    runtimeOnly fg.deobf("curse.maven:universal-clock-hud-fork-1038904:5438458")
 }
 
 mixin {
