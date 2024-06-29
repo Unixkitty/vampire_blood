@@ -2,6 +2,8 @@ package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
@@ -24,6 +26,26 @@ public interface IBloodVessel
     void drinkFromHealth(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim, @Nonnull BloodType bloodType);
 
     boolean decreaseBlood(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim);
+
+    default void stackBloodlossWeaknessEffect(@Nonnull LivingEntity victim)
+    {
+        if (victim.isAlive())
+        {
+            MobEffectInstance effectInstance = new MobEffectInstance(MobEffects.WEAKNESS, 200, 1, false, false, true);
+            MobEffectInstance existingEffectInstance = victim.getEffect(effectInstance.getEffect());
+
+            if (existingEffectInstance == null)
+            {
+                victim.addEffect(effectInstance);
+            }
+            else
+            {
+                effectInstance.duration += existingEffectInstance.duration;
+
+                existingEffectInstance.update(effectInstance);
+            }
+        }
+    }
 
     boolean tryGetCharmed(@Nonnull ServerPlayer player, VampirismLevel attackerLevel, @Nonnull LivingEntity target);
 

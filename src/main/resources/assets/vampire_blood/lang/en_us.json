@@ -43,7 +43,7 @@
   "vampire_blood.death.attack.sunlight_9": "%1$s had their blood replaced with molten cheese",
   "vampire_blood.death.self.bloodloss_1": "%1$s donated their final drop to the Blood God",
   "vampire_blood.death.self.bloodloss_2": "%1$s died from anemia",
-  "vampire_blood.death.self.bloodloss_3": "%1$s tried escaping this cruel world",
+  "vampire_blood.death.self.bloodloss_3": "%1$s tried to escape this cruel world",
   "vampire_blood.death.self.bloodloss_4": "Note to %1$s: stop playing with sharp objects",
   "vampire_blood.death.attack.bloodloss_1": "%1$s was drained to death by %2$s",
   "vampire_blood.death.attack.bloodloss_2": "%1$s couldn't keep their blood safe from %2$s",
@@ -66,5 +66,7 @@
   "text.vampire_blood.health": "Health: %s/%s",
   "text.vampire_blood.blood_bottle_points": "Restores %s blood points",
   "screen.vampire_blood.title.ability_wheel": "Vampire Ability Wheel",
-  "text.vampire_blood.sun_coverage_tooltip": "☀ Coverage: %s"
+  "text.vampire_blood.sun_coverage_tooltip": "☀ Coverage: %s",
+  "text.vampire_blood.knife_usage_self": "Using knife on self",
+  "text.vampire_blood.knife_usage_entity": "Using knife on %s"
 }

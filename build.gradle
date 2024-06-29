@@ -174,6 +174,8 @@ dependencies {
 
     runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
 
+    runtimeOnly fg.deobf("curse.maven:jade-324717:5390389")
+
     runtimeOnly fg.deobf("curse.maven:selene-499980:5409387") //mmmm dependency
     runtimeOnly fg.deobf("curse.maven:mmmmmmmmmmmm-225738:5319203")
 

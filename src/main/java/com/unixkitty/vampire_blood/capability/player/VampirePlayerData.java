@@ -500,6 +500,8 @@ public class VampirePlayerData extends BloodVessel
             {
                 drinkFromHealth(attacker, victim, getBloodType());
 
+                stackBloodlossWeaknessEffect(victim);
+
                 return true;
             }
             else //Vampire, because isEdible() checks for transitioning stage
@@ -509,6 +511,8 @@ public class VampirePlayerData extends BloodVessel
                 if (resultingThirstLevel >= 0)
                 {
                     blood.decreaseBlood(1, false);
+
+                    stackBloodlossWeaknessEffect(victim);
 
                     return true;
                 }

@@ -53,7 +53,7 @@ public class VampireUtil
 
     public static boolean isUndead(@Nonnull ServerPlayer player)
     {
-        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId()).orElse(false);
+        return player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() != VampirismLevel.NOT_VAMPIRE && vampirePlayerData.getVampireLevel() != VampirismLevel.ORIGINAL).orElse(false);
     }
 
     public static boolean isVampire(@Nonnull ServerPlayer player)
@@ -95,7 +95,6 @@ public class VampireUtil
     {
         entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 9, false, false, true));
         entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 400, 2, false, false, true));
-        entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 6000, 1, false, false, true));
     }
 
     public static boolean isLookingAtEntity(@Nonnull Player player, @Nonnull LivingEntity target)

@@ -5,18 +5,18 @@ import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
 import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
-import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import com.unixkitty.vampire_blood.init.ModItems;
-import com.unixkitty.vampire_blood.item.BloodBottleItem;
+import com.unixkitty.vampire_blood.item.BloodKnifeItem;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -49,51 +49,29 @@ public class VampirePlayerEvents
     @SubscribeEvent
     public static void onPlayerInteract(final PlayerInteractEvent.EntityInteract event)
     {
-        Player player = event.getEntity();
-
         if (event.getHand() == InteractionHand.OFF_HAND)
         {
             return;
         }
 
+        Player player = event.getEntity();
         ItemStack knifeStack = player.getMainHandItem();
         ItemStack bottleStack = player.getOffhandItem();
 
-        if (player instanceof ServerPlayer serverPlayer
-                && event.getTarget() instanceof LivingEntity livingEntity
-                && livingEntity.isAlive()
+        if (event.getTarget() instanceof LivingEntity victim
+                && victim.isAlive()
                 && knifeStack.getItem() == ModItems.BLOODLETTING_KNIFE.get()
                 && bottleStack.getItem() == Items.GLASS_BOTTLE)
         {
-            livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).ifPresent(bloodEntityStorage ->
+            if (player instanceof ServerPlayer serverPlayer && VampireUtil.isLookingAtEntity(player, victim))
             {
-                int count = Config.bloodPointsFromBottles.get();
+                CompoundTag tag = knifeStack.getOrCreateTag();
 
-                if (bloodEntityStorage.getBloodPoints() >= count)
-                {
-                    boolean success = false;
+                serverPlayer.sendSystemMessage(Component.translatable("text.vampire_blood.knife_usage_entity", victim.getDisplayName()).withStyle(ChatFormatting.DARK_RED), true);
+                tag.putInt(BloodKnifeItem.VICTIM_NBT_NAME, victim.getId());
+            }
 
-                    for (int i = 0; i < count; i++)
-                    {
-                        success = bloodEntityStorage.decreaseBlood(serverPlayer, livingEntity);
-                    }
-
-                    if (success)
-                    {
-                        if (!bloodEntityStorage.isCharmedBy(serverPlayer))
-                        {
-                            livingEntity.level().registryAccess().registry(Registries.DAMAGE_TYPE).ifPresent(damageTypes ->
-                                    livingEntity.hurt(new DamageSource(damageTypes.getHolderOrThrow(DamageTypes.PLAYER_ATTACK), serverPlayer), 1F));
-                        }
-
-                        knifeStack.hurt(1, serverPlayer.level().random, serverPlayer);
-                        bottleStack.shrink(1);
-                        serverPlayer.addItem(BloodBottleItem.createItemStack(bloodEntityStorage.getBloodType()));
-
-                        event.setCanceled(true);
-                    }
-                }
-            });
+            event.setCanceled(true);
         }
     }
 
@@ -124,13 +102,21 @@ public class VampirePlayerEvents
 
             if (vampirismLevel.getId() > VampirismLevel.NOT_VAMPIRE.getId())
             {
-                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || (effect == MobEffects.FIRE_RESISTANCE && vampirismLevel != VampirismLevel.ORIGINAL) || effect == MobEffects.NIGHT_VISION || effect instanceof BasicStatusEffect)
+                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.POISON || effect == MobEffects.NIGHT_VISION || effect instanceof BasicStatusEffect)
                 {
                     event.setResult(Event.Result.DENY);
                 }
-                else if (effect.getCategory() == MobEffectCategory.HARMFUL && event.getEffectInstance().getDuration() >= 2)
+
+                if (vampirismLevel != VampirismLevel.ORIGINAL)
                 {
-                    event.getEffectInstance().duration = event.getEffectInstance().getDuration() / 2;
+                    if (effect == MobEffects.FIRE_RESISTANCE)
+                    {
+                        event.setResult(Event.Result.DENY);
+                    }
+                    else if (effect.getCategory() == MobEffectCategory.HARMFUL && event.getEffectInstance().getDuration() >= 2)
+                    {
+                        event.getEffectInstance().duration = event.getEffectInstance().getDuration() / 2;
+                    }
                 }
             }
         }
@@ -241,9 +227,11 @@ public class VampirePlayerEvents
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.NOT_VAMPIRE.getId())
+                VampirismLevel vampirismLevel = vampirePlayerData.getVampireLevel();
+
+                if (vampirismLevel.getId() > VampirismLevel.NOT_VAMPIRE.getId())
                 {
-                    if (event.getSource().getEntity() instanceof LivingEntity attacker && !event.getSource().isIndirect() && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD)
+                    if (event.getSource().getEntity() instanceof LivingEntity attacker && !event.getSource().isIndirect() && event.getAmount() > 0 && Config.increasedDamageFromWood.get() && attacker.getMainHandItem().getItem() instanceof TieredItem item && item.getTier() == Tiers.WOOD && vampirismLevel != VampirismLevel.ORIGINAL)
                     {
                         event.setAmount(event.getAmount() * 2F);
 
@@ -261,6 +249,10 @@ public class VampirePlayerEvents
 
                             vampirePlayerData.addPreventRegenTicks(player, 20);
                         }
+                    }
+                    else if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY))
+                    {
+                        vampirePlayerData.addPreventRegenTicks(player, Config.noRegenTicksLimit.get());
                     }
 
                     if (event.getAmount() > 0 && vampirePlayerData.isFeeding())

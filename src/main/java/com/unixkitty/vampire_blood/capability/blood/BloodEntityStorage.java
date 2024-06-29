@@ -186,6 +186,8 @@ public class BloodEntityStorage extends BloodVessel
                 }
             }
 
+            stackBloodlossWeaknessEffect(victim);
+
             return true;
         }
 

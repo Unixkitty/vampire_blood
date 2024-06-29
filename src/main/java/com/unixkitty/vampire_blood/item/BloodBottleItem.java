@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.item;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModItems;
@@ -8,9 +9,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -44,25 +49,29 @@ public class BloodBottleItem extends Item
 
             serverPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                switch (vampirePlayerData.getVampireLevel())
+                if (vampirePlayerData.getVampireLevel() == VampirismLevel.NOT_VAMPIRE)
                 {
-                    case NOT_VAMPIRE ->
+                    //TODO special handling
+                    if (this.bloodType == BloodType.VAMPIRE)
                     {
-                        //TODO special handling
-//                        if (this.bloodType == BloodType.VAMPIRE)
-//                        {
-//                        }
-//                        else
-//                        {
+                        serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 12000, 0, false, false, true));
+                        serverPlayer.removeEffect(MobEffects.POISON);
+                    }
+                    else
+                    {
+                        int chance = this.bloodType == BloodType.FRAIL ? 100 : 35;
+
+                        if (!(chance < 100 && serverPlayer.getRandom().nextInt(101) > chance))
+                        {
+                            player.addEffect(new MobEffectInstance(MobEffects.POISON, 400, 0, false, false, true));
+                        }
+
                         serverPlayer.eat(level, new ItemStack(Items.ROTTEN_FLESH));
-//                        }
                     }
-                    case IN_TRANSITION ->
-                    {
-                        //TODO special handling
-                    }
-                    default ->
-                            vampirePlayerData.addBlood(serverPlayer, Config.bloodPointsFromBottles.get(), this.bloodType);
+                }
+                else //TODO special handling for IN_TRANSITION ?
+                {
+                    vampirePlayerData.addBlood(serverPlayer, Config.bloodPointsFromBottles.get(), this.bloodType);
                 }
             });
         }
@@ -86,7 +95,12 @@ public class BloodBottleItem extends Item
 
             if (player != null)
             {
-                player.getInventory().add(new ItemStack(Items.GLASS_BOTTLE));
+                ItemStack itemstack = new ItemStack(Items.GLASS_BOTTLE);
+
+                if (!player.getInventory().add(itemstack))
+                {
+                    player.drop(itemstack, false);
+                }
             }
         }
 
@@ -118,7 +132,14 @@ public class BloodBottleItem extends Item
 
     @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use(@Nonnull Level pLevel, @Nonnull Player pPlayer, InteractionHand pHand)
+    public SoundEvent getDrinkingSound()
+    {
+        return SoundEvents.HONEY_DRINK;
+    }
+
+    @Nonnull
+    @Override
+    public InteractionResultHolder<ItemStack> use(@Nonnull Level pLevel, @Nonnull Player pPlayer, @Nonnull InteractionHand pHand)
     {
         return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
     }
