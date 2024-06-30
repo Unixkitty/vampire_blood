@@ -53,9 +53,9 @@ public enum VampireAttributeModifier
             return switch (this.modifierOperation)
             {
                 case MULTIPLY_BASE ->
-                        (vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - 1.0D;
+                        vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * Math.max(0.5F, bloodPurity));
                 case ADDITION ->
-                        this == STEP_HEIGHT ? 1D : Math.round(((baseValue * vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
+                        this == STEP_HEIGHT ? bloodType.getAttributeMultiplier(this) : Math.round(((baseValue * vampirismLevel.getAttributeMultiplier(this) * (bloodType.getAttributeMultiplier(this) * bloodPurity)) - baseValue) / 2) * 2;
                 case MULTIPLY_TOTAL -> -1;
             };
         }

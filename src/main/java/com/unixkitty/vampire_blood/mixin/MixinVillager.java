@@ -21,7 +21,7 @@ public class MixinVillager
     private GossipContainer gossips;
 
     @Inject(at = @At("TAIL"), method = "onReputationEventFrom(Lnet/minecraft/world/entity/ai/village/ReputationEventType;Lnet/minecraft/world/entity/Entity;)V")
-    public void onReputationEventFrom(ReputationEventType eventType, Entity target, CallbackInfo ci)
+    private void onReputationEventFrom(ReputationEventType eventType, Entity target, CallbackInfo ci)
     {
         if (eventType == ModRegistry.REPUTATION_VAMPIRE_PLAYER)
         {

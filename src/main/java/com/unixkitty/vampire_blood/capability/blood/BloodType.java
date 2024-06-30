@@ -7,11 +7,11 @@ import net.minecraft.ChatFormatting;
 public enum BloodType implements VampirismTier<BloodType>
 {
     NONE(0, 0, 0, 0, 0, ChatFormatting.BLACK),
-    FRAIL(1, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.33F, ChatFormatting.GRAY),
-    CREATURE(2, 0.5, 0.5, 0.5, 1F, ChatFormatting.GREEN),
+    FRAIL(1, 0.5, 0.5, 0, 0.33F, ChatFormatting.GRAY),
+    CREATURE(2, 0.75, 0.75, 0.25, 1F, ChatFormatting.GREEN),
     HUMAN(3, 1, 1, 1, 2F, ChatFormatting.DARK_RED),
-    VAMPIRE(4, 0.75, 0.75, 1.25, 1F, ChatFormatting.DARK_PURPLE),
-    PIGLIN(5, 0.75, 0.75, 0.75, 1.5F, ChatFormatting.GOLD);
+    VAMPIRE(4, 0.85, 0.85, 1.25, 1F, ChatFormatting.DARK_PURPLE),
+    PIGLIN(5, 0.85, 0.85, 0.75, 1.5F, ChatFormatting.GOLD);
 
     public static final String BLOODTYPE_NBT_NAME = "bloodType";
 
@@ -61,10 +61,10 @@ public enum BloodType implements VampirismTier<BloodType>
     {
         return switch (modifier)
         {
-            case HEALTH -> healthMultiplier;
-            case STRENGTH -> strengthMultiplier;
-            case BASE_SPEED, ATTACK_SPEED -> speedBoostModifier;
-            case STEP_HEIGHT -> 1D;
+            case HEALTH -> this.healthMultiplier;
+            case STRENGTH -> this.strengthMultiplier;
+            case BASE_SPEED, ATTACK_SPEED -> this.speedBoostModifier;
+            case STEP_HEIGHT -> this == FRAIL ? 0D : 1D;
         };
     }
 

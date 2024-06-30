@@ -4,26 +4,20 @@ import net.minecraft.ChatFormatting;
 
 public enum VampirismLevel implements VampirismTier<VampirismLevel>
 {
-    NOT_VAMPIRE(-1, 1, 1, 1, 0, ChatFormatting.WHITE),
-    IN_TRANSITION(0, 1.5, 1.5, 1.5, 0, ChatFormatting.GRAY),
-    FLEDGLING(1, 2.5, 2.5, 2, 1.25F, ChatFormatting.RED),
-    VAMPIRE(2, 4, 4, 3, 1.0F, ChatFormatting.LIGHT_PURPLE),
-    MATURE(3, 5, 5, 4, 0.75F, ChatFormatting.DARK_PURPLE),
-    ORIGINAL(999, 5, 6, 5, 0.5F, ChatFormatting.DARK_RED);
+    NOT_VAMPIRE(-1, 0, ChatFormatting.WHITE),
+    IN_TRANSITION(0, 0, ChatFormatting.GRAY),
+    FLEDGLING(1, 1.25F, ChatFormatting.RED),
+    VAMPIRE(2, 1.0F, ChatFormatting.LIGHT_PURPLE),
+    MATURE(3, 0.75F, ChatFormatting.DARK_PURPLE),
+    ORIGINAL(999, 0.5F, ChatFormatting.DARK_RED);
 
     private final int id;
-    private final double healthMultiplier;
-    private final double strengthMultiplier;
-    private final double speedBoostMultiplier;
     private final float bloodUsageMultiplier;
     private final ChatFormatting chatFormatting;
 
-    VampirismLevel(int id, double healthMultiplier, double strengthMultiplier, double speedBoostMultiplier, float bloodUsageMultiplier, ChatFormatting formatting)
+    VampirismLevel(int id, float bloodUsageMultiplier, ChatFormatting formatting)
     {
         this.id = id;
-        this.healthMultiplier = healthMultiplier;
-        this.strengthMultiplier = strengthMultiplier;
-        this.speedBoostMultiplier = speedBoostMultiplier;
         this.bloodUsageMultiplier = bloodUsageMultiplier;
         this.chatFormatting = formatting;
     }
@@ -57,10 +51,8 @@ public enum VampirismLevel implements VampirismTier<VampirismLevel>
     {
         return switch (modifier)
         {
-            case HEALTH -> healthMultiplier;
-            case STRENGTH -> strengthMultiplier;
-            case BASE_SPEED, ATTACK_SPEED -> speedBoostMultiplier;
-            case STEP_HEIGHT -> 1D;
+            case HEALTH, STRENGTH, BASE_SPEED, ATTACK_SPEED -> this.ordinal();
+            case STEP_HEIGHT -> 1.0D;
         };
     }
 
