@@ -374,8 +374,8 @@ public class VampirePlayerData extends BloodVessel
                 if (this.ticksInSun == Config.ticksToSunDamage.get() / 6)
                 {
                     //Do common effects
-                    SunExposurer.chanceEffect(player, MobEffects.WEAKNESS, 10, player.level().isRaining() ? 0 : 1, 100);
-                    SunExposurer.chanceEffect(player, MobEffects.DIG_SLOWDOWN, 10, player.level().isRaining() ? 0 : 1, 100);
+                    SunExposurer.applyEffect(player, MobEffects.WEAKNESS, 10, player.level().isRaining() ? 0 : 1);
+                    SunExposurer.applyEffect(player, MobEffects.DIG_SLOWDOWN, 10, player.level().isRaining() ? 0 : 1);
                 }
 
                 if (this.ticksInSun == Config.ticksToSunDamage.get() / 2)
@@ -624,17 +624,7 @@ public class VampirePlayerData extends BloodVessel
                 }
             });
 
-//            float lastHealthFactor = player.getHealth() / player.getMaxHealth();
-
             newVampData.blood.updateWithAttributes(player, true);
-
-//            float healthFactor = player.getHealth() / player.getMaxHealth();
-//
-//            //If player was of a higher level they may end up lacking HP out of max after updating attributes
-//            if (healthFactor < lastHealthFactor)
-//            {
-//                player.setHealth(Math.max(player.getMaxHealth() * healthFactor, player.getMaxHealth()));
-//            }
         });
     }
 

@@ -5,6 +5,7 @@ import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModItems;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
@@ -14,7 +15,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +32,7 @@ public class BloodBottleItem extends Item
 
     public BloodBottleItem(BloodType bloodType)
     {
-        super(new Properties().rarity(Rarity.create(bloodType.name() + "_blood", bloodType.getChatFormatting())).stacksTo(1).craftRemainder(Items.GLASS_BOTTLE));
+        super(new Properties().rarity(Rarity.create(bloodType.name() + "_blood", bloodType.getChatFormatting())).stacksTo(4).craftRemainder(Items.GLASS_BOTTLE));
 
         this.bloodType = bloodType;
     }
@@ -46,6 +46,7 @@ public class BloodBottleItem extends Item
         if (player instanceof ServerPlayer serverPlayer)
         {
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, itemStack);
+            serverPlayer.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
 
             serverPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
@@ -54,18 +55,13 @@ public class BloodBottleItem extends Item
                     //TODO special handling
                     if (this.bloodType == BloodType.VAMPIRE)
                     {
-                        serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 12000, 0, false, false, true));
+                        VampireUtil.applyEffect(serverPlayer, MobEffects.REGENERATION, 12000, 0);
+                        VampireUtil.applyEffect(serverPlayer, MobEffects.DAMAGE_RESISTANCE, 3000, 0);
                         serverPlayer.removeEffect(MobEffects.POISON);
                     }
                     else
                     {
-                        int chance = this.bloodType == BloodType.FRAIL ? 100 : 35;
-
-                        if (!(chance < 100 && serverPlayer.getRandom().nextInt(101) > chance))
-                        {
-                            player.addEffect(new MobEffectInstance(MobEffects.POISON, 400, 0, false, false, true));
-                        }
-
+                        VampireUtil.chanceEffect(serverPlayer, MobEffects.POISON, 400, 0, this.bloodType == BloodType.FRAIL ? 100 : 35);
                         serverPlayer.eat(level, new ItemStack(Items.ROTTEN_FLESH));
                     }
                 }
@@ -95,11 +91,11 @@ public class BloodBottleItem extends Item
 
             if (player != null)
             {
-                ItemStack itemstack = new ItemStack(Items.GLASS_BOTTLE);
+                ItemStack bottleStack = new ItemStack(Items.GLASS_BOTTLE);
 
-                if (!player.getInventory().add(itemstack))
+                if (!player.getInventory().add(bottleStack))
                 {
-                    player.drop(itemstack, false);
+                    player.drop(bottleStack, false);
                 }
             }
         }
@@ -120,7 +116,7 @@ public class BloodBottleItem extends Item
     @Override
     public int getUseDuration(@Nonnull ItemStack pStack)
     {
-        return Items.POTION.getUseDuration(pStack) * 2;
+        return Items.HONEY_BOTTLE.getUseDuration(pStack);
     }
 
     @Nonnull

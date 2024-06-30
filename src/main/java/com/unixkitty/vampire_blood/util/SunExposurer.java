@@ -5,7 +5,6 @@ import com.unixkitty.vampire_blood.config.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
@@ -13,17 +12,12 @@ public final class SunExposurer
 {
     public static void chanceEffect(Player player, MobEffect effect, int durationMultiplier, int linearAmplifier, VampirismLevel stage)
     {
-        chanceEffect(player, effect, durationMultiplier, linearAmplifier, stage == VampirismLevel.IN_TRANSITION ? effect == MobEffects.BLINDNESS ? 2 : 10 : 100);
+        VampireUtil.chanceEffect(player, effect, Config.ticksToSunDamage.get() * durationMultiplier, linearAmplifier, stage == VampirismLevel.IN_TRANSITION ? effect == MobEffects.BLINDNESS ? 2 : 10 : 100);
     }
 
-    public static void chanceEffect(Player player, MobEffect effect, int durationMultiplier, int linearAmplifier, int chance)
+    public static void applyEffect(Player player, MobEffect effect, int durationMultiplier, int linearAmplifier)
     {
-        if (chance < 100 && player.getRandom().nextInt(101) > chance)
-        {
-            return;
-        }
-
-        player.addEffect(new MobEffectInstance(effect, Config.ticksToSunDamage.get() * durationMultiplier, linearAmplifier, false, false, true));
+        VampireUtil.applyEffect(player, effect, Config.ticksToSunDamage.get() * durationMultiplier, linearAmplifier);
     }
 
     public static boolean isCatchingUV(Player player)

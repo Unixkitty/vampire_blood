@@ -18,8 +18,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -102,21 +100,19 @@ public class VampirePlayerEvents
 
             if (vampirismLevel.getId() > VampirismLevel.NOT_VAMPIRE.getId())
             {
-                if (effect == MobEffects.HUNGER || effect == MobEffects.SATURATION || effect == MobEffects.POISON || effect == MobEffects.NIGHT_VISION || effect instanceof BasicStatusEffect)
+                if (effect == MobEffects.HUNGER
+                        || effect == MobEffects.SATURATION
+                        || effect == MobEffects.POISON
+                        || effect == MobEffects.NIGHT_VISION
+                        || effect instanceof BasicStatusEffect
+                        || (effect == MobEffects.FIRE_RESISTANCE && vampirismLevel != VampirismLevel.ORIGINAL)
+                )
                 {
                     event.setResult(Event.Result.DENY);
                 }
-
-                if (vampirismLevel != VampirismLevel.ORIGINAL)
+                else if (event.getEffectInstance().getDuration() >= 2)
                 {
-                    if (effect == MobEffects.FIRE_RESISTANCE)
-                    {
-                        event.setResult(Event.Result.DENY);
-                    }
-                    else if (effect.getCategory() == MobEffectCategory.HARMFUL && event.getEffectInstance().getDuration() >= 2)
-                    {
-                        event.getEffectInstance().duration = event.getEffectInstance().getDuration() / 2;
-                    }
+                    event.getEffectInstance().duration = event.getEffectInstance().getDuration() / 2;
                 }
             }
         }
@@ -135,11 +131,7 @@ public class VampirePlayerEvents
                 {
                     vampirePlayerData.updateSunCoverage(player);
 
-                    if (/*(event.getSlot() == EquipmentSlot.HEAD
-                            || event.getSlot() == EquipmentSlot.CHEST
-                            || event.getSlot() == EquipmentSlot.LEGS
-                            || event.getSlot() == EquipmentSlot.FEET)
-                            && */vampirePlayerData.isZooming() && VampireUtil.isArmour(itemStack))
+                    if (vampirePlayerData.isZooming() && VampireUtil.isArmour(itemStack))
                     {
                         vampirePlayerData.toggleAbility(player, VampireActiveAbility.SPEED);
                     }
@@ -211,9 +203,9 @@ public class VampirePlayerEvents
 
                         vampirePlayerData.decreaseBlood(2, false);
 
-                        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 600, 0, false, false, true));
-                        player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 600, 0, false, false, true));
-                        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 600, 0, false, false, true));
+                        VampireUtil.applyEffect(player, MobEffects.WEAKNESS, 1200, 0);
+                        VampireUtil.applyEffect(player, MobEffects.DIG_SLOWDOWN, 1200, 0);
+                        VampireUtil.applyEffect(player, MobEffects.MOVEMENT_SLOWDOWN, 1200, 0);
                     }
                 }
             });

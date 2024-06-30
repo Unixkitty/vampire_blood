@@ -11,6 +11,8 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityOutlineColorS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerAvoidHurtAnimS2CPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -93,8 +95,8 @@ public class VampireUtil
 
     public static void preventMovement(@Nonnull LivingEntity entity)
     {
-        entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 20, 9, false, false, true));
-        entity.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, 400, 2, false, false, true));
+        VampireUtil.applyEffect(entity, MobEffects.MOVEMENT_SLOWDOWN, 20, 9);
+        VampireUtil.applyEffect(entity, MobEffects.DIG_SLOWDOWN, 400, 2);
     }
 
     public static boolean isLookingAtEntity(@Nonnull Player player, @Nonnull LivingEntity target)
@@ -177,6 +179,11 @@ public class VampireUtil
                 if (existingModifier != null)
                 {
                     attribute.removeModifier(existingModifier);
+
+                    if (modifier == VampireAttributeModifier.BASE_SPEED)
+                    {
+                        player.removeEffect(MobEffects.JUMP);
+                    }
                 }
 
                 //2. Calculate actual value to use
@@ -186,6 +193,11 @@ public class VampireUtil
                 if (modifierValue != -1)
                 {
                     attribute.addPermanentModifier(new AttributeModifier(modifier.getUUID(), modifier.getName(), modifierValue, modifier.getModifierOperation()));
+
+                    if (modifier == VampireAttributeModifier.BASE_SPEED)
+                    {
+                        VampireUtil.applyEffect(player, MobEffects.JUMP, -1, Mth.floor(modifierValue));
+                    }
                 }
 
                 if (lastHealth != -1)
@@ -216,5 +228,18 @@ public class VampireUtil
     public static boolean isArmour(final ItemStack itemStack)
     {
         return itemStack.getItem() instanceof ArmorItem armorItem && armorItem.getDefense() > 0;
+    }
+
+    public static void applyEffect(LivingEntity livingEntity, MobEffect effect, int duration, int effectPower)
+    {
+        livingEntity.addEffect(new MobEffectInstance(effect, duration, effectPower, false, false, true));
+    }
+
+    public static void chanceEffect(LivingEntity livingEntity, MobEffect effect, int duration, int effectPower, int chance)
+    {
+        if (!(chance < 100 && livingEntity.getRandom().nextInt(101) > chance))
+        {
+            applyEffect(livingEntity, effect, duration, effectPower);
+        }
     }
 }
