@@ -12,8 +12,11 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -140,6 +143,8 @@ public class VampirePlayerData extends BloodVessel
             {
                 if (ability == VampireActiveAbility.SPEED && isWearingHeavyArmour(player))
                 {
+                    player.sendSystemMessage(Component.translatable("text.vampire_blood.speed_in_armour").withStyle(ChatFormatting.RED), true);
+
                     return;
                 }
 
@@ -213,6 +218,10 @@ public class VampirePlayerData extends BloodVessel
         {
             stopFeeding(player);
         }
+        else
+        {
+            player.sendSystemMessage(Component.translatable("text.vampire_blood.feeding_stop_fail").withStyle(ChatFormatting.DARK_PURPLE), true);
+        }
     }
 
     public void stopFeeding(ServerPlayer player)
@@ -238,6 +247,8 @@ public class VampirePlayerData extends BloodVessel
         {
             stopFeeding(player);
         }
+
+        player.playNotifySound(SoundEvents.PLAYER_HURT_ON_FIRE, player.getSoundSource(), 1.0F, 1.0F);
 
         blood.addPreventRegenTicks(amount);
     }

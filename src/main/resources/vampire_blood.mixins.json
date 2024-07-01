@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "vampire_blood.refmap.json",
   "mixins": [
+    "MixinFoodData",
     "MixinLivingEntity",
     "MixinMonster",
     "MixinVillager",

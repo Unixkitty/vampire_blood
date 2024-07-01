@@ -135,6 +135,8 @@ public class VampirePlayerEvents
                     if (vampirePlayerData.isZooming() && VampireUtil.isArmour(itemStack))
                     {
                         vampirePlayerData.toggleAbility(player, VampireActiveAbility.SPEED);
+
+                        player.sendSystemMessage(Component.translatable("text.vampire_blood.speed_in_armour").withStyle(ChatFormatting.RED), true);
                     }
                 }
             });
