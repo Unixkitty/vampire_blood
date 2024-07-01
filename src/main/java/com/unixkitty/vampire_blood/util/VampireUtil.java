@@ -188,11 +188,17 @@ public class VampireUtil
                 }
 
                 //2. Calculate actual value to use
-                final double modifierValue = modifier.getValue(attribute.getBaseValue(), vampirismLevel, bloodType, bloodPurity, activeAbilities);
+                double modifierValue = modifier.getValue(attribute.getBaseValue(), vampirismLevel, bloodType, bloodPurity, activeAbilities);
 
                 //3. Add modifier to player
                 if (modifierValue != -1)
                 {
+                    //Clamp health at 0 to prevent going negative
+                    if (modifier == VampireAttributeModifier.HEALTH)
+                    {
+                        modifierValue = Math.max(0, modifierValue);
+                    }
+
                     attribute.addPermanentModifier(new AttributeModifier(modifier.getUUID(), modifier.getName(), modifierValue, modifier.getModifierOperation()));
 
                     if (modifier == VampireAttributeModifier.BASE_SPEED)

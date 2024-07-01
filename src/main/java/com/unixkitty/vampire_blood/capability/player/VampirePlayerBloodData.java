@@ -219,6 +219,12 @@ public class VampirePlayerBloodData
         this.noRegenTicks = Math.min((this.noRegenTicks + amount), Config.noRegenTicksLimit.get());
     }
 
+    void resetTransitionTimer(ServerPlayer player)
+    {
+        this.transitionStartTime = -1;
+        ModNetworkDispatcher.sendToClient(new PlayerVampireTransitionTimerS2CPacket(0), player);
+    }
+
     private void syncData(ServerPlayer player)
     {
         if (this.needsSync)

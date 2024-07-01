@@ -8,6 +8,7 @@ import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.effect.TransitionTimerEffectInstance;
+import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
 import com.unixkitty.vampire_blood.network.packet.EntityBloodInfoS2CPacket;
 import net.minecraft.client.Minecraft;
@@ -191,9 +192,16 @@ public class ClientPacketHandler
 
     public static void handleTransitionTimerPacket(int timer)
     {
-        if (timer >= 0 && Minecraft.getInstance().player != null)
+        if (Minecraft.getInstance().player != null)
         {
-            Minecraft.getInstance().player.forceAddEffect(new TransitionTimerEffectInstance(timer), null);
+            if (timer > 0)
+            {
+                Minecraft.getInstance().player.forceAddEffect(new TransitionTimerEffectInstance(timer), null);
+            }
+            else
+            {
+                Minecraft.getInstance().player.removeEffect(ModEffects.VAMPIRE_IN_TRANSITION.get());
+            }
         }
     }
 }

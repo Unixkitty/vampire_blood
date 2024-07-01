@@ -115,22 +115,6 @@ public final class ClientEvents
             }
         }
 
-        //TODO test respawn/player cloning
-//        @SubscribeEvent
-//        public static void onClientPlayerClone(final ClientPlayerNetworkEvent.Clone event)
-//        {
-//            if (ClientVampirePlayerDataCache.playerJustRespawned)
-//            {
-//                event.getNewPlayer().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
-//                {
-//                    vampirePlayerData.setVampireLevel(ClientVampirePlayerDataCache.vampireLevel.getId());
-//                    vampirePlayerData.setBloodType(ClientVampirePlayerDataCache.bloodType.getId());
-//                });
-//
-//                ClientVampirePlayerDataCache.playerJustRespawned = false;
-//            }
-//        }
-
         @SubscribeEvent
         public static void onEntityMouseOver(final RenderHighlightEvent.Entity event)
         {

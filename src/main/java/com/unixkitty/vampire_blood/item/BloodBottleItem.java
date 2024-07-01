@@ -55,21 +55,11 @@ public class BloodBottleItem extends Item
                 {
                     serverPlayer.eat(level, new ItemStack(Items.ROTTEN_FLESH));
 
-                    //TODO special handling
                     if (this.bloodType == BloodType.VAMPIRE)
                     {
                         int duration = Config.vampireBloodEffectDuration.get();
 
                         VampireUtil.applyEffect(serverPlayer, ModEffects.VAMPIRE_BLOOD.get(), duration, 0);
-                        /*serverPlayer.addEffect(new MobEffectInstance(ModEffects.VAMPIRE_BLOOD.get(), duration, 0, false, false, true)
-                        {
-                            //Vanilla effects tick down even if the entity is dead
-                            @Override
-                            public boolean tick(@Nonnull LivingEntity pEntity, @Nonnull Runnable pOnExpirationRunnable)
-                            {
-                                return pEntity.isAlive() && super.tick(pEntity, pOnExpirationRunnable);
-                            }
-                        });*/
                         VampireUtil.applyEffect(serverPlayer, MobEffects.REGENERATION, duration / 2, 0);
                         VampireUtil.applyEffect(serverPlayer, MobEffects.DAMAGE_RESISTANCE, duration / 4, 0);
                         VampireUtil.applyEffect(serverPlayer, MobEffects.SATURATION, duration / 10, 0);
@@ -80,8 +70,13 @@ public class BloodBottleItem extends Item
                         VampireUtil.chanceEffect(serverPlayer, MobEffects.POISON, 400, 0, this.bloodType == BloodType.FRAIL ? 100 : 35);
                     }
                 }
-                else //TODO special handling for IN_TRANSITION ?
+                else
                 {
+                    if (vampirePlayerData.getVampireLevel() == VampirismLevel.IN_TRANSITION && this.bloodType == BloodType.HUMAN)
+                    {
+                        vampirePlayerData.updateLevel(serverPlayer, VampirismLevel.FLEDGLING, false);
+                    }
+
                     vampirePlayerData.addBlood(serverPlayer, Config.bloodPointsFromBottles.get(), this.bloodType);
                 }
             });

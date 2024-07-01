@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.blood.BloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
@@ -253,11 +252,11 @@ public class VampirePlayerData extends BloodVessel
         //Set blood when transitioned successfully
         if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId() && level.getId() > VampirismLevel.IN_TRANSITION.getId())
         {
-            setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
+            setBlood(1);
 
             player.setHealth(player.getMaxHealth());
 
-            blood.transitionStartTime = -1;
+            blood.resetTransitionTimer(player);
         }
 
         blood.vampireLevel = level;
@@ -286,6 +285,8 @@ public class VampirePlayerData extends BloodVessel
             else
             {
                 blood.activeAbilities.clear();
+
+                blood.resetTransitionTimer(player);
             }
         }
 
