@@ -253,6 +253,7 @@ public class VampirePlayerData extends BloodVessel
         if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId() && level.getId() > VampirismLevel.IN_TRANSITION.getId())
         {
             setBlood(1);
+            setBloodlust(100F);
 
             player.setHealth(player.getMaxHealth());
 
@@ -484,6 +485,11 @@ public class VampirePlayerData extends BloodVessel
                     ModNetworkDispatcher.sendPlayerEntityBlood(player, this.feedingEntity.getId(), this.feedingEntityBlood.getBloodType(), this.feedingEntityBlood.getBloodPoints(), this.feedingEntityBlood.getMaxBloodPoints(), true, this.feedingEntityBlood.getCharmedByTicks(player));
 
                     addBlood(player, 1, this.feedingEntityBlood.getBloodType());
+
+                    if (blood.vampireLevel == VampirismLevel.IN_TRANSITION && this.feedingEntityBlood.getBloodType() == BloodType.HUMAN)
+                    {
+                        updateLevel(player, VampirismLevel.FLEDGLING, false);
+                    }
 
                     //Tell other clients to spawn blood particles
                     if (player.level().players().size() > 1)
