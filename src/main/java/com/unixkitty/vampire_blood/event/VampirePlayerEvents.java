@@ -8,6 +8,7 @@ import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
+import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.item.BloodKnifeItem;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -127,7 +128,7 @@ public class VampirePlayerEvents
         {
             player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
             {
-                if (vampirePlayerData.getVampireLevel().getId() > VampirismLevel.IN_TRANSITION.getId())
+                if (vampirePlayerData.getVampireLevel().getId() >= VampirismLevel.IN_TRANSITION.getId())
                 {
                     vampirePlayerData.updateSunCoverage(player);
 
@@ -166,6 +167,10 @@ public class VampirePlayerEvents
                     {
                         player.level().addFreshEntity(new ItemEntity(player.level(), player.getX(), player.getY(), player.getZ(), new ItemStack(ModItems.VAMPIRE_DUST.get(), player.level().random.nextIntBetweenInclusive(1, Config.vampireDustDropAmount.get()))));
                     }
+                }
+                else if (vampirePlayerData.getVampireLevel() == VampirismLevel.NOT_VAMPIRE && player.hasEffect(ModEffects.VAMPIRE_BLOOD.get()))
+                {
+                    vampirePlayerData.setShouldTransition();
                 }
             });
         }

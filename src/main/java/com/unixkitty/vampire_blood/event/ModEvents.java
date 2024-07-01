@@ -9,6 +9,7 @@ import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import com.unixkitty.vampire_blood.entity.ai.CharmedFollowGoal;
+import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -56,7 +57,7 @@ public class ModEvents
     {
         if (!event.getEntity().level().isClientSide)
         {
-            if (event.getEffectInstance().getEffect() instanceof BasicStatusEffect)
+            if (event.getEffectInstance().getEffect() instanceof BasicStatusEffect effect && !effect.equals(ModEffects.VAMPIRE_BLOOD.get()))
             {
                 event.setResult(Event.Result.DENY);
             }
@@ -83,9 +84,17 @@ public class ModEvents
                 {
                     vampirePlayerData.sync();
 
-                    if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429") && !player.isSpectator() && vampirePlayerData.getVampireLevel() != VampirismLevel.ORIGINAL)
+                    if (!player.isSpectator())
                     {
-                        vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, true);
+                        if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
+                        {
+                            vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, true);
+                        }
+                        else
+                        {
+                            //For some reason this needs to be done to ensure death event respawn sync really happens, any earlier doesn't seem to always sync to client
+                            vampirePlayerData.updateLevel(player, vampirePlayerData.getVampireLevel(), true);
+                        }
                     }
                 });
             }

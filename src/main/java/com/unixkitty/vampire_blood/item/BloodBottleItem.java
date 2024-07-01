@@ -4,6 +4,7 @@ import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
@@ -52,17 +53,31 @@ public class BloodBottleItem extends Item
             {
                 if (vampirePlayerData.getVampireLevel() == VampirismLevel.NOT_VAMPIRE)
                 {
+                    serverPlayer.eat(level, new ItemStack(Items.ROTTEN_FLESH));
+
                     //TODO special handling
                     if (this.bloodType == BloodType.VAMPIRE)
                     {
-                        VampireUtil.applyEffect(serverPlayer, MobEffects.REGENERATION, 12000, 0);
-                        VampireUtil.applyEffect(serverPlayer, MobEffects.DAMAGE_RESISTANCE, 3000, 0);
+                        int duration = Config.vampireBloodEffectDuration.get();
+
+                        VampireUtil.applyEffect(serverPlayer, ModEffects.VAMPIRE_BLOOD.get(), duration, 0);
+                        /*serverPlayer.addEffect(new MobEffectInstance(ModEffects.VAMPIRE_BLOOD.get(), duration, 0, false, false, true)
+                        {
+                            //Vanilla effects tick down even if the entity is dead
+                            @Override
+                            public boolean tick(@Nonnull LivingEntity pEntity, @Nonnull Runnable pOnExpirationRunnable)
+                            {
+                                return pEntity.isAlive() && super.tick(pEntity, pOnExpirationRunnable);
+                            }
+                        });*/
+                        VampireUtil.applyEffect(serverPlayer, MobEffects.REGENERATION, duration / 2, 0);
+                        VampireUtil.applyEffect(serverPlayer, MobEffects.DAMAGE_RESISTANCE, duration / 4, 0);
+                        VampireUtil.applyEffect(serverPlayer, MobEffects.SATURATION, duration / 10, 0);
                         serverPlayer.removeEffect(MobEffects.POISON);
                     }
                     else
                     {
                         VampireUtil.chanceEffect(serverPlayer, MobEffects.POISON, 400, 0, this.bloodType == BloodType.FRAIL ? 100 : 35);
-                        serverPlayer.eat(level, new ItemStack(Items.ROTTEN_FLESH));
                     }
                 }
                 else //TODO special handling for IN_TRANSITION ?

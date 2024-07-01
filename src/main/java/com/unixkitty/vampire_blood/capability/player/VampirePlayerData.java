@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.capability.player;
 
+import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.blood.BloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
@@ -38,6 +39,9 @@ public class VampirePlayerData extends BloodVessel
     private static final String THIRST_EXHAUSTION_INCREMENT_NBT_NAME = "thirstExhaustionIncrement";
     private static final String NO_REGEN_TICKS = "noRegenTicks";
     private static final String BLOODLUST_NBT_NAME = "bloodlust";
+    private static final String TRANSITION_START_TIME_NBT_NAME = "transitionStartTime";
+
+    private boolean shouldTransition = false;
 
     private int ticksInSun;
     private boolean catchingUV = false;
@@ -80,6 +84,11 @@ public class VampirePlayerData extends BloodVessel
         }
 
         player.level().getProfiler().pop();
+    }
+
+    public void setShouldTransition()
+    {
+        this.shouldTransition = true;
     }
 
     public void updateSunCoverage(ServerPlayer player)
@@ -127,8 +136,6 @@ public class VampirePlayerData extends BloodVessel
             if (blood.activeAbilities.contains(ability))
             {
                 blood.activeAbilities.remove(ability);
-
-                blood.updateWithAttributes(player, true);
             }
             else if (!this.catchingUV && (blood.thirstLevel >= Config.abilityHungerThreshold.get() || (ability == VampireActiveAbility.BLOOD_VISION || ability == VampireActiveAbility.NIGHT_VISION)))
             {
@@ -138,9 +145,9 @@ public class VampirePlayerData extends BloodVessel
                 }
 
                 blood.activeAbilities.add(ability);
-
-                blood.updateWithAttributes(player, true);
             }
+
+            blood.updateWithAttributes(player, true);
         }
     }
 
@@ -243,11 +250,14 @@ public class VampirePlayerData extends BloodVessel
 
     public void updateLevel(ServerPlayer player, VampirismLevel level, boolean force)
     {
+        //Set blood when transitioned successfully
         if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId() && level.getId() > VampirismLevel.IN_TRANSITION.getId())
         {
             setBlood(VampirePlayerBloodData.MAX_THIRST / 6);
 
             player.setHealth(player.getMaxHealth());
+
+            blood.transitionStartTime = -1;
         }
 
         blood.vampireLevel = level;
@@ -256,7 +266,27 @@ public class VampirePlayerData extends BloodVessel
         {
             setBlood(1);
 
-            blood.bloodType = BloodType.HUMAN;
+            setBloodlust(100F);
+            setBloodType(player, BloodType.HUMAN, true);
+
+            if (blood.vampireLevel == VampirismLevel.IN_TRANSITION)
+            {
+                for (VampireActiveAbility ability : VampireActiveAbility.values())
+                {
+                    if (ability == VampireActiveAbility.SPEED || ability == VampireActiveAbility.SENSES)
+                    {
+                        continue;
+                    }
+
+                    blood.activeAbilities.add(ability);
+                }
+
+                blood.transitionStartTime = player.level().getGameTime();
+            }
+            else
+            {
+                blood.activeAbilities.clear();
+            }
         }
 
         blood.updateWithAttributes(player, force);
@@ -545,6 +575,7 @@ public class VampirePlayerData extends BloodVessel
         tag.putInt(THIRST_EXHAUSTION_INCREMENT_NBT_NAME, blood.thirstExhaustionIncrement);
         tag.putInt(NO_REGEN_TICKS, blood.noRegenTicks);
         tag.putFloat(BLOODLUST_NBT_NAME, blood.bloodlust);
+        tag.putLong(TRANSITION_START_TIME_NBT_NAME, blood.transitionStartTime);
 
         blood.diet.saveNBT(tag);
 
@@ -566,6 +597,7 @@ public class VampirePlayerData extends BloodVessel
         blood.thirstExhaustionIncrement = tag.getInt(THIRST_EXHAUSTION_INCREMENT_NBT_NAME);
         blood.noRegenTicks = tag.getInt(NO_REGEN_TICKS);
         blood.bloodlust = tag.getFloat(BLOODLUST_NBT_NAME);
+        blood.transitionStartTime = tag.getLong(TRANSITION_START_TIME_NBT_NAME);
 
         blood.diet.loadNBT(tag);
 
@@ -602,7 +634,11 @@ public class VampirePlayerData extends BloodVessel
                         newVampData.blood.vampireLevel = VampirismLevel.NOT_VAMPIRE; //Failing transition, player returns to monke
                     }
 
-                    if (newVampData.blood.vampireLevel != VampirismLevel.NOT_VAMPIRE)
+                    if (newVampData.blood.vampireLevel == VampirismLevel.NOT_VAMPIRE && oldVampData.shouldTransition)
+                    {
+                        newVampData.blood.vampireLevel = VampirismLevel.IN_TRANSITION;
+                    }
+                    else
                     {
                         newVampData.blood.bloodType = BloodType.FRAIL;
                         newVampData.blood.diet.reset(newVampData.blood.bloodType);
@@ -624,7 +660,7 @@ public class VampirePlayerData extends BloodVessel
                 }
             });
 
-            newVampData.blood.updateWithAttributes(player, true);
+            newVampData.updateLevel(player, newVampData.blood.vampireLevel, true);
         });
     }
 

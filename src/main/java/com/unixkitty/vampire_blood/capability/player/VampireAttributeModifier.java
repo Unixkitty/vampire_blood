@@ -69,9 +69,7 @@ public enum VampireAttributeModifier
         {
             case HEALTH -> stage.getId() > VampirismLevel.IN_TRANSITION.getId();
             case STRENGTH -> stage.getId() > VampirismLevel.NOT_VAMPIRE.getId();
-            case BASE_SPEED, STEP_HEIGHT ->
-                    stage == VampirismLevel.IN_TRANSITION || (stage.getId() > VampirismLevel.IN_TRANSITION.getId() && activeAbilities.contains(VampireActiveAbility.SPEED));
-            case ATTACK_SPEED ->
+            case BASE_SPEED, ATTACK_SPEED, STEP_HEIGHT ->
                     stage.getId() > VampirismLevel.IN_TRANSITION.getId() && activeAbilities.contains(VampireActiveAbility.SPEED);
         };
     }

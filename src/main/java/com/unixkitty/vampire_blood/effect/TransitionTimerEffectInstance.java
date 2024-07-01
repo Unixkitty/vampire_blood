@@ -1,32 +1,20 @@
 package com.unixkitty.vampire_blood.effect;
 
+import com.unixkitty.vampire_blood.init.ModEffects;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
-public class FakeEffectInstance extends MobEffectInstance
+public class TransitionTimerEffectInstance extends MobEffectInstance
 {
-    public FakeEffectInstance(MobEffect effect)
+    public TransitionTimerEffectInstance(int timer)
     {
-        super(effect, MobEffectInstance.INFINITE_DURATION, 0, false, false, true);
+        super(ModEffects.VAMPIRE_IN_TRANSITION.get(), timer, 0, false, false, true);
 
         setCurativeItems(new ArrayList<>());
-    }
-
-    @Override
-    public boolean isInfiniteDuration()
-    {
-        return true;
-    }
-
-    @Override
-    public boolean tick(@Nonnull LivingEntity entity, @Nonnull Runnable onExpirationRunnable)
-    {
-        return true;
     }
 
     @Override
@@ -38,12 +26,6 @@ public class FakeEffectInstance extends MobEffectInstance
     @Override
     public void applyEffect(@Nonnull LivingEntity entity)
     {
-    }
-
-    @Override
-    public int getDuration()
-    {
-        return MobEffectInstance.INFINITE_DURATION;
     }
 
     @Override

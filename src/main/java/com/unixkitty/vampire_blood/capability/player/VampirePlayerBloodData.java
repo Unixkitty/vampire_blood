@@ -3,8 +3,10 @@ package com.unixkitty.vampire_blood.capability.player;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.init.ModDamageTypes;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.PlayerVampireDataS2CPacket;
+import com.unixkitty.vampire_blood.network.packet.PlayerVampireTransitionTimerS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.SyncAbilitiesS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
@@ -24,6 +26,7 @@ public class VampirePlayerBloodData
     int thirstTickTimer; //This is used for healing and starvation
     int noRegenTicks;
     float bloodlust;
+    long transitionStartTime = -1;
 
     final ObjectArraySet<VampireActiveAbility> activeAbilities = new ObjectArraySet<>();
 
@@ -48,33 +51,66 @@ public class VampirePlayerBloodData
         player.getFoodData().setSaturation(0);
         player.getFoodData().setExhaustion(0);
 
-        if (this.thirstExhaustion >= 100)
+        if (this.vampireLevel == VampirismLevel.IN_TRANSITION)
         {
-            this.thirstExhaustion -= 100;
+            this.bloodPurity = 1.0F;
+            this.thirstLevel = 1;
+            this.thirstExhaustion = 0;
+            this.thirstExhaustionIncrement = 0;
+            this.thirstTickTimer = 0;
+            this.noRegenTicks = 0;
+            this.bloodlust = 0F;
 
-            if (!isPeaceful)
+            if (player.tickCount % 200 == 0)
             {
-                decreaseBlood(1, true);
+                VampireUtil.chanceSound(player, 1F, 1F, 35);
+            }
+
+            if (player.tickCount % 20 == 0)
+            {
+                long deathTime = this.transitionStartTime + Config.transitionTime.get();
+                long gameTime = player.level().getGameTime();
+
+                if (gameTime >= deathTime)
+                {
+                    player.hurt(ModDamageTypes.source(ModDamageTypes.FAILED_TRANSITION, player.level()), Float.MAX_VALUE);
+                }
+                else
+                {
+                    ModNetworkDispatcher.sendToClient(new PlayerVampireTransitionTimerS2CPacket((int) (deathTime - gameTime)), player);
+                }
             }
         }
-
-        if (vanillaExhaustionDelta > 0)
+        else
         {
-            exhaustionIncrementFromVanilla(vanillaExhaustionDelta);
-        }
+            if (this.thirstExhaustion >= 100)
+            {
+                this.thirstExhaustion -= 100;
 
-        exhaustionIncrement(BloodUsageRates.IDLE);
+                if (!isPeaceful)
+                {
+                    decreaseBlood(1, true);
+                }
+            }
 
-        handleRegenAndStarvation(player, isPeaceful);
+            if (vanillaExhaustionDelta > 0)
+            {
+                exhaustionIncrementFromVanilla(vanillaExhaustionDelta);
+            }
 
-        handleAbilityExhaustion();
+            exhaustionIncrement(BloodUsageRates.IDLE);
 
-        if (this.thirstExhaustionIncrement >= Config.bloodUsageRate.get())
-        {
-            this.thirstExhaustionIncrement -= Config.bloodUsageRate.get();
-            this.thirstExhaustion++;
+            handleRegenAndStarvation(player, isPeaceful);
 
-            sync();
+            handleAbilityExhaustion();
+
+            if (this.thirstExhaustionIncrement >= Config.bloodUsageRate.get())
+            {
+                this.thirstExhaustionIncrement -= Config.bloodUsageRate.get();
+                this.thirstExhaustion++;
+
+                sync();
+            }
         }
 
         this.syncData(player);

@@ -57,6 +57,8 @@ public class Config
 
     public static final ForgeConfigSpec.IntValue abilityHungerThreshold;
     public static final ForgeConfigSpec.IntValue charmEffectDuration;
+    public static final ForgeConfigSpec.IntValue vampireBloodEffectDuration;
+    public static final ForgeConfigSpec.IntValue transitionTime;
     /* END ENTRIES */
 
     static
@@ -109,6 +111,8 @@ public class Config
                 increasedDamageFromWood = serverConfig.comment("Do wooden tools have 2x increased damage against vampires").define("increasedDamageFromWood", true);
                 ticksToSunDamage = serverConfig.comment("How many ticks in sunlight before pain").defineInRange("ticksToSunDamage", 60, 1, Integer.MAX_VALUE);
                 vampireDustDropAmount = serverConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
+                vampireBloodEffectDuration = serverConfig.comment("How long in ticks does the effect after drinking vampire blood last for humans").defineInRange("vampireBloodEffectDuration", 12000, -1, 72000);
+                transitionTime = serverConfig.comment("How long in ticks will players get to transition to full vampirism before dying and reverting back").defineInRange("transitionTime", 24000, 600, Integer.MAX_VALUE);
                 sunnyDimensions = serverConfig
                         .comment("List of dimensions vampires should get sun damage in")
                         .defineListAllowEmpty("sunnyDimensions", () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));

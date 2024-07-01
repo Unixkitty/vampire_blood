@@ -49,7 +49,7 @@ public class BloodKnifeItem extends SwordItem
                 {
                     int entityId = tag.getInt(VICTIM_NBT_NAME);
                     Entity entity = serverPlayer.level().getEntity(entityId);
-                    ItemStack[] resultStack = new ItemStack[1];
+                    ItemStack resultStack = ItemStack.EMPTY;
                     IBloodVessel[] bloodVessel = new IBloodVessel[1];
                     boolean[] vampireVictimSelf = new boolean[]{false};
 
@@ -89,20 +89,20 @@ public class BloodKnifeItem extends SwordItem
                                         victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), serverPlayer), 1F);
                                     }
 
-                                    resultStack[0] = BloodBottleItem.createItemStack(bloodVessel[0].getBloodType());
+                                    resultStack = BloodBottleItem.createItemStack(bloodVessel[0].getBloodType());
                                 }
                             }
                         }
                     }
 
-                    if (resultStack[0] != null)
+                    if (!resultStack.isEmpty())
                     {
                         stack.hurtAndBreak(1, serverPlayer, (player1) -> player1.broadcastBreakEvent(serverPlayer.getUsedItemHand()));
                         bottleStack.shrink(1);
 
-                        if (!serverPlayer.getInventory().add(resultStack[0]))
+                        if (!serverPlayer.getInventory().add(resultStack))
                         {
-                            serverPlayer.drop(resultStack[0], false);
+                            serverPlayer.drop(resultStack, false);
                         }
                     }
                 }

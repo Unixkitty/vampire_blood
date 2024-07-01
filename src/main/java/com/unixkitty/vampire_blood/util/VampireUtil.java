@@ -11,6 +11,7 @@ import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityOutlineColorS2CPacket;
 import com.unixkitty.vampire_blood.network.packet.PlayerAvoidHurtAnimS2CPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -240,6 +241,14 @@ public class VampireUtil
         if (!(chance < 100 && livingEntity.getRandom().nextInt(101) > chance))
         {
             applyEffect(livingEntity, effect, duration, effectPower);
+        }
+    }
+
+    public static void chanceSound(ServerPlayer player, float volume, float pitch, int chance)
+    {
+        if (!(chance < 100 && player.getRandom().nextInt(101) > chance))
+        {
+            player.playNotifySound(SoundEvents.AMBIENT_CAVE.get(), player.getSoundSource(), volume, pitch);
         }
     }
 }
