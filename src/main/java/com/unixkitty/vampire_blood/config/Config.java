@@ -59,6 +59,8 @@ public class Config
     public static final ForgeConfigSpec.IntValue charmEffectDuration;
     public static final ForgeConfigSpec.IntValue vampireBloodEffectDuration;
     public static final ForgeConfigSpec.IntValue transitionTime;
+    public static final ForgeConfigSpec.LongValue fledglingAgeTime;
+    public static final ForgeConfigSpec.LongValue vampireAgeTime;
     /* END ENTRIES */
 
     static
@@ -113,6 +115,8 @@ public class Config
                 vampireDustDropAmount = serverConfig.comment("Up to how much vampire dust drops on death").defineInRange("vampireDustDropAmount", 2, 0, 64);
                 vampireBloodEffectDuration = serverConfig.comment("How long in ticks does the effect after drinking vampire blood last for humans").defineInRange("vampireBloodEffectDuration", 12000, -1, 72000);
                 transitionTime = serverConfig.comment("How long in ticks will players get to transition to full vampirism before dying and reverting back").defineInRange("transitionTime", 24000, 600, Integer.MAX_VALUE);
+                fledglingAgeTime = serverConfig.comment("How many ticks need to pass for a fledgling vampire to \"age\" to a regular vampire").comment("Set to -1 to disable aging from this stage").defineInRange("fledglingAgeTime", 24192000, -1, (Long.MAX_VALUE / 2) - 1);
+                vampireAgeTime = serverConfig.comment("How many ticks need to pass for a vampire to \"age\" to a mature vampire").comment("Set to -1 to disable aging from this stage").defineInRange("vampireAgeTime", 72576000, -1, (Long.MAX_VALUE / 2) - 1);
                 sunnyDimensions = serverConfig
                         .comment("List of dimensions vampires should get sun damage in")
                         .defineListAllowEmpty("sunnyDimensions", () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));

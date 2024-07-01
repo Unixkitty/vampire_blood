@@ -2,10 +2,7 @@ package com.unixkitty.vampire_blood.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
-import com.unixkitty.vampire_blood.capability.player.VampireActiveAbility;
-import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
-import com.unixkitty.vampire_blood.capability.player.VampirePlayerBloodData;
-import com.unixkitty.vampire_blood.capability.player.VampirismTier;
+import com.unixkitty.vampire_blood.capability.player.*;
 import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
@@ -130,6 +127,7 @@ public class ModDebugOverlay
 
             craftLine(ChatFormatting.RED, "Health: ", VampireUtil.formatDecimal(player.getHealth()), "/", VampireUtil.formatDecimal(player.getMaxHealth()), " | Rate: ", VampireUtil.formatDecimal(VampireUtil.getHealthRegenRate(player)), "/", ClientCache.isHungry() ? Config.naturalHealingRate.get() * 4 : Config.naturalHealingRate.get(), "t");
             craftLine(ChatFormatting.LIGHT_PURPLE, "noRegenTicks: ", ClientCache.getDebugVars().noRegenTicks);
+            craftLine(ChatFormatting.DARK_GRAY, "age: ", ClientCache.getDebugVars().age, " | next: ", ClientCache.getVampireVars().getVampireLevel() == VampirismLevel.FLEDGLING ? Config.fledglingAgeTime.get() : Config.fledglingAgeTime.get() + Config.vampireAgeTime.get(), " (", VampirismTier.fromId(VampirismLevel.class, ClientCache.getVampireVars().getVampireLevel().getId() + 1), ")");
         }
 
         if (ClientCache.canFeed())

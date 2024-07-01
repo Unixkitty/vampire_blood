@@ -9,6 +9,7 @@ public class ModDebugVarsCache
     public boolean catchingUV = false;
     public float armourUVCoverage;
     public int ticksInSun;
+    public long age;
     public int thirstExhaustionIncrement;
     public int thirstTickTimer;
     public int noRegenTicks;

@@ -74,7 +74,7 @@ public class BloodBottleItem extends Item
                 {
                     if (vampirePlayerData.getVampireLevel() == VampirismLevel.IN_TRANSITION && this.bloodType == BloodType.HUMAN)
                     {
-                        vampirePlayerData.updateLevel(serverPlayer, VampirismLevel.FLEDGLING, false);
+                        vampirePlayerData.updateLevel(serverPlayer, VampirismLevel.FLEDGLING, true);
                     }
 
                     vampirePlayerData.addBlood(serverPlayer, Config.bloodPointsFromBottles.get(), this.bloodType);

@@ -42,6 +42,7 @@ public class VampirePlayerData extends BloodVessel
     private static final String NO_REGEN_TICKS = "noRegenTicks";
     private static final String BLOODLUST_NBT_NAME = "bloodlust";
     private static final String TRANSITION_START_TIME_NBT_NAME = "transitionStartTime";
+    private static final String AGE_NBT_NAME = "age";
 
     private boolean shouldTransition = false;
 
@@ -59,6 +60,8 @@ public class VampirePlayerData extends BloodVessel
     private int ticksFeeding;
     private int totalTicksFeeding = 0;
 
+    private long age;
+
     //This is for being fed on
     private int maxBloodPoints = 0;
     private int bloodPoints = 0;
@@ -72,6 +75,8 @@ public class VampirePlayerData extends BloodVessel
             handleSunlight(player);
 
             handleFeeding(player);
+
+            handleAgeing(player);
 
             blood.tick(player);
 
@@ -258,6 +263,7 @@ public class VampirePlayerData extends BloodVessel
         return blood.vampireLevel;
     }
 
+    //boolean force is used to sync instantly
     public void updateLevel(ServerPlayer player, VampirismLevel level, boolean force)
     {
         //Set blood when transitioned successfully
@@ -269,6 +275,7 @@ public class VampirePlayerData extends BloodVessel
             player.setHealth(player.getMaxHealth());
 
             blood.resetTransitionTimer(player);
+            this.age = 0;
         }
 
         blood.vampireLevel = level;
@@ -499,7 +506,7 @@ public class VampirePlayerData extends BloodVessel
 
                     if (blood.vampireLevel == VampirismLevel.IN_TRANSITION && this.feedingEntityBlood.getBloodType() == BloodType.HUMAN)
                     {
-                        updateLevel(player, VampirismLevel.FLEDGLING, false);
+                        updateLevel(player, VampirismLevel.FLEDGLING, true);
                     }
 
                     //Tell other clients to spawn blood particles
@@ -514,6 +521,32 @@ public class VampirePlayerData extends BloodVessel
                 }
 
                 this.ticksFeeding = 0;
+            }
+        }
+    }
+
+    private void handleAgeing(ServerPlayer player)
+    {
+        this.age++;
+
+        if (player.tickCount % 20 == 0)
+        {
+            switch (blood.vampireLevel)
+            {
+                case FLEDGLING -> ageTo(player, VampirismLevel.VAMPIRE, Config.fledglingAgeTime.get());
+                case VAMPIRE ->
+                        ageTo(player, VampirismLevel.MATURE, Config.vampireAgeTime.get() + Config.fledglingAgeTime.get());
+            }
+        }
+    }
+
+    private void ageTo(ServerPlayer player, VampirismLevel vampirismLevel, long ageThreshold)
+    {
+        if (ageThreshold != -1)
+        {
+            if (this.age >= ageThreshold)
+            {
+                updateLevel(player, vampirismLevel, true);
             }
         }
     }
@@ -594,6 +627,7 @@ public class VampirePlayerData extends BloodVessel
         tag.putInt(NO_REGEN_TICKS, blood.noRegenTicks);
         tag.putFloat(BLOODLUST_NBT_NAME, blood.bloodlust);
         tag.putLong(TRANSITION_START_TIME_NBT_NAME, blood.transitionStartTime);
+        tag.putLong(AGE_NBT_NAME, this.age);
 
         blood.diet.saveNBT(tag);
 
@@ -616,6 +650,7 @@ public class VampirePlayerData extends BloodVessel
         blood.noRegenTicks = tag.getInt(NO_REGEN_TICKS);
         blood.bloodlust = tag.getFloat(BLOODLUST_NBT_NAME);
         blood.transitionStartTime = tag.getLong(TRANSITION_START_TIME_NBT_NAME);
+        this.age = tag.getLong(AGE_NBT_NAME);
 
         blood.diet.loadNBT(tag);
 
@@ -745,6 +780,7 @@ public class VampirePlayerData extends BloodVessel
                     this.catchingUV,
                     this.armourUVCoverage,
                     this.ticksInSun,
+                    this.age,
                     blood.noRegenTicks,
                     blood.thirstExhaustionIncrement,
                     blood.thirstTickTimer,

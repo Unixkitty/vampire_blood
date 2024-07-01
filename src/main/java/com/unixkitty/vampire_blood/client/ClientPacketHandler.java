@@ -65,11 +65,12 @@ public class ClientPacketHandler
     }
 
     @SuppressWarnings("DataFlowIssue")
-    public static void handleDebugData(boolean catchingUV, float armourUVCoverage, int ticksInSun, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
+    public static void handleDebugData(boolean catchingUV, float armourUVCoverage, int ticksInSun, long age, int noRegenTicks, int thirstExhaustionIncrement, int thirstTickTimer, int[] diet)
     {
         ClientCache.getDebugVars().catchingUV = catchingUV;
         ClientCache.getDebugVars().armourUVCoverage = armourUVCoverage;
         ClientCache.getDebugVars().ticksInSun = ticksInSun;
+        ClientCache.getDebugVars().age = age;
         ClientCache.getDebugVars().noRegenTicks = noRegenTicks;
 
         ClientCache.getDebugVars().thirstExhaustionIncrement = thirstExhaustionIncrement;
