@@ -33,7 +33,15 @@ public class BloodBottleItem extends Item
 
     public BloodBottleItem(BloodType bloodType)
     {
-        super(new Properties().rarity(Rarity.create(bloodType.name() + "_blood", bloodType.getChatFormatting())).stacksTo(4).craftRemainder(Items.GLASS_BOTTLE));
+        super(new Properties().rarity(Rarity.create(bloodType.name() + "_blood", switch (bloodType)
+        {
+            case NONE -> ChatFormatting.BLACK;
+            case FRAIL -> ChatFormatting.GRAY;
+            case CREATURE -> ChatFormatting.GREEN;
+            case HUMAN -> ChatFormatting.DARK_RED;
+            case VAMPIRE -> ChatFormatting.DARK_PURPLE;
+            case PIGLIN -> ChatFormatting.GOLD;
+        })).stacksTo(4).craftRemainder(Items.GLASS_BOTTLE));
 
         this.bloodType = bloodType;
     }

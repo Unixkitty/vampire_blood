@@ -12,14 +12,18 @@ import com.unixkitty.vampire_blood.network.packet.SuccessfulCharmS2CPacket;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ReputationEventHandler;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,6 +39,8 @@ public abstract class BloodVessel implements IBloodVessel
     protected ObjectOpenHashSet<UUID> knownVampirePlayers = null;
     @Nullable
     private Player lastCharmedPlayer = null;
+
+    protected int foodItemCooldown;
 
     public void saveNBTData(CompoundTag tag)
     {
@@ -58,7 +64,7 @@ public abstract class BloodVessel implements IBloodVessel
                 subTag.putUUID(String.valueOf(i++), uuid);
             }
 
-            tag.put(KNOWN_VAMPIRE_PLAYERS, subTag);
+            tag.put(KNOWN_VAMPIRE_PLAYERS_NBT_NAME, subTag);
         }
     }
 
@@ -76,7 +82,7 @@ public abstract class BloodVessel implements IBloodVessel
             }
         }
 
-        CompoundTag subTagKnownVampires = tag.getCompound(KNOWN_VAMPIRE_PLAYERS);
+        CompoundTag subTagKnownVampires = tag.getCompound(KNOWN_VAMPIRE_PLAYERS_NBT_NAME);
 
         if (subTagKnownVampires.size() > 0)
         {
@@ -265,8 +271,51 @@ public abstract class BloodVessel implements IBloodVessel
         return switch (getBloodType())
         {
             case VAMPIRE -> attackerLevel == VampirismLevel.ORIGINAL && setCharmedBy(player, target);
-            case CREATURE, HUMAN, PIGLIN -> setCharmedBy(player, target);
+            case CREATURE, HUMAN, PIGLIN -> setCharmedBy(player, target) && notifyPlayerCharmed(player, target);
             default -> false;
         };
+    }
+
+    @Override
+    public boolean hasNoFoodItemCooldown()
+    {
+        return this.foodItemCooldown <= 0;
+    }
+
+    @Override
+    public void addFoodItemCooldown(LivingEntity entity, ItemStack stack)
+    {
+        if (stack.isEdible())
+        {
+            this.foodItemCooldown += stack.getUseDuration();
+
+            this.foodItemCooldown = entity instanceof Player ? this.foodItemCooldown * 2 : this.foodItemCooldown + (int) (entity.getRandom().nextFloat() * Config.entityFoodItemMaxCooldown.get());
+
+            VampireUtil.applyEffect(entity, MobEffects.UNLUCK, this.foodItemCooldown, 0);
+        }
+    }
+
+    @Override
+    public int getFoodItemCooldown()
+    {
+        return this.foodItemCooldown;
+    }
+
+    protected void tickFoodItemCooldown()
+    {
+        if (this.foodItemCooldown > 0)
+        {
+            this.foodItemCooldown--;
+        }
+    }
+
+    private boolean notifyPlayerCharmed(Player charmingPlayer, LivingEntity target)
+    {
+        if (target instanceof ServerPlayer targetPlayer)
+        {
+            targetPlayer.sendSystemMessage(Component.translatable("text.vampire_blood.feeling_charmed", charmingPlayer.getDisplayName().getString()).withStyle(ChatFormatting.DARK_PURPLE), true);
+        }
+
+        return true;
     }
 }

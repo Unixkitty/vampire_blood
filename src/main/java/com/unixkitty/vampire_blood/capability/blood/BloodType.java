@@ -2,16 +2,15 @@ package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampireAttributeModifier;
 import com.unixkitty.vampire_blood.capability.player.VampirismTier;
-import net.minecraft.ChatFormatting;
 
 public enum BloodType implements VampirismTier<BloodType>
 {
-    NONE(0, 0, 0, 0, 0, ChatFormatting.BLACK),
-    FRAIL(1, 0.5, 0.5, 0, 0.33F, ChatFormatting.GRAY),
-    CREATURE(2, 0.75, 0.75, 0.25, 1F, ChatFormatting.GREEN),
-    HUMAN(3, 1, 1, 1, 2F, ChatFormatting.DARK_RED),
-    VAMPIRE(4, 0.85, 0.85, 1.25, 1F, ChatFormatting.DARK_PURPLE),
-    PIGLIN(5, 0.85, 0.85, 0.75, 1.5F, ChatFormatting.GOLD);
+    NONE(0, 0, 0, 0, 0),
+    FRAIL(1, 0.5, 0.5, 0, 0.33F),
+    CREATURE(2, 0.75, 0.75, 0.25, 1F),
+    HUMAN(3, 1, 1, 1, 2F),
+    VAMPIRE(4, 0.85, 0.85, 1.25, 1F),
+    PIGLIN(5, 0.85, 0.85, 0.75, 1.5F);
 
     public static final String BLOODTYPE_NBT_NAME = "bloodType";
 
@@ -20,16 +19,14 @@ public enum BloodType implements VampirismTier<BloodType>
     private final double strengthMultiplier;
     private final double speedBoostModifier;
     private final float bloodSaturationModifier;
-    private final ChatFormatting chatFormatting;
 
-    BloodType(int id, double healthMultiplier, double strengthMultiplier, double speedBoostModifier, float bloodSaturationModifier, ChatFormatting formatting)
+    BloodType(int id, double healthMultiplier, double strengthMultiplier, double speedBoostModifier, float bloodSaturationModifier)
     {
         this.id = id;
         this.healthMultiplier = healthMultiplier;
         this.strengthMultiplier = strengthMultiplier;
         this.speedBoostModifier = speedBoostModifier;
         this.bloodSaturationModifier = bloodSaturationModifier;
-        this.chatFormatting = formatting;
     }
 
     @Override
@@ -65,23 +62,6 @@ public enum BloodType implements VampirismTier<BloodType>
             case STRENGTH -> this.strengthMultiplier;
             case BASE_SPEED, ATTACK_SPEED -> this.speedBoostModifier;
             case STEP_HEIGHT -> this == FRAIL ? 0D : 1D;
-        };
-    }
-
-    @Override
-    public ChatFormatting getChatFormatting()
-    {
-        return this.chatFormatting;
-    }
-
-    public int getColor()
-    {
-        return switch (this)
-        {
-            case CREATURE -> 6336304;
-            case HUMAN -> 9437216;
-            case VAMPIRE -> 6226059;
-            default -> this.chatFormatting.getColor();
         };
     }
 }

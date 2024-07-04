@@ -90,6 +90,11 @@ public class VampirePlayerData extends BloodVessel
             updateBloodForFeeding(player, getBloodType());
         }
 
+        if (getBloodType() == BloodType.HUMAN)
+        {
+            tickFoodItemCooldown();
+        }
+
         player.level().getProfiler().pop();
     }
 
@@ -115,7 +120,7 @@ public class VampirePlayerData extends BloodVessel
 
     public void charmTarget(@Nonnull LivingEntity target, ServerPlayer player)
     {
-        if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && target.isAlive() && blood.thirstLevel > Config.abilityHungerThreshold.get() && VampireUtil.isLookingAtEntity(player, target))
+        if (blood.vampireLevel.getId() > VampirismLevel.IN_TRANSITION.getId() && target.isAlive() && blood.thirstLevel > Config.abilityHungerThreshold.get() && VampireUtil.canReachEntity(player, target))
         {
             boolean shouldUseBlood;
 
@@ -169,7 +174,7 @@ public class VampirePlayerData extends BloodVessel
     {
         if (blood.vampireLevel != VampirismLevel.NOT_VAMPIRE && !feeding && target.isAlive())
         {
-            if (blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST && VampireUtil.isLookingAtEntity(player, target))
+            if (blood.thirstLevel < VampirePlayerBloodData.MAX_THIRST && VampireUtil.canReachEntity(player, target))
             {
                 if (target instanceof Player targetPlayer && !targetPlayer.isSpectator() && !targetPlayer.isCreative())
                 {
@@ -480,7 +485,7 @@ public class VampirePlayerData extends BloodVessel
             ++this.ticksFeeding;
             ++this.totalTicksFeeding;
 
-            if (!player.isAlive() || !this.feedingEntity.isAlive() || !VampireUtil.isLookingAtEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST || this.totalTicksFeeding >= 550)
+            if (!player.isAlive() || !this.feedingEntity.isAlive() || !VampireUtil.canReachEntity(player, this.feedingEntity) || this.feedingEntityBlood.getBloodPoints() <= 0 || blood.thirstLevel >= VampirePlayerBloodData.MAX_THIRST || this.totalTicksFeeding >= 550)
             {
                 stopFeeding(player);
             }
@@ -628,6 +633,7 @@ public class VampirePlayerData extends BloodVessel
         tag.putFloat(BLOODLUST_NBT_NAME, blood.bloodlust);
         tag.putLong(TRANSITION_START_TIME_NBT_NAME, blood.transitionStartTime);
         tag.putLong(AGE_NBT_NAME, this.age);
+        tag.putInt(FOOD_ITEM_COOLDOWN_NBT_NAME, this.foodItemCooldown);
 
         blood.diet.saveNBT(tag);
 
@@ -651,6 +657,7 @@ public class VampirePlayerData extends BloodVessel
         blood.bloodlust = tag.getFloat(BLOODLUST_NBT_NAME);
         blood.transitionStartTime = tag.getLong(TRANSITION_START_TIME_NBT_NAME);
         this.age = tag.getLong(AGE_NBT_NAME);
+        this.foodItemCooldown = tag.getInt(FOOD_ITEM_COOLDOWN_NBT_NAME);
 
         blood.diet.loadNBT(tag);
 

@@ -73,5 +73,6 @@
   "text.vampire_blood.knife_usage_self": "Using knife on self",
   "text.vampire_blood.knife_usage_entity": "Using knife on %s",
   "text.vampire_blood.feeding_stop_fail": "You are having trouble controlling yourself...",
-  "text.vampire_blood.speed_in_armour": "You feel burdened by the weight of your armor"
+  "text.vampire_blood.speed_in_armour": "You feel burdened by the weight of your armor",
+  "text.vampire_blood.feeling_charmed": "You feel charmed by %s's presence..."
 }

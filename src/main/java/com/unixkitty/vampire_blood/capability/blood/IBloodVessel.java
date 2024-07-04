@@ -5,13 +5,15 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
 public interface IBloodVessel
 {
     String CHARMED_BY_NBT_NAME = "charmedBy";
-    String KNOWN_VAMPIRE_PLAYERS = "knownVampirePlayers";
+    String KNOWN_VAMPIRE_PLAYERS_NBT_NAME = "knownVampirePlayers";
+    String FOOD_ITEM_COOLDOWN_NBT_NAME = "foodItemCooldown";
 
     boolean isEdible();
 
@@ -26,6 +28,12 @@ public interface IBloodVessel
     void drinkFromHealth(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim, @Nonnull BloodType bloodType);
 
     boolean decreaseBlood(@Nonnull LivingEntity attacker, @Nonnull LivingEntity victim);
+
+    boolean hasNoFoodItemCooldown();
+
+    void addFoodItemCooldown(LivingEntity entity, ItemStack stack);
+
+    int getFoodItemCooldown();
 
     default void stackBloodlossWeaknessEffect(@Nonnull LivingEntity victim)
     {

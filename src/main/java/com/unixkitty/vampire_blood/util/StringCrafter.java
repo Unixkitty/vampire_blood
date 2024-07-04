@@ -1,6 +1,5 @@
 package com.unixkitty.vampire_blood.util;
 
-import net.minecraft.ChatFormatting;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.util.StringBuilders;
@@ -22,16 +21,16 @@ public class StringCrafter
         return this;
     }
 
-    public Pair<String, Integer> addLine(ChatFormatting chatFormatting, Object... objects)
+    public Pair<String, Integer> addLine(int color, Object... objects)
     {
         for (Object textObject : objects)
         {
             add(textObject);
         }
-        return endLine(chatFormatting);
+        return endLine(color);
     }
 
-    public Pair<String, Integer> endLine(ChatFormatting formatting)
+    public Pair<String, Integer> endLine(int color)
     {
         String line = this.buffer.toString();
 
@@ -42,7 +41,7 @@ public class StringCrafter
 
         buffer.setLength(0);
 
-        return new ImmutablePair<>(line, formatting.getColor());
+        return new ImmutablePair<>(line, color);
     }
 
     public String getLongestLine()

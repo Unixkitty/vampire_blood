@@ -41,6 +41,11 @@ public class BloodEntityStorage extends BloodVessel
         if (Config.healthOrBloodPoints.get() && entity.getMobType() != MobType.UNDEAD)
         {
             updateBloodHealth(entity);
+
+            if (this.bloodType == BloodType.HUMAN || this.bloodType == BloodType.PIGLIN)
+            {
+                tickFoodItemCooldown();
+            }
         }
 
         if (this.bloodType != BloodType.FRAIL && entity.getMobType() != MobType.UNDEAD && Config.entityRegen.get() && naturalRegen && entity.tickCount % this.ticksPerRegen == 0)
@@ -204,6 +209,7 @@ public class BloodEntityStorage extends BloodVessel
         tag.putBoolean(REGEN_NBT_NAME, this.naturalRegen);
         tag.putInt(REGEN_TIMER_NBT_NAME, this.naturalRegenTimer);
         tag.putBoolean(FRESH_ENTITY_NBT_NAME, this.freshEntity);
+        tag.putInt(FOOD_ITEM_COOLDOWN_NBT_NAME, this.foodItemCooldown);
 
         super.saveNBTData(tag);
     }
@@ -218,6 +224,7 @@ public class BloodEntityStorage extends BloodVessel
         this.naturalRegen = tag.getBoolean(REGEN_NBT_NAME);
         this.naturalRegenTimer = tag.getInt(REGEN_TIMER_NBT_NAME);
         this.freshEntity = tag.getBoolean(FRESH_ENTITY_NBT_NAME);
+        this.foodItemCooldown = tag.getInt(FOOD_ITEM_COOLDOWN_NBT_NAME);
 
         super.loadNBTData(tag);
     }

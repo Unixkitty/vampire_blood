@@ -197,7 +197,7 @@ public class BloodKnifeItem extends SwordItem
             {
                 int id = tag.getInt(VICTIM_NBT_NAME);
 
-                return id == player.getId() || player.level().getEntity(id) instanceof LivingEntity livingEntity && VampireUtil.isLookingAtEntity(player, livingEntity);
+                return id == player.getId() || player.level().getEntity(id) instanceof LivingEntity livingEntity && VampireUtil.canReachEntity(player, livingEntity);
             }
         }
 

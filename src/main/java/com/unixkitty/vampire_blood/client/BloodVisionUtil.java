@@ -5,6 +5,7 @@ import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
+import com.unixkitty.vampire_blood.util.ColorUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OutlineBufferSource;
@@ -35,7 +36,7 @@ public final class BloodVisionUtil
 
                 if (entityBlood != null && entityBlood.bloodType() != BloodType.NONE && entityBlood.maxBloodPoints() > 0 && entityBlood.bloodPoints() > 0)
                 {
-                    int color = entityBlood.bloodType().getColor();
+                    int color = ColorUtil.getForBloodType(entityBlood.bloodType());
 //                    int alpha = (int) (((double) entityBlood.bloodPoints() / entityBlood.maxBloodPoints()) * 255); //This doesn't do anything at the moment
 
                     currentlyNotRendering = false;

@@ -1,6 +1,6 @@
 package com.unixkitty.vampire_blood.network.packet;
 
-import com.unixkitty.vampire_blood.util.VampireUtil;
+import com.unixkitty.vampire_blood.util.ColorUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,7 +37,7 @@ public class RequestEntityOutlineColorC2SPacket extends BasePacket
 
             if (player != null && player.level().getEntity(this.id) instanceof LivingEntity entity)
             {
-                VampireUtil.computeEntityOutlineColorFor(player, entity);
+                ColorUtil.computeEntityOutlineColorFor(player, entity);
             }
         });
 

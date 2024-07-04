@@ -7,8 +7,8 @@ import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.util.ColorUtil;
 import com.unixkitty.vampire_blood.util.VampireUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -142,17 +142,17 @@ public class BloodBarOverlay implements IGuiOverlay
                     renderStartY -= (int) (gui.getFont().lineHeight * 1.5);
                     int lineNum = 0;
 
-                    drawLine(FeedingMouseOverHandler.bloodType.getTranslation(), gui, guiGraphics, renderStartX, renderStartY, FeedingMouseOverHandler.bloodType.getChatFormatting());
-                    drawLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_RED);
+                    drawLine(FeedingMouseOverHandler.bloodType.getTranslation(), gui, guiGraphics, renderStartX, renderStartY, ColorUtil.getForBloodType(FeedingMouseOverHandler.bloodType));
+                    drawDarkRedLine(FeedingMouseOverHandler.bloodPoints + "/" + FeedingMouseOverHandler.maxBloodPoints, gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum));
 
                     if (Config.entityBloodHUDshowHP.get())
                     {
-                        drawLine(Component.translatable("text.vampire_blood.health", VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getHealth()), VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getMaxHealth())), gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.RED);
+                        drawLine(Component.translatable("text.vampire_blood.health", VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getHealth()), VampireUtil.formatDecimal(FeedingMouseOverHandler.getLastEntity().getMaxHealth())), gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ColorUtil.HEALTHY_RED);
                     }
 
                     if (FeedingMouseOverHandler.charmedSeconds != -2)
                     {
-                        drawLine(Component.translatable("text.vampire_blood.charmed_for", FeedingMouseOverHandler.charmedSeconds), gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ChatFormatting.DARK_PURPLE);
+                        drawLine(Component.translatable("text.vampire_blood.charmed_for", FeedingMouseOverHandler.charmedSeconds), gui, guiGraphics, renderStartX, renderStartY + (gui.getFont().lineHeight * ++lineNum), ColorUtil.SASSY_VIOLET);
                     }
                 }
                 else
@@ -194,15 +194,13 @@ public class BloodBarOverlay implements IGuiOverlay
         return iconIndex * 9;
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void drawLine(String text, ForgeGui gui, GuiGraphics guiGraphics, int renderStartX, int renderStartY, ChatFormatting format)
+    private void drawDarkRedLine(String text, ForgeGui gui, GuiGraphics guiGraphics, int renderStartX, int renderStartY)
     {
-        guiGraphics.drawString(gui.getFont(), text, renderStartX, renderStartY, format.getColor(), true);
+        guiGraphics.drawString(gui.getFont(), text, renderStartX, renderStartY, ColorUtil.RED_WINE, true);
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    private void drawLine(Component text, ForgeGui gui, GuiGraphics guiGraphics, int renderStartX, int renderStartY, ChatFormatting format)
+    private void drawLine(Component text, ForgeGui gui, GuiGraphics guiGraphics, int renderStartX, int renderStartY, int color)
     {
-        guiGraphics.drawString(gui.getFont(), text, renderStartX, renderStartY, format.getColor(), true);
+        guiGraphics.drawString(gui.getFont(), text, renderStartX, renderStartY, color, true);
     }
 }

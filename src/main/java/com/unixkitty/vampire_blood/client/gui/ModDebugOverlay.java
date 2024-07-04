@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.client.ClientEvents;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingMouseOverHandler;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.util.ColorUtil;
 import com.unixkitty.vampire_blood.util.StringCrafter;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
@@ -89,7 +90,7 @@ public class ModDebugOverlay
 
                     if (type != null)
                     {
-                        craftLine(type.getChatFormatting(), i + 1, i < 9 ? ".   " : ".  ", type.getTranslation().getString());
+                        craftLine(ColorUtil.getForBloodType(type), i + 1, i < 9 ? ".   " : ".  ", type.getTranslation().getString());
                     }
                 }
             }
@@ -182,9 +183,15 @@ public class ModDebugOverlay
         }
     }
 
+    private static void craftLine(int color, Object... objects)
+    {
+        drawList.add(crafter.addLine(color, objects));
+    }
+
+    @SuppressWarnings("DataFlowIssue")
     private static void craftLine(ChatFormatting formatting, Object... objects)
     {
-        drawList.add(crafter.addLine(formatting, objects));
+        drawList.add(crafter.addLine(formatting.getColor(), objects));
     }
 
     private static void addAttributes(Player player)

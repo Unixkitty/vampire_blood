@@ -61,6 +61,9 @@ public class Config
     public static final ForgeConfigSpec.IntValue transitionTime;
     public static final ForgeConfigSpec.LongValue fledglingAgeTime;
     public static final ForgeConfigSpec.LongValue vampireAgeTime;
+
+    public static final ForgeConfigSpec.BooleanValue onlyFeedCharmedHumanoids;
+    public static final ForgeConfigSpec.IntValue entityFoodItemMaxCooldown;
     /* END ENTRIES */
 
     static
@@ -117,6 +120,8 @@ public class Config
                 transitionTime = serverConfig.comment("How long in ticks will players get to transition to full vampirism before dying and reverting back").defineInRange("transitionTime", 24000, 600, Integer.MAX_VALUE);
                 fledglingAgeTime = serverConfig.comment("How many ticks need to pass for a fledgling vampire to \"age\" to a regular vampire").comment("Set to -1 to disable aging from this stage").defineInRange("fledglingAgeTime", 24192000, -1, (Long.MAX_VALUE / 2) - 1);
                 vampireAgeTime = serverConfig.comment("How many ticks need to pass for a vampire to \"age\" to a mature vampire").comment("Set to -1 to disable aging from this stage").defineInRange("vampireAgeTime", 72576000, -1, (Long.MAX_VALUE / 2) - 1);
+                onlyFeedCharmedHumanoids = serverConfig.comment("Can only charmed humans and piglins be fed with food items to heal them?").comment("Setting this to 'false' will allow anybody to feed either").define("onlyFeedCharmedHumanoids", true);
+                entityFoodItemMaxCooldown = serverConfig.comment("Maximum amount of time in ticks a recently fed human or piglin can refuse to eat more").comment("Result will be a random number between the time it takes to consume each food item to this value").comment("Set to 0 to disable the cooldown").defineInRange("entityFoodItemMaxCooldown", 1200, 0, 1728000);
                 sunnyDimensions = serverConfig
                         .comment("List of dimensions vampires should get sun damage in")
                         .defineListAllowEmpty("sunnyDimensions", () -> Lists.newArrayList(BuiltinDimensionTypes.OVERWORLD.location().toString()), (potentialEntry) -> potentialEntry instanceof String string && ResourceLocation.isValidResourceLocation(string));

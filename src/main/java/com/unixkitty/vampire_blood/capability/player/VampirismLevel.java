@@ -1,25 +1,21 @@
 package com.unixkitty.vampire_blood.capability.player;
 
-import net.minecraft.ChatFormatting;
-
 public enum VampirismLevel implements VampirismTier<VampirismLevel>
 {
-    NOT_VAMPIRE(-1, 0, ChatFormatting.WHITE),
-    IN_TRANSITION(0, 0, ChatFormatting.GRAY),
-    FLEDGLING(1, 1.25F, ChatFormatting.RED),
-    VAMPIRE(2, 1.0F, ChatFormatting.LIGHT_PURPLE),
-    MATURE(3, 0.75F, ChatFormatting.DARK_PURPLE),
-    ORIGINAL(999, 0.5F, ChatFormatting.DARK_RED);
+    NOT_VAMPIRE(-1, 0),
+    IN_TRANSITION(0, 0),
+    FLEDGLING(1, 1.25F),
+    VAMPIRE(2, 1.0F),
+    MATURE(3, 0.75F),
+    ORIGINAL(999, 0.5F);
 
     private final int id;
     private final float bloodUsageMultiplier;
-    private final ChatFormatting chatFormatting;
 
-    VampirismLevel(int id, float bloodUsageMultiplier, ChatFormatting formatting)
+    VampirismLevel(int id, float bloodUsageMultiplier)
     {
         this.id = id;
         this.bloodUsageMultiplier = bloodUsageMultiplier;
-        this.chatFormatting = formatting;
     }
 
     @Override
@@ -54,11 +50,5 @@ public enum VampirismLevel implements VampirismTier<VampirismLevel>
             case HEALTH, STRENGTH, BASE_SPEED, ATTACK_SPEED -> this.ordinal();
             case STEP_HEIGHT -> 1.0D;
         };
-    }
-
-    @Override
-    public ChatFormatting getChatFormatting()
-    {
-        return this.chatFormatting;
     }
 }
