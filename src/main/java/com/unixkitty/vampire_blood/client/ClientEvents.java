@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.client;
 
+import com.mojang.blaze3d.shaders.FogShape;
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.client.feeding.FeedingHandler;
@@ -9,10 +10,12 @@ import com.unixkitty.vampire_blood.client.gui.ModDebugOverlay;
 import com.unixkitty.vampire_blood.client.gui.abilitywheel.AbilityWheelHandler;
 import com.unixkitty.vampire_blood.config.ArmourUVCoverageManager;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.fluid.BloodFluidType;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestOtherPlayerVampireVarsC2SPacket;
+import com.unixkitty.vampire_blood.particle.BloodDripParticle;
 import com.unixkitty.vampire_blood.particle.CharmedFeedbackParticle;
 import com.unixkitty.vampire_blood.particle.CharmedParticle;
 import com.unixkitty.vampire_blood.util.VampireUtil;
@@ -25,9 +28,11 @@ import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -141,7 +146,7 @@ public final class ClientEvents
 
             if (entity.level().isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DISTANCE_LIMIT))
             {
-                entity.level().addParticle(ModParticles.CHARMED_PARTICLE.get(), entity.getRandomX(entity.getBbWidth()), entity.getRandomY() + 0.5D, entity.getRandomZ(entity.getBbWidth()), 0, 0, 0);
+                entity.level().addParticle(ModParticles.CHARMED.get(), entity.getRandomX(entity.getBbWidth()), entity.getRandomY() + 0.5D, entity.getRandomZ(entity.getBbWidth()), 0, 0, 0);
             }
         }
 
@@ -165,8 +170,6 @@ public final class ClientEvents
                 if (event.player.tickCount % 20 == 0)
                 {
                     ModNetworkDispatcher.sendToServer(new RequestOtherPlayerVampireVarsC2SPacket(event.player.level().players().stream().filter(player -> !player.isSpectator()).mapToInt(Player::getId).toArray()));
-
-//                    VampireBlood.LOG.warn("Unixkitty vampire level is {}", event.player.level.getPla);
                 }
             }
         }
@@ -175,6 +178,28 @@ public final class ClientEvents
         public static void onPostRenderLiving(final RenderLivingEvent.Post<?, ?> event)
         {
             BloodVisionUtil.render(event);
+        }
+
+        @SubscribeEvent
+        public static void onRenderFog(final ViewportEvent.RenderFog event)
+        {
+            if (event.isCanceled()) return;
+
+            Entity cameraEntity = Minecraft.getInstance().getCameraEntity();
+
+            if (cameraEntity != null)
+            {
+                FluidState fluidstate = cameraEntity.level().getFluidState(event.getCamera().getBlockPosition());
+
+                if (!fluidstate.isEmpty() && fluidstate.getType().getFluidType() instanceof BloodFluidType)
+                {
+                    event.setCanceled(true);
+                    
+                    event.setFogShape(FogShape.SPHERE);
+                    event.setNearPlaneDistance(0.25F);
+                    event.setFarPlaneDistance(1.0F);
+                }
+            }
         }
 
         @SubscribeEvent
@@ -211,8 +236,9 @@ public final class ClientEvents
         @SubscribeEvent
         public static void registerParticleFactories(final RegisterParticleProvidersEvent event)
         {
-            event.registerSpriteSet(ModParticles.CHARMED_PARTICLE.get(), CharmedParticle.Provider::new);
-            event.registerSpriteSet(ModParticles.CHARMED_FEEDBACK_PARTICLE.get(), CharmedFeedbackParticle.Provider::new);
+            event.registerSpriteSet(ModParticles.CHARMED.get(), CharmedParticle.Provider::new);
+            event.registerSpriteSet(ModParticles.CHARMED_FEEDBACK.get(), CharmedFeedbackParticle.Provider::new);
+            event.registerSpriteSet(ModParticles.DRIPPING_BLOOD.get(), BloodDripParticle.Provider::new);
         }
 
         @SubscribeEvent

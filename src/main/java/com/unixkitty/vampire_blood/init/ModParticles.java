@@ -11,6 +11,7 @@ public class ModParticles
 {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES, VampireBlood.MODID);
 
-    public static final RegistryObject<SimpleParticleType> CHARMED_PARTICLE = PARTICLES.register("enthralled", () -> new SimpleParticleType(true));
-    public static final RegistryObject<SimpleParticleType> CHARMED_FEEDBACK_PARTICLE = PARTICLES.register("enthralled_feedback", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> CHARMED = PARTICLES.register("enthralled", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> CHARMED_FEEDBACK = PARTICLES.register("enthralled_feedback", () -> new SimpleParticleType(true));
+    public static final RegistryObject<SimpleParticleType> DRIPPING_BLOOD = PARTICLES.register("dripping_blood", () -> new SimpleParticleType(false));
 }

@@ -1,7 +1,9 @@
 package com.unixkitty.vampire_blood.datagen;
 
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.init.ModItems;
+import com.unixkitty.vampire_blood.item.BloodBottleItem;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -26,11 +28,14 @@ public class ModItemModels extends ItemModelProvider
 
         tool(ModItems.BLOODLETTING_KNIFE.get());
 
-        basicItem(ModItems.HUMAN_BLOOD_BOTTLE.get());
-        basicItem(ModItems.FRAIL_BLOOD_BOTTLE.get());
-        basicItem(ModItems.CREATURE_BLOOD_BOTTLE.get());
-        basicItem(ModItems.VAMPIRE_BLOOD_BOTTLE.get());
-        basicItem(ModItems.PIGLIN_BLOOD_BOTTLE.get());
+        for (BloodType bloodType : BloodType.values())
+        {
+            if (bloodType != BloodType.NONE)
+            {
+                basicItem(BloodBottleItem.getItem(bloodType));
+                basicItem(ModItems.getBloodBucketItem(bloodType));
+            }
+        }
     }
 
     private void tool(Item item)

@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_human_blood_bottle": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "vampire_blood:human_blood_bottle"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "vampire_blood:human_blood_bucket"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_human_blood_bottle",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "vampire_blood:human_blood_bucket"
+    ]
+  },
+  "sends_telemetry_event": false
+}

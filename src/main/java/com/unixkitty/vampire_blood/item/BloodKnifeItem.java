@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageTypes;
+import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -26,6 +27,7 @@ import java.util.Objects;
 public class BloodKnifeItem extends SwordItem
 {
     public static final String VICTIM_NBT_NAME = "knifeVictim";
+    public static final String USING_BUCKET_NBT_NAME = "usingBucket";
 
     public BloodKnifeItem()
     {
@@ -40,7 +42,7 @@ public class BloodKnifeItem extends SwordItem
 
         if (player instanceof ServerPlayer serverPlayer && this.stillValidBloodletting(stack, serverPlayer))
         {
-            ItemStack bottleStack = livingEntity.getOffhandItem();
+            ItemStack offhandStack = livingEntity.getOffhandItem();
             CompoundTag tag = stack.getTag();
 
             if (tag != null)
@@ -50,6 +52,7 @@ public class BloodKnifeItem extends SwordItem
                     int entityId = tag.getInt(VICTIM_NBT_NAME);
                     Entity entity = serverPlayer.level().getEntity(entityId);
                     ItemStack resultStack = ItemStack.EMPTY;
+                    boolean isBucket = offhandStack.is(Items.BUCKET);
                     IBloodVessel[] bloodVessel = new IBloodVessel[1];
                     boolean[] vampireVictimSelf = new boolean[]{false};
 
@@ -71,7 +74,8 @@ public class BloodKnifeItem extends SwordItem
 
                         if (bloodVessel[0] != null)
                         {
-                            int count = Config.bloodPointsFromBottles.get();
+                            int count = isBucket ? Config.bloodPointsFromBottles.get() * 4 : Config.bloodPointsFromBottles.get();
+                            boolean charmed = bloodVessel[0].isCharmedBy(serverPlayer);
 
                             if (bloodVessel[0].getBloodPoints() >= count)
                             {
@@ -84,12 +88,26 @@ public class BloodKnifeItem extends SwordItem
 
                                 if (success)
                                 {
-                                    if (!vampireVictimSelf[0] && !victim.hasEffect(MobEffects.DAMAGE_BOOST) && !victim.hasEffect(MobEffects.DAMAGE_RESISTANCE) && !bloodVessel[0].isCharmedBy(serverPlayer))
+                                    if (!vampireVictimSelf[0] && !victim.hasEffect(MobEffects.DAMAGE_BOOST) && !victim.hasEffect(MobEffects.DAMAGE_RESISTANCE) && !charmed)
                                     {
                                         victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), serverPlayer), 1F);
                                     }
 
-                                    resultStack = BloodBottleItem.createItemStack(bloodVessel[0].getBloodType());
+                                    resultStack = new ItemStack(isBucket ? ModItems.getBloodBucketItem(bloodVessel[0].getBloodType()) : BloodBottleItem.getItem(bloodVessel[0].getBloodType()));
+                                }
+                            }
+                            else
+                            {
+                                serverPlayer.sendSystemMessage(Component.translatable("text.vampire_blood.knife_usage_entity_lacking").withStyle(ChatFormatting.RED));
+
+                                if (!vampireVictimSelf[0] && !victim.hasEffect(MobEffects.DAMAGE_BOOST) && !victim.hasEffect(MobEffects.DAMAGE_RESISTANCE))
+                                {
+                                    int chance = charmed ? 30 : 100;
+
+                                    if (!(chance < 100 && victim.getRandom().nextInt(101) > chance))
+                                    {
+                                        victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), serverPlayer), 4F);
+                                    }
                                 }
                             }
                         }
@@ -98,7 +116,7 @@ public class BloodKnifeItem extends SwordItem
                     if (!resultStack.isEmpty())
                     {
                         stack.hurtAndBreak(1, serverPlayer, (player1) -> player1.broadcastBreakEvent(serverPlayer.getUsedItemHand()));
-                        bottleStack.shrink(1);
+                        offhandStack.shrink(1);
 
                         if (!serverPlayer.getInventory().add(resultStack))
                         {
@@ -108,6 +126,7 @@ public class BloodKnifeItem extends SwordItem
                 }
 
                 tag.remove(VICTIM_NBT_NAME);
+                tag.remove(USING_BUCKET_NBT_NAME);
             }
         }
 
@@ -129,6 +148,7 @@ public class BloodKnifeItem extends SwordItem
             if (tag != null)
             {
                 tag.remove(VICTIM_NBT_NAME);
+                tag.remove(USING_BUCKET_NBT_NAME);
             }
         }
 
@@ -167,7 +187,7 @@ public class BloodKnifeItem extends SwordItem
         {
             ItemStack stack = player.getMainHandItem();
 
-            if (stack.getItem() instanceof BloodKnifeItem && player.getOffhandItem().getItem() == Items.GLASS_BOTTLE)
+            if (stack.getItem() instanceof BloodKnifeItem && (player.getOffhandItem().getItem() == Items.GLASS_BOTTLE || player.getOffhandItem().getItem() == Items.BUCKET))
             {
                 if (player instanceof ServerPlayer serverPlayer)
                 {
@@ -177,6 +197,7 @@ public class BloodKnifeItem extends SwordItem
                     {
                         serverPlayer.sendSystemMessage(Component.translatable("text.vampire_blood.knife_usage_self").withStyle(ChatFormatting.DARK_PURPLE), true);
                         tag.putInt(VICTIM_NBT_NAME, serverPlayer.getId());
+                        tag.putBoolean(USING_BUCKET_NBT_NAME, player.getOffhandItem().getItem() == Items.BUCKET);
                     }
                 }
 
@@ -189,7 +210,7 @@ public class BloodKnifeItem extends SwordItem
 
     private boolean stillValidBloodletting(@Nonnull ItemStack stack, @Nonnull ServerPlayer player)
     {
-        if (stack == player.getMainHandItem() && player.getOffhandItem().is(Items.GLASS_BOTTLE))
+        if (stack == player.getMainHandItem() && (player.getOffhandItem().is(Items.GLASS_BOTTLE) || player.getOffhandItem().is(Items.BUCKET)))
         {
             CompoundTag tag = stack.getTag();
 

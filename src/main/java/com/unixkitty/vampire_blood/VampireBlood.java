@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood;
 
 import com.unixkitty.vampire_blood.config.BloodConfigManager;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.init.ModFluids;
 import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
@@ -11,6 +12,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +35,7 @@ public class VampireBlood
         ModRegistry.register(modEventBus);
 
         modEventBus.addListener(this::onCommonSetup);
+        modEventBus.addListener(this::onLoadComplete);
         modEventBus.addListener(ModItems::onBuildCreativeTabs);
     }
 
@@ -45,5 +48,10 @@ public class VampireBlood
         });
 
         BloodConfigManager.init();
+    }
+
+    private void onLoadComplete(final FMLLoadCompleteEvent event)
+    {
+        event.enqueueWork(ModFluids::postInit);
     }
 }

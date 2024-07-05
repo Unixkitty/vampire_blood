@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "vampire_blood:item/human_blood_bucket"
+  }
+}

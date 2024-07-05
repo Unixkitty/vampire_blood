@@ -19,12 +19,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.renderable.BakedModelRenderable;
 import net.minecraftforge.client.model.renderable.IRenderable;
 
 import javax.annotation.Nonnull;
 
+@OnlyIn(Dist.CLIENT)
 public class CustomRenderer
 {
     public static final ResourceLocation HORNS = new ResourceLocation(VampireBlood.MODID, "custom/horns");

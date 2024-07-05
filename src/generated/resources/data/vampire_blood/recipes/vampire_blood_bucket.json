@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "blood_buckets",
+  "ingredients": [
+    {
+      "item": "vampire_blood:vampire_blood_bottle"
+    },
+    {
+      "item": "vampire_blood:vampire_blood_bottle"
+    },
+    {
+      "item": "vampire_blood:vampire_blood_bottle"
+    },
+    {
+      "item": "vampire_blood:vampire_blood_bottle"
+    },
+    {
+      "item": "minecraft:bucket"
+    }
+  ],
+  "result": {
+    "item": "vampire_blood:vampire_blood_bucket"
+  }
+}

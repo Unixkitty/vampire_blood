@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "vampire_blood:block/creature_blood"
+    }
+  }
+}

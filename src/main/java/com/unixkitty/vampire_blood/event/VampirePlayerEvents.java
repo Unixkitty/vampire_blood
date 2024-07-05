@@ -15,6 +15,7 @@ import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.item.BloodKnifeItem;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -66,11 +67,14 @@ public class VampirePlayerEvents
 
         if (event.getTarget() instanceof LivingEntity targetEntity && targetEntity.isAlive() && VampireUtil.canReachEntity(player, targetEntity))
         {
-            if (mainHandStack.getItem() == ModItems.BLOODLETTING_KNIFE.get() && offhandStack.getItem() == Items.GLASS_BOTTLE)
+            if (mainHandStack.getItem() == ModItems.BLOODLETTING_KNIFE.get() && (offhandStack.getItem() == Items.GLASS_BOTTLE || offhandStack.getItem() == Items.BUCKET))
             {
                 if (serverPlayer != null)
                 {
-                    mainHandStack.getOrCreateTag().putInt(BloodKnifeItem.VICTIM_NBT_NAME, targetEntity.getId());
+                    CompoundTag tag = mainHandStack.getOrCreateTag();
+
+                    tag.putInt(BloodKnifeItem.VICTIM_NBT_NAME, targetEntity.getId());
+                    tag.putBoolean(BloodKnifeItem.USING_BUCKET_NBT_NAME, offhandStack.getItem() == Items.BUCKET);
                     serverPlayer.sendSystemMessage(Component.translatable("text.vampire_blood.knife_usage_entity", targetEntity.getDisplayName()).withStyle(ChatFormatting.DARK_RED), true);
                 }
 

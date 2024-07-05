@@ -135,7 +135,7 @@ public class ClientPacketHandler
 
             if (entity instanceof LivingEntity livingEntity && livingEntity.isAlive())
             {
-                spawnParticlesAroundEntity(entity, ModParticles.CHARMED_FEEDBACK_PARTICLE.get());
+                spawnParticlesAroundEntity(entity, ModParticles.CHARMED_FEEDBACK.get());
             }
         }
     }

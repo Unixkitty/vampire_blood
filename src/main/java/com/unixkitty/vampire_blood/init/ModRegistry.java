@@ -35,7 +35,10 @@ public final class ModRegistry
             registered = null;
 
             ModEffects.EFFECTS.register(modEventBus);
+            ModBlocks.BLOCKS.register(modEventBus);
             ModItems.ITEMS.register(modEventBus);
+            ModFluids.FLUID_TYPES.register(modEventBus);
+            ModFluids.FLUIDS.register(modEventBus);
             ModParticles.PARTICLES.register(modEventBus);
             COMMAND_ARGUMENT_TYPES.register(modEventBus);
         }

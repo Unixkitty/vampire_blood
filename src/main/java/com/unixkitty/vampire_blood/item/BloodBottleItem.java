@@ -33,15 +33,7 @@ public class BloodBottleItem extends Item
 
     public BloodBottleItem(BloodType bloodType)
     {
-        super(new Properties().rarity(Rarity.create(bloodType.name() + "_blood", switch (bloodType)
-        {
-            case NONE -> ChatFormatting.BLACK;
-            case FRAIL -> ChatFormatting.GRAY;
-            case CREATURE -> ChatFormatting.GREEN;
-            case HUMAN -> ChatFormatting.DARK_RED;
-            case VAMPIRE -> ChatFormatting.DARK_PURPLE;
-            case PIGLIN -> ChatFormatting.GOLD;
-        })).stacksTo(4).craftRemainder(Items.GLASS_BOTTLE));
+        super(new Properties().rarity(ModItems.getBloodItemRarity(bloodType)).stacksTo(4).craftRemainder(Items.GLASS_BOTTLE));
 
         this.bloodType = bloodType;
     }
@@ -158,9 +150,9 @@ public class BloodBottleItem extends Item
         return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
     }
 
-    public static ItemStack createItemStack(BloodType bloodType)
+    public static Item getItem(BloodType bloodType)
     {
-        return new ItemStack(switch (bloodType)
+        return switch (bloodType)
         {
             case NONE -> Items.AIR;
             case FRAIL -> ModItems.FRAIL_BLOOD_BOTTLE.get();
@@ -168,6 +160,6 @@ public class BloodBottleItem extends Item
             case HUMAN -> ModItems.HUMAN_BLOOD_BOTTLE.get();
             case VAMPIRE -> ModItems.VAMPIRE_BLOOD_BOTTLE.get();
             case PIGLIN -> ModItems.PIGLIN_BLOOD_BOTTLE.get();
-        });
+        };
     }
 }
