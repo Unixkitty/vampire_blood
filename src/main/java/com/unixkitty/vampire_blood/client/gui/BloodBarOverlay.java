@@ -94,25 +94,35 @@ public class BloodBarOverlay implements IGuiOverlay
                         backgroundOffsetY = offsetY;
                     }
 
+                    int vOffset = switch (ClientCache.getVampireVars().getBloodType())
+                    {
+                        case NONE -> 256;
+                        case FRAIL -> 9;
+                        case CREATURE -> 18;
+                        case HUMAN -> 27;
+                        case VAMPIRE -> 36;
+                        case PIGLIN -> 45;
+                    };
+
                     //Background
-                    guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + backgroundOffsetY, 0, 0, 9, 9);
+                    guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + backgroundOffsetY, 0, vOffset, 9, 9);
 
                     //Power of Canada
                     if (idx2 < ClientCache.getVampireVars().thirstLevel)
                     {
-                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 36, 0, 9, 9); //Double full
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 36, vOffset, 9, 9); //Double full
                     }
                     else if (idx2 == ClientCache.getVampireVars().thirstLevel)
                     {
-                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 27, 0, 9, 9); //Double half full
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 27, vOffset, 9, 9); //Double half full
                     }
                     else if (idx < ClientCache.getVampireVars().thirstLevel)
                     {
-                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 18, 0, 9, 9); //Full
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 18, vOffset, 9, 9); //Full
                     }
                     else if (idx == ClientCache.getVampireVars().thirstLevel)
                     {
-                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 9, 0, 9, 9); //Half
+                        guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + offsetY, 9, vOffset, 9, 9); //Half
                     }
                 }
 

@@ -60,10 +60,10 @@ public class BloodFluidType extends FluidType
         this.tint = switch (bloodType)
         {
             case NONE -> 0;
-            case FRAIL -> 0xFF300000;
-            case CREATURE -> 0xFF6F3700;
+            case FRAIL -> 0xFF1f0000;
+            case CREATURE -> 0xFF300000;
             case HUMAN -> 0xFF6F0000;
-            case VAMPIRE -> 0xFF9A0D31;
+            case VAMPIRE -> 0xFF480617;
             case PIGLIN -> 0xFF802A2A;
         };
     }
@@ -100,9 +100,12 @@ public class BloodFluidType extends FluidType
             @Override
             public @NotNull Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor)
             {
+//                float f = 0.188F;
+                var v = ((level.getLightEngine().getLayerListener(LightLayer.BLOCK).getLightValue(camera.getBlockPosition()) / 10F) + 1F) / 2F;
                 return new Vector3f(
-                        0.188F * ((level.getLightEngine().getLayerListener(LightLayer.BLOCK).getLightValue(camera.getBlockPosition()) / 10F) + 1F),
-                        0F, 0F
+                        (((tint >> 16) & 0xff) / 255.0f) * v,
+                        (((tint >> 8) & 0xff) / 255.0f) * v,
+                        ((tint & 0xff) / 255.0f) * v
                 );
             }
         });

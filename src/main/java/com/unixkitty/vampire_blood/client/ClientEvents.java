@@ -194,7 +194,7 @@ public final class ClientEvents
                 if (!fluidstate.isEmpty() && fluidstate.getType().getFluidType() instanceof BloodFluidType)
                 {
                     event.setCanceled(true);
-                    
+
                     event.setFogShape(FogShape.SPHERE);
                     event.setNearPlaneDistance(0.25F);
                     event.setFarPlaneDistance(1.0F);
