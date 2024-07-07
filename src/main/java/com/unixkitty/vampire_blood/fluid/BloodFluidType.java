@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -138,7 +139,14 @@ public class BloodFluidType extends FluidType
                     return ModParticles.DRIPPING_BLOOD.get();
                 }
             });
-            this.flowing = ModFluids.FLUIDS.register(name + "_flowing", () -> new ForgeFlowingFluid.Flowing(this.properties));
+            this.flowing = ModFluids.FLUIDS.register(name + "_flowing", () -> new ForgeFlowingFluid.Flowing(this.properties)
+            {
+                @Override
+                protected int getDropOff(LevelReader levelReader)
+                {
+                    return levelReader.dimensionType().ultraWarm() ? 3 : 2;
+                }
+            });
             this.properties = new ForgeFlowingFluid.Properties(this.type, this.source, this.flowing).tickRate(10);
 
             this.properties.block(this.block = ModBlocks.BLOCKS.register(name, () -> new LiquidBlock(this.source, BlockBehaviour.Properties.copy(Blocks.WATER).mapColor(MapColor.COLOR_RED))));

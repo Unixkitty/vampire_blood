@@ -94,15 +94,7 @@ public class BloodBarOverlay implements IGuiOverlay
                         backgroundOffsetY = offsetY;
                     }
 
-                    int vOffset = switch (ClientCache.getVampireVars().getBloodType())
-                    {
-                        case NONE -> 256;
-                        case FRAIL -> 9;
-                        case CREATURE -> 18;
-                        case HUMAN -> 27;
-                        case VAMPIRE -> 36;
-                        case PIGLIN -> 45;
-                    };
+                    int vOffset = (ClientCache.getVampireVars().getBloodType().getId() * 9) - 9;
 
                     //Background
                     guiGraphics.blit(ClientEvents.ICONS_PNG, x, startY + backgroundOffsetY, 0, vOffset, 9, 9);
@@ -173,7 +165,7 @@ public class BloodBarOverlay implements IGuiOverlay
 
                     RenderSystem.enableBlend();
 
-                    guiGraphics.blit(ClientEvents.ICONS_PNG, renderStartX, renderStartY, getIconIndex(), FeedingMouseOverHandler.bloodType.getId() * 9, 9, 9);
+                    guiGraphics.blit(ClientEvents.ICONS_PNG, renderStartX, renderStartY, getIconIndex(), 36 + (FeedingMouseOverHandler.bloodType.getId() * 9), 9, 9);
 
                     RenderSystem.disableBlend();
 
