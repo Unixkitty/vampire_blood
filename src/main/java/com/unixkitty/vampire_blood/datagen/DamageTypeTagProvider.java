@@ -24,17 +24,20 @@ public class DamageTypeTagProvider extends DamageTypeTagsProvider
     {
         tag(DamageTypeTags.BYPASSES_ARMOR).add(
                 ModDamageTypes.SUN_DAMAGE,
-                ModDamageTypes.BLOOD_LOSS
+                ModDamageTypes.BLOOD_LOSS,
+                ModDamageTypes.FAILED_TRANSITION
         );
 
         tag(DamageTypeTags.BYPASSES_ENCHANTMENTS).add(
                 ModDamageTypes.SUN_DAMAGE,
-                ModDamageTypes.BLOOD_LOSS
+                ModDamageTypes.BLOOD_LOSS,
+                ModDamageTypes.FAILED_TRANSITION
         );
 
         tag(DamageTypeTags.BYPASSES_RESISTANCE).add(
                 ModDamageTypes.SUN_DAMAGE,
-                ModDamageTypes.BLOOD_LOSS
+                ModDamageTypes.BLOOD_LOSS,
+                ModDamageTypes.FAILED_TRANSITION
         );
     }
 }

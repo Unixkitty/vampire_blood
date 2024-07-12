@@ -2,34 +2,36 @@ package com.unixkitty.vampire_blood.item;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
-import com.unixkitty.vampire_blood.init.ModItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Supplier;
 
-public class BloodBottleItem extends Item implements IBloodVesselItem
+public class BloodBucketItem extends BucketItem implements IBloodVesselItem
 {
     private final BloodType bloodType;
     private final Item emptyVesselItem;
 
-    public BloodBottleItem(BloodType bloodType)
+    public BloodBucketItem(BloodType bloodType, Supplier<? extends Fluid> storedFluid)
     {
-        this(bloodType, Items.GLASS_BOTTLE);
+        this(bloodType, Items.BUCKET, storedFluid);
     }
 
-    public BloodBottleItem(BloodType bloodType, Item emptyVesselItem)
+    public BloodBucketItem(BloodType bloodType, Item emptyVesselItem, Supplier<? extends Fluid> storedFluid)
     {
-        super(new Properties().rarity(bloodType.getItemRarity()).stacksTo(4).craftRemainder(emptyVesselItem));
+        super(storedFluid, new Item.Properties().craftRemainder(emptyVesselItem).stacksTo(1).rarity(bloodType.getItemRarity()));
 
         this.bloodType = bloodType;
         this.emptyVesselItem = emptyVesselItem;
@@ -44,7 +46,7 @@ public class BloodBottleItem extends Item implements IBloodVesselItem
     @Override
     public int getBloodValue()
     {
-        return Config.bloodPointsFromBottles.get();
+        return Config.bloodPointsFromBottles.get() * 4;
     }
 
     @Override
@@ -55,9 +57,9 @@ public class BloodBottleItem extends Item implements IBloodVesselItem
 
     @Nonnull
     @Override
-    public ItemStack finishUsingItem(@Nonnull ItemStack itemStack, @Nonnull Level level, @Nonnull LivingEntity livingEntity)
+    public ItemStack finishUsingItem(@Nonnull ItemStack pStack, @Nonnull Level pLevel, @Nonnull LivingEntity pLivingEntity)
     {
-        return this.consumeStoredBlood(itemStack, level, livingEntity);
+        return this.consumeStoredBlood(pStack, pLevel, pLivingEntity);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class BloodBottleItem extends Item implements IBloodVesselItem
     @Override
     public int getUseDuration(@Nonnull ItemStack pStack)
     {
-        return Items.HONEY_BOTTLE.getUseDuration(pStack);
+        return Items.HONEY_BOTTLE.getUseDuration(pStack) * 4;
     }
 
     @Nonnull
@@ -92,19 +94,8 @@ public class BloodBottleItem extends Item implements IBloodVesselItem
     @Override
     public InteractionResultHolder<ItemStack> use(@Nonnull Level pLevel, @Nonnull Player pPlayer, @Nonnull InteractionHand pHand)
     {
-        return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
-    }
+        InteractionResultHolder<ItemStack> fluidResult = super.use(pLevel, pPlayer, pHand);
 
-    public static Item getItem(BloodType bloodType)
-    {
-        return switch (bloodType)
-        {
-            case NONE -> Items.AIR;
-            case FRAIL -> ModItems.FRAIL_BLOOD_BOTTLE.get();
-            case CREATURE -> ModItems.CREATURE_BLOOD_BOTTLE.get();
-            case HUMAN -> ModItems.HUMAN_BLOOD_BOTTLE.get();
-            case VAMPIRE -> ModItems.VAMPIRE_BLOOD_BOTTLE.get();
-            case PIGLIN -> ModItems.PIGLIN_BLOOD_BOTTLE.get();
-        };
+        return fluidResult.getResult() == InteractionResult.FAIL || fluidResult.getResult() == InteractionResult.PASS ? ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand) : fluidResult;
     }
 }

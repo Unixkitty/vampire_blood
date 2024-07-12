@@ -450,7 +450,7 @@ public class VampirePlayerData extends BloodVessel
                         }
 
                         player.hurt(ModDamageTypes.source(ModDamageTypes.SUN_DAMAGE, player.level()), ((player.getMaxHealth() / 3) / 1.5f) / (player.level().isRaining() ? 2 : 1));
-                        player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 1.2));
+                        player.setRemainingFireTicks((int) (Config.ticksToSunDamage.get() * 2.4));
 
                         addPreventRegenTicks(player, Config.ticksToSunDamage.get());
                     }

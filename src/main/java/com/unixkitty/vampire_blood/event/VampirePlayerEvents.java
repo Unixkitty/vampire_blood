@@ -107,7 +107,16 @@ public class VampirePlayerEvents
 
                             if (foodProperties != null)
                             {
-                                targetEntity.heal(foodProperties.getNutrition() * foodProperties.getSaturationModifier());
+                                float amount = foodProperties.getNutrition() * foodProperties.getSaturationModifier();
+
+                                if (targetEntity.isInvertedHealAndHarm())
+                                {
+                                    targetEntity.heal(amount);
+                                }
+                                else
+                                {
+                                    VampireUtil.applyEffect(targetEntity, MobEffects.REGENERATION, (int) (amount * 50), 0);
+                                }
                             }
                         }
 

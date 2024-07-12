@@ -6,6 +6,7 @@ import com.unixkitty.vampire_blood.init.ModBlocks;
 import com.unixkitty.vampire_blood.init.ModFluids;
 import com.unixkitty.vampire_blood.init.ModItems;
 import com.unixkitty.vampire_blood.init.ModParticles;
+import com.unixkitty.vampire_blood.item.BloodBucketItem;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -13,8 +14,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
@@ -49,7 +48,7 @@ public class BloodFluidType extends FluidType
                 .canHydrate(true)
                 .density(2000)
                 .motionScale(0.007D)
-                .rarity(ModItems.getBloodItemRarity(bloodType))
+                .rarity(bloodType.getItemRarity())
                 .viscosity(3000)
                 .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                 .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
@@ -150,7 +149,7 @@ public class BloodFluidType extends FluidType
             this.properties = new ForgeFlowingFluid.Properties(this.type, this.source, this.flowing).tickRate(10);
 
             this.properties.block(this.block = ModBlocks.BLOCKS.register(name, () -> new LiquidBlock(this.source, BlockBehaviour.Properties.copy(Blocks.WATER).mapColor(MapColor.COLOR_RED))));
-            this.properties.bucket(this.bucket = ModItems.ITEMS.register(name + "_bucket", () -> new BucketItem(this.source, new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1).rarity(ModItems.getBloodItemRarity(bloodType)))));
+            this.properties.bucket(this.bucket = ModItems.ITEMS.register(name + "_bucket", () -> new BloodBucketItem(bloodType, this.source)));
         }
     }
 }

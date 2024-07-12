@@ -4,11 +4,9 @@ import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.item.BloodBottleItem;
 import com.unixkitty.vampire_blood.item.BloodKnifeItem;
-import net.minecraft.ChatFormatting;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.Rarity;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -75,18 +73,5 @@ public class ModItems
             case VAMPIRE -> ModFluids.VAMPIRE_BLOOD.bucket.get();
             case PIGLIN -> ModFluids.PIGLIN_BLOOD.bucket.get();
         };
-    }
-
-    public static Rarity getBloodItemRarity(BloodType bloodType)
-    {
-        return Rarity.create(bloodType.name() + "_blood", switch (bloodType)
-        {
-            case NONE -> ChatFormatting.BLACK;
-            case FRAIL -> ChatFormatting.GRAY;
-            case CREATURE -> ChatFormatting.GREEN;
-            case HUMAN -> ChatFormatting.DARK_RED;
-            case VAMPIRE -> ChatFormatting.DARK_PURPLE;
-            case PIGLIN -> ChatFormatting.GOLD;
-        });
     }
 }
