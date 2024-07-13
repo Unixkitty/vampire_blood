@@ -2,7 +2,10 @@ package com.unixkitty.vampire_blood.item;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
+import com.unixkitty.vampire_blood.fluid.BloodFluidType;
+import com.unixkitty.vampire_blood.init.ModFluids;
 import com.unixkitty.vampire_blood.init.ModItems;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -12,6 +15,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStackSimple;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,18 +28,20 @@ public class BloodBottleItem extends Item implements IBloodVesselItem
 {
     private final BloodType bloodType;
     private final Item emptyVesselItem;
+    private final int fluidCapacity;
 
     public BloodBottleItem(BloodType bloodType)
     {
-        this(bloodType, Items.GLASS_BOTTLE);
+        this(bloodType, Items.GLASS_BOTTLE, 250);
     }
 
-    public BloodBottleItem(BloodType bloodType, Item emptyVesselItem)
+    public BloodBottleItem(BloodType bloodType, Item emptyVesselItem, int fluidCapacity)
     {
         super(new Properties().rarity(bloodType.getItemRarity()).stacksTo(4).craftRemainder(emptyVesselItem));
 
         this.bloodType = bloodType;
         this.emptyVesselItem = emptyVesselItem;
+        this.fluidCapacity = fluidCapacity;
     }
 
     @Override
@@ -93,6 +102,39 @@ public class BloodBottleItem extends Item implements IBloodVesselItem
     public InteractionResultHolder<ItemStack> use(@Nonnull Level pLevel, @Nonnull Player pPlayer, @Nonnull InteractionHand pHand)
     {
         return ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand);
+    }
+
+    @Override
+    public final ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag tag)
+    {
+        return new FluidHandlerItemStackSimple.SwapEmpty(stack, getEmptyVesselItem(), this.fluidCapacity)
+        {
+            @Override
+            public @NotNull FluidStack getFluid()
+            {
+                return new FluidStack(switch (BloodBottleItem.this.bloodType)
+                {
+                    case NONE -> throw new IllegalArgumentException("NONE blood fluid?");
+                    case FRAIL -> ModFluids.FRAIL_BLOOD.source.get();
+                    case CREATURE -> ModFluids.CREATURE_BLOOD.source.get();
+                    case HUMAN -> ModFluids.HUMAN_BLOOD.source.get();
+                    case VAMPIRE -> ModFluids.VAMPIRE_BLOOD.source.get();
+                    case PIGLIN -> ModFluids.PIGLIN_BLOOD.source.get();
+                }, BloodBottleItem.this.fluidCapacity);
+            }
+
+            @Override
+            public boolean isFluidValid(int tank, @NotNull FluidStack stack)
+            {
+                return stack.getFluid().getFluidType() instanceof BloodFluidType bloodFluidType && bloodFluidType.getBloodType() == BloodBottleItem.this.bloodType;
+            }
+
+            @Override
+            public int fill(@Nonnull FluidStack resource, FluidAction action)
+            {
+                return 0;
+            }
+        };
     }
 
     public static Item getItem(BloodType bloodType)

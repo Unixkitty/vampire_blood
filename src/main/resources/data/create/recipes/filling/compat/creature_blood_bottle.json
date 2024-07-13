@@ -1,0 +1,24 @@
+{
+  "type": "create:filling",
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "vampire_blood"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    {
+      "amount": 250,
+      "fluid": "vampire_blood:creature_blood",
+      "nbt": {}
+    }
+  ],
+  "results": [
+    {
+      "item": "vampire_blood:creature_blood_bottle"
+    }
+  ]
+}

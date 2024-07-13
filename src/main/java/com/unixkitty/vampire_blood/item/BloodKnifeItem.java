@@ -31,7 +31,7 @@ public class BloodKnifeItem extends SwordItem
 
     public BloodKnifeItem()
     {
-        super(Tiers.IRON, 1, 6F, new Item.Properties());
+        super(Tiers.IRON, 1, 0, new Item.Properties());
     }
 
     @Nonnull

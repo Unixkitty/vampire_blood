@@ -2,6 +2,7 @@ package com.unixkitty.vampire_blood.item;
 
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -13,6 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -97,5 +100,11 @@ public class BloodBucketItem extends BucketItem implements IBloodVesselItem
         InteractionResultHolder<ItemStack> fluidResult = super.use(pLevel, pPlayer, pHand);
 
         return fluidResult.getResult() == InteractionResult.FAIL || fluidResult.getResult() == InteractionResult.PASS ? ItemUtils.startUsingInstantly(pLevel, pPlayer, pHand) : fluidResult;
+    }
+
+    @Override
+    public ICapabilityProvider initCapabilities(@Nonnull ItemStack stack, @Nullable CompoundTag nbt)
+    {
+        return new FluidBucketWrapper(stack);
     }
 }

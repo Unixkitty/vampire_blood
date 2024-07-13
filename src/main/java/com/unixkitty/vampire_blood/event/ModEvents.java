@@ -168,18 +168,18 @@ public class ModEvents
     }
 
     @SubscribeEvent
-    public static void onAttachCapability(final AttachCapabilitiesEvent<Entity> event)
+    public static void onAttachEntityCapabilities(final AttachCapabilitiesEvent<Entity> event)
     {
-        if (event.getObject() instanceof LivingEntity)
+        if (event.getObject() instanceof LivingEntity livingEntity)
         {
-            if (event.getObject() instanceof Player)
+            if (livingEntity instanceof Player)
             {
-                if (!event.getObject().getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
+                if (!livingEntity.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).isPresent())
                 {
                     event.addCapability(new ResourceLocation(VampireBlood.MODID, "vampirism"), new VampirePlayerProvider());
                 }
             }
-            else if (!event.getObject().getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
+            else if (!livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
             {
                 event.addCapability(new ResourceLocation(VampireBlood.MODID, "blood"), new BloodProvider());
             }

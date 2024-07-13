@@ -38,6 +38,7 @@ public class BloodFluidType extends FluidType
     private final ResourceLocation flow_texture;
     private final ResourceLocation overlay_texture;
     private final int tint;
+    private final BloodType bloodType;
 
     public BloodFluidType(BloodType bloodType)
     {
@@ -66,6 +67,12 @@ public class BloodFluidType extends FluidType
             case VAMPIRE -> 0xFF480617;
             case PIGLIN -> 0xFF802A2A;
         };
+        this.bloodType = bloodType;
+    }
+
+    public BloodType getBloodType()
+    {
+        return this.bloodType;
     }
 
     @Override
