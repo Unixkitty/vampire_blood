@@ -13,6 +13,7 @@ import com.unixkitty.vampire_blood.network.packet.PlayerAvoidHurtAnimS2CPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -184,24 +185,28 @@ public class VampireUtil
 
     public static void chanceEffect(LivingEntity livingEntity, MobEffect effect, int duration, int effectPower, int chance)
     {
-        if (!(chance < 100 && livingEntity.getRandom().nextInt(101) > chance))
-        {
-            applyEffect(livingEntity, effect, duration, effectPower);
-        }
+        runWithChance(chance, livingEntity.getRandom(), () -> applyEffect(livingEntity, effect, duration, effectPower));
     }
 
     public static void chanceSound(ServerPlayer player, float volume, float pitch, int chance)
     {
-        if (!(chance < 100 && player.getRandom().nextInt(101) > chance))
+        runWithChance(chance, player.getRandom(), () -> player.playNotifySound(SoundEvents.AMBIENT_CAVE.get(), player.getSoundSource(), volume, pitch));
+    }
+
+    public static void runWithChance(int chance, RandomSource randomSource, Runnable runnable)
+    {
+        if (!(chance < 100 && randomSource.nextInt(101) > chance))
         {
-            player.playNotifySound(SoundEvents.AMBIENT_CAVE.get(), player.getSoundSource(), volume, pitch);
+            runnable.run();
         }
     }
 
+    @SuppressWarnings("DataFlowIssue")
     public static @Nonnull IBloodVessel getEntityBloodVessel(@Nonnull LivingEntity targetEntity)
     {
         IBloodVessel bloodVessel = targetEntity instanceof Player targetPlayer ? targetPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).orElse(null) : targetEntity.getCapability(BloodProvider.BLOOD_STORAGE).orElse(null);
 
+        //noinspection ConstantValue
         if (bloodVessel == null)
         {
             throw new IllegalStateException(targetEntity.getDisplayName().getString() + " (" + targetEntity.getStringUUID() + ") had no attached capability!");

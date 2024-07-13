@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -35,11 +36,11 @@ public interface IBloodVessel
 
     int getFoodItemCooldown();
 
-    default void stackBloodlossWeaknessEffect(@Nonnull LivingEntity victim)
+    default void stackBloodlossWeaknessEffect(@Nonnull LivingEntity victim, @Nonnull LivingEntity attacker)
     {
         if (victim.isAlive())
         {
-            MobEffectInstance effectInstance = new MobEffectInstance(MobEffects.WEAKNESS, 200, 1, false, false, true);
+            MobEffectInstance effectInstance = new MobEffectInstance(MobEffects.WEAKNESS, 120, 1, false, false, true);
             MobEffectInstance existingEffectInstance = victim.getEffect(effectInstance.getEffect());
 
             if (existingEffectInstance == null)
@@ -51,6 +52,23 @@ public interface IBloodVessel
                 effectInstance.duration += existingEffectInstance.duration;
 
                 existingEffectInstance.update(effectInstance);
+            }
+
+            if (existingEffectInstance != null && existingEffectInstance.duration >= 1920)
+            {
+                int chance = Math.min(existingEffectInstance.duration / 160, 100);
+
+                if (victim.hasEffect(MobEffects.DAMAGE_BOOST))
+                {
+                    chance /= 2;
+                }
+
+                if (victim.hasEffect(MobEffects.DAMAGE_RESISTANCE))
+                {
+                    chance /= 2;
+                }
+
+                VampireUtil.runWithChance(chance, victim.getRandom(), () -> this.dieFromBloodLoss(victim, attacker));
             }
         }
     }

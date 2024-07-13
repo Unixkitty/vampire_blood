@@ -102,12 +102,7 @@ public class BloodKnifeItem extends SwordItem
 
                                 if (!vampireVictimSelf[0] && !victim.hasEffect(MobEffects.DAMAGE_BOOST) && !victim.hasEffect(MobEffects.DAMAGE_RESISTANCE))
                                 {
-                                    int chance = charmed ? 30 : 100;
-
-                                    if (!(chance < 100 && victim.getRandom().nextInt(101) > chance))
-                                    {
-                                        victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), serverPlayer), 4F);
-                                    }
+                                    VampireUtil.runWithChance(charmed ? 30 : 100, victim.getRandom(), () -> victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), serverPlayer), 4F));
                                 }
                             }
                         }
