@@ -12,12 +12,14 @@ import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModItems;
+import com.unixkitty.vampire_blood.item.BloodBottleItem;
 import com.unixkitty.vampire_blood.item.BloodKnifeItem;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
@@ -80,7 +82,7 @@ public class VampirePlayerEvents
 
                 event.setCanceled(true);
             }
-            else if (mainHandStack.isEdible() && !targetEntity.isSleeping() && !targetEntity.isFullyFrozen())
+            else if ((mainHandStack.isEdible() || mainHandStack.is(ModItems.VAMPIRE_BLOOD_BOTTLE.get())) && !targetEntity.isSleeping() && !targetEntity.isFullyFrozen())
             {
                 IBloodVessel bloodVessel = VampireUtil.getEntityBloodVessel(targetEntity);
                 BloodType bloodType = bloodVessel.getBloodType();
@@ -95,6 +97,19 @@ public class VampirePlayerEvents
                     {
                         canFeed = serverPlayer == null || bloodVessel.isCharmedBy(serverPlayer);
                     }
+                }
+
+                if (bloodType == BloodType.HUMAN && mainHandStack.is(ModItems.VAMPIRE_BLOOD_BOTTLE.get()) && targetEntity instanceof Player targetPlayer)
+                {
+                    if (serverPlayer != null && bloodVessel.isCharmedBy(serverPlayer))
+                    {
+                        ((BloodBottleItem) BloodBottleItem.getItem(BloodType.VAMPIRE)).consumeStoredBlood(mainHandStack, targetPlayer);
+                        targetPlayer.playSound(SoundEvents.HONEY_DRINK);
+                    }
+
+                    event.setCanceled(true);
+
+                    return;
                 }
 
                 if (canFeed)

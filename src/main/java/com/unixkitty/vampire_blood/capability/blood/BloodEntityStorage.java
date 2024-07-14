@@ -6,7 +6,6 @@ import com.unixkitty.vampire_blood.config.BloodEntityConfig;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 
@@ -119,15 +118,15 @@ public class BloodEntityStorage extends BloodVessel
         this.freshEntity = false;
     }
 
-    public boolean isKnownVampire(LivingEntity entity)
-    {
-        return entity instanceof ServerPlayer player && !player.isCreative() && !player.isSpectator() && this.knownVampirePlayers != null && this.knownVampirePlayers.contains(player.getUUID()) && !isCharmedBy(player);
-    }
+//    public boolean isKnownVampire(LivingEntity entity)
+//    {
+//        return entity instanceof ServerPlayer player && !player.isCreative() && !player.isSpectator() && this.knownVampirePlayers != null && this.knownVampirePlayers.contains(player.getUUID()) && !isCharmedBy(player);
+//    }
 
     private void updateBloodHealth(LivingEntity entity)
     {
         this.maxBloodPoints = VampireUtil.healthToBlood(entity.getMaxHealth(), this.bloodType);
-        this.bloodPoints = VampireUtil.healthToBlood(entity.getHealth(), this.bloodType);
+        this.bloodPoints = Math.min(VampireUtil.healthToBlood(entity.getHealth(), this.bloodType), this.maxBloodPoints);
         this.ticksPerRegen = Config.entityRegenTime.get() / (int) entity.getMaxHealth();
     }
 
@@ -191,7 +190,7 @@ public class BloodEntityStorage extends BloodVessel
                 }
             }
 
-            stackBloodlossWeaknessEffect(victim, attacker);
+            handleBloodlossEffects(victim, attacker);
 
             return true;
         }

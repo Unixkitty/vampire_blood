@@ -62,7 +62,7 @@ public class BloodBucketItem extends BucketItem implements IBloodVesselItem
     @Override
     public ItemStack finishUsingItem(@Nonnull ItemStack pStack, @Nonnull Level pLevel, @Nonnull LivingEntity pLivingEntity)
     {
-        return this.consumeStoredBlood(pStack, pLevel, pLivingEntity);
+        return this.consumeStoredBlood(pStack, pLivingEntity);
     }
 
     @Override

@@ -109,7 +109,12 @@ public enum KeyAction
                     case FEED_STOP -> ModNetworkDispatcher.sendToServer(new RequestStopFeedingC2SPacket());
                     case CHARM ->
                     {
-                        if (FeedingMouseOverHandler.isCloseEnough())
+                        /*if (player.isShiftKeyDown())
+                        {
+
+                        }
+                        else*/
+                        if (FeedingMouseOverHandler.isCloseEnough()) //Default charm/uncharm action
                         {
                             ModNetworkDispatcher.sendToServer(new UseCharmAbilityC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
                         }

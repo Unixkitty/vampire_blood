@@ -46,6 +46,7 @@ public class ModNetworkDispatcher
         registerPacket(RequestOtherPlayerVampireVarsC2SPacket.class, true);
         registerPacket(PlayerVampireVarsResponseS2CPacket.class, false);
         registerPacket(PlayerVampireTransitionTimerS2CPacket.class, false);
+        registerPacket(BiteAttackC2SPacket.class, true);
     }
 
     private static <T extends BasePacket> void registerPacket(Class<T> packetClass, boolean toServer)

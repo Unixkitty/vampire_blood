@@ -20,8 +20,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ReputationEventHandler;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -254,6 +256,15 @@ public abstract class BloodVessel implements IBloodVessel
 
                     this.lastCharmedPlayer = null;
                 }
+            }
+
+            if (target instanceof TamableAnimal animal && !animal.isTame())
+            {
+                animal.tame(player);
+            }
+            else if (target instanceof AbstractHorse horse && !horse.isTamed())
+            {
+                horse.tameWithName(player);
             }
         }
 

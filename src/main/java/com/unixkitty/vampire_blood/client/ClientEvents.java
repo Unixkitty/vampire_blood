@@ -14,6 +14,7 @@ import com.unixkitty.vampire_blood.fluid.BloodFluidType;
 import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModParticles;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
+import com.unixkitty.vampire_blood.network.packet.BiteAttackC2SPacket;
 import com.unixkitty.vampire_blood.network.packet.RequestOtherPlayerVampireVarsC2SPacket;
 import com.unixkitty.vampire_blood.particle.BloodDripParticle;
 import com.unixkitty.vampire_blood.particle.CharmedFeedbackParticle;
@@ -84,6 +85,23 @@ public final class ClientEvents
         public static void onKeyInput(final InputEvent.Key event)
         {
             KeyBindings.handleKeys(event);
+        }
+
+        @SubscribeEvent
+        public static void onInteraction(final InputEvent.InteractionKeyMappingTriggered event)
+        {
+            if (FeedingHandler.isFeeding() && (event.isAttack() || event.isUseItem()))
+            {
+                VampireBlood.LOG.debug("Clicked attack or use when feeding");
+
+                event.setSwingHand(false);
+                event.setCanceled(true);
+
+                if (event.isAttack())
+                {
+                    ModNetworkDispatcher.sendToServer(new BiteAttackC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
+                }
+            }
         }
 
         @SubscribeEvent(priority = EventPriority.LOW)

@@ -90,5 +90,7 @@
   "text.vampire_blood.knife_usage_entity_lacking": "Bloodletting target does not have enough blood...",
   "text.vampire_blood.feeding_stop_fail": "You are having trouble controlling yourself...",
   "text.vampire_blood.speed_in_armour": "You feel burdened by the weight of your armor",
-  "text.vampire_blood.feeling_charmed": "You feel charmed by %s's presence..."
+  "text.vampire_blood.feeling_charmed": "You feel charmed by %s's presence...",
+  "text.vampire_blood.advancements.root": "The Desire",
+  "text.vampire_blood.advancements.root.desc": "Legends tell of a way to attain eternal life..."
 }

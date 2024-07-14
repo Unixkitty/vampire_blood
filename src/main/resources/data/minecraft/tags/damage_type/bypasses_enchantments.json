@@ -2,6 +2,7 @@
   "values": [
     "vampire_blood:bloodloss",
     "vampire_blood:failed_transition",
-    "vampire_blood:sunlight"
+    "vampire_blood:sunlight",
+    "vampire_blood:bite_attack"
   ]
 }

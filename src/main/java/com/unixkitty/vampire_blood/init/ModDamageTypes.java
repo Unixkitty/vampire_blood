@@ -19,6 +19,7 @@ public class ModDamageTypes
     public static final ResourceKey<DamageType> SUN_DAMAGE = createKey("sunlight");
     public static final ResourceKey<DamageType> BLOOD_LOSS = createKey("bloodloss");
     public static final ResourceKey<DamageType> FAILED_TRANSITION = createKey("failed_transition");
+    public static final ResourceKey<DamageType> BITE_ATTACK = createKey("bite_attack");
 
     private static ResourceKey<DamageType> createKey(String name)
     {
@@ -67,8 +68,10 @@ public class ModDamageTypes
                 {
                     return Component.translatable("vampire_blood.death.attack.failed_transition", victim.getDisplayName());
                 }
-
-                return super.getLocalizedDeathMessage(victim);
+                else
+                {
+                    return victim.damageSources().generic().getLocalizedDeathMessage(victim);
+                }
             }
         };
     }

@@ -586,7 +586,7 @@ public class VampirePlayerData extends BloodVessel
             {
                 drinkFromHealth(attacker, victim, getBloodType());
 
-                stackBloodlossWeaknessEffect(victim, attacker);
+                handleBloodlossEffects(victim, attacker);
 
                 return true;
             }
@@ -598,7 +598,7 @@ public class VampirePlayerData extends BloodVessel
                 {
                     blood.decreaseBlood(1, false);
 
-                    stackBloodlossWeaknessEffect(victim, attacker);
+                    handleBloodlossEffects(victim, attacker);
 
                     return true;
                 }

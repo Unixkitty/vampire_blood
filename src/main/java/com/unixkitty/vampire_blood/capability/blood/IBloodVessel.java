@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.capability.blood;
 
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
+import com.unixkitty.vampire_blood.init.ModDamageTypes;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -36,7 +37,7 @@ public interface IBloodVessel
 
     int getFoodItemCooldown();
 
-    default void stackBloodlossWeaknessEffect(@Nonnull LivingEntity victim, @Nonnull LivingEntity attacker)
+    default void handleBloodlossEffects(@Nonnull LivingEntity victim, @Nonnull LivingEntity attacker)
     {
         if (victim.isAlive())
         {
@@ -46,6 +47,7 @@ public interface IBloodVessel
             if (existingEffectInstance == null)
             {
                 victim.addEffect(effectInstance);
+                existingEffectInstance = effectInstance;
             }
             else
             {
@@ -54,9 +56,11 @@ public interface IBloodVessel
                 existingEffectInstance.update(effectInstance);
             }
 
-            if (existingEffectInstance != null && existingEffectInstance.duration >= 1920)
+            if (existingEffectInstance.duration >= 1920)
             {
                 int chance = Math.min(existingEffectInstance.duration / 160, 100);
+
+                victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), attacker), 1F);
 
                 if (victim.hasEffect(MobEffects.DAMAGE_BOOST))
                 {

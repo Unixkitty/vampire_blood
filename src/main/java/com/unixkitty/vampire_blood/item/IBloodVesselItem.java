@@ -17,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import javax.annotation.Nonnull;
@@ -31,7 +30,7 @@ public interface IBloodVesselItem
 
     ItemStack getEmptyVesselItem();
 
-    default ItemStack consumeStoredBlood(@Nonnull ItemStack itemStack, @Nonnull Level level, @Nonnull LivingEntity livingEntity)
+    default ItemStack consumeStoredBlood(@Nonnull ItemStack itemStack, @Nonnull LivingEntity livingEntity)
     {
         Player player = livingEntity instanceof Player ? (Player) livingEntity : null;
         Item item = itemStack.getItem();
@@ -47,7 +46,11 @@ public interface IBloodVesselItem
 
                 if (vampirePlayerData.getVampireLevel() == VampirismLevel.NOT_VAMPIRE)
                 {
-                    serverPlayer.eat(level, new ItemStack(Items.ROTTEN_FLESH));
+                    ItemStack rottenFlesh = new ItemStack(Items.ROTTEN_FLESH);
+
+                    //Doing this "manually" to avoid producing unnecessary eating sounds
+                    serverPlayer.getFoodData().eat(rottenFlesh.getItem(), rottenFlesh, serverPlayer);
+                    CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, rottenFlesh);
 
                     if (bloodType == BloodType.VAMPIRE)
                     {
