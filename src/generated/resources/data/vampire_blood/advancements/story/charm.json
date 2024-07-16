@@ -1,0 +1,34 @@
+{
+  "parent": "vampire_blood:story/vampire",
+  "criteria": {
+    "charm": {
+      "conditions": {},
+      "trigger": "vampire_blood:charmed_entity"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.charm.desc"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "vampire_blood:mod_icon",
+      "nbt": "{CustomModelData:6.0f}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.charm"
+    }
+  },
+  "requirements": [
+    [
+      "charm"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  },
+  "sends_telemetry_event": true
+}

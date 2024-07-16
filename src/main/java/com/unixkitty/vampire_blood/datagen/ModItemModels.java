@@ -7,6 +7,7 @@ import com.unixkitty.vampire_blood.item.BloodBottleItem;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.client.model.generators.ItemModelBuilder;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -36,17 +37,59 @@ public class ModItemModels extends ItemModelProvider
                 basicItem(ModItems.getBloodBucketItem(bloodType));
             }
         }
+
+        modIconTextures();
     }
 
     private void tool(Item item)
     {
-        tool(Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item)));
+        ResourceLocation resourceLocation = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item));
+
+        getBuilder(resourceLocation.toString())
+                .parent(model("minecraft", "handheld"))
+                .texture("layer0", new ResourceLocation(resourceLocation.getNamespace(), "item/" + resourceLocation.getPath()));
     }
 
-    private void tool(ResourceLocation item)
+    private ModelFile.UncheckedModelFile generatedModel()
     {
-        getBuilder(item.toString())
-                .parent(new ModelFile.UncheckedModelFile("item/handheld"))
-                .texture("layer0", new ResourceLocation(item.getNamespace(), "item/" + item.getPath()));
+        return model("minecraft", "generated");
+    }
+
+    private ModelFile.UncheckedModelFile model(String namespace, String path)
+    {
+        return new ModelFile.UncheckedModelFile(new ResourceLocation(namespace, "item/" + path));
+    }
+
+    //Advancement stuff
+    private void modIconTextures()
+    {
+        ResourceLocation resourceLocation = Objects.requireNonNull(ModItems.MOD_ICON.getKey()).location();
+        float[] id = new float[]{0F};
+
+        ItemModelBuilder iconModelsBuilder = getBuilder(resourceLocation.toString())
+                .parent(generatedModel());
+
+        addModelOverride(iconModelsBuilder, id, "mod_icon", "custom/mod_icon");
+        addModelOverride(iconModelsBuilder, id, "in_transition_icon", "mob_effect/transitioning");
+        addModelOverride(iconModelsBuilder, id, "night_vision_icon", "mob_effect/night_vision");
+        addModelOverride(iconModelsBuilder, id, "senses_icon", "mob_effect/enhanced_speed");
+        addModelOverride(iconModelsBuilder, id, "blood_vision_icon", "mob_effect/enhanced_senses");
+        addModelOverride(iconModelsBuilder, id, "speed_icon", "mob_effect/blood_vision");
+        addModelOverride(iconModelsBuilder, id, "charm_icon", "gui/charm");
+        addModelOverride(iconModelsBuilder, id, "vampire_blood_icon", "mob_effect/vampire_blood");
+    }
+
+    private void addModelOverride(ItemModelBuilder iconModelsBuilder, float[] id, String name, String texturePath)
+    {
+        ResourceLocation resourceLocation = new ResourceLocation(VampireBlood.MODID, name);
+
+        getBuilder(resourceLocation.toString())
+                .parent(generatedModel())
+                .texture("layer0", new ResourceLocation(name.endsWith("night_vision_icon") ? "minecraft" : resourceLocation.getNamespace(), texturePath));
+
+        iconModelsBuilder.override()
+                .model(model(VampireBlood.MODID, name))
+                .predicate(new ResourceLocation("custom_model_data"), id[0]++)
+                .end();
     }
 }

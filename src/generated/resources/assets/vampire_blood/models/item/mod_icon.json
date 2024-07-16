@@ -1,0 +1,56 @@
+{
+  "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "vampire_blood:item/mod_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 0.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/in_transition_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 1.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/night_vision_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 2.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/senses_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 3.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/blood_vision_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 4.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/speed_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 5.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/charm_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 6.0
+      }
+    },
+    {
+      "model": "vampire_blood:item/vampire_blood_icon",
+      "predicate": {
+        "minecraft:custom_model_data": 7.0
+      }
+    }
+  ],
+  "textures": {
+    "layer0": "vampire_blood:custom/mod_icon"
+  }
+}

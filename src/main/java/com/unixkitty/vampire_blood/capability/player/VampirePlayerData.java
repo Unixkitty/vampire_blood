@@ -1,5 +1,7 @@
 package com.unixkitty.vampire_blood.capability.player;
 
+import com.unixkitty.vampire_blood.advancement.trigger.VampireAbilityUseTrigger;
+import com.unixkitty.vampire_blood.advancement.trigger.VampireLevelChangeTrigger;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.blood.BloodVessel;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
@@ -8,6 +10,7 @@ import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.ArmourUVCoverageManager;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageTypes;
+import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.DebugDataSyncS2CPacket;
 import com.unixkitty.vampire_blood.util.SunExposurer;
@@ -34,7 +37,7 @@ public class VampirePlayerData extends BloodVessel
 {
     private static final String LEVEL_NBT_NAME = "vampireLevel";
     private static final String SUNTICKS_NBT_NAME = "ticksInSun";
-    private static final String BLOOD_PURITY_NBT_NAME = "bloodPurity";
+    public static final String BLOOD_PURITY_NBT_NAME = "bloodPurity";
     private static final String THIRST_NBT_NAME = "thirstLevel";
     private static final String THIRST_EXHAUSTION_NBT_NAME = "thirstExhaustion";
     private static final String THIRST_TIMER_NBT_NAME = "thirstTickTimer";
@@ -135,6 +138,8 @@ public class VampirePlayerData extends BloodVessel
 
             if (shouldUseBlood)
             {
+                ModRegistry.CHARMED_ENTITY_TRIGGER.trigger(player);
+
                 --blood.thirstLevel;
                 sync();
             }
@@ -159,6 +164,8 @@ public class VampirePlayerData extends BloodVessel
                 }
 
                 blood.activeAbilities.add(ability);
+
+                VampireAbilityUseTrigger.trigger(player, ability);
             }
 
             blood.updateWithAttributes(player, true);
@@ -268,8 +275,13 @@ public class VampirePlayerData extends BloodVessel
         return blood.vampireLevel;
     }
 
+    public void syncLevel(ServerPlayer player)
+    {
+        updateLevel(player, blood.vampireLevel, false);
+    }
+
     //boolean force is used to sync instantly
-    public void updateLevel(ServerPlayer player, VampirismLevel level, boolean force)
+    public void updateLevel(ServerPlayer player, VampirismLevel level, boolean triggerAdvancement)
     {
         //Set blood when transitioned successfully
         if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId() && level.getId() > VampirismLevel.IN_TRANSITION.getId())
@@ -284,6 +296,11 @@ public class VampirePlayerData extends BloodVessel
         }
 
         blood.vampireLevel = level;
+
+        if (triggerAdvancement)
+        {
+            VampireLevelChangeTrigger.trigger(player, level);
+        }
 
         if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId())
         {
@@ -314,7 +331,7 @@ public class VampirePlayerData extends BloodVessel
             }
         }
 
-        blood.updateWithAttributes(player, force);
+        blood.updateWithAttributes(player, true);
     }
 
     public void setBloodType(ServerPlayer player, BloodType type, boolean force)
@@ -681,8 +698,11 @@ public class VampirePlayerData extends BloodVessel
 
     public static void copyData(Player oldPlayer, ServerPlayer player, boolean isDeathEvent)
     {
+
         player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(newVampData ->
         {
+            boolean[] triggerAdvancement = new boolean[]{false};
+
             oldPlayer.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(oldVampData ->
             {
                 newVampData.blood.vampireLevel = oldVampData.blood.vampireLevel;
@@ -692,11 +712,13 @@ public class VampirePlayerData extends BloodVessel
                     if (newVampData.blood.vampireLevel == VampirismLevel.IN_TRANSITION)
                     {
                         newVampData.blood.vampireLevel = VampirismLevel.NOT_VAMPIRE; //Failing transition, player returns to monke
+                        triggerAdvancement[0] = true;
                     }
 
                     if (newVampData.blood.vampireLevel == VampirismLevel.NOT_VAMPIRE && oldVampData.shouldTransition)
                     {
                         newVampData.blood.vampireLevel = VampirismLevel.IN_TRANSITION;
+                        triggerAdvancement[0] = true;
                     }
                     else
                     {
@@ -720,7 +742,7 @@ public class VampirePlayerData extends BloodVessel
                 }
             });
 
-            newVampData.updateLevel(player, newVampData.blood.vampireLevel, true);
+            newVampData.updateLevel(player, newVampData.blood.vampireLevel, triggerAdvancement[0]);
         });
     }
 

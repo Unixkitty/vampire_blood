@@ -1,21 +1,25 @@
 package com.unixkitty.vampire_blood.capability.player;
 
+import com.unixkitty.vampire_blood.init.ModEffects;
+
 public enum VampirismLevel implements VampirismTier<VampirismLevel>
 {
-    NOT_VAMPIRE(-1, 0),
-    IN_TRANSITION(0, 0),
-    FLEDGLING(1, 1.25F),
-    VAMPIRE(2, 1.0F),
-    MATURE(3, 0.75F),
-    ORIGINAL(999, 0.5F);
+    NOT_VAMPIRE(-1, 0F, 0),
+    IN_TRANSITION(0, 0F, 20F),
+    FLEDGLING(1, 1.25F, ModEffects.SENSES_DEFAULT_DISTANCE / 2),
+    VAMPIRE(2, 1.0F, ModEffects.SENSES_DEFAULT_DISTANCE),
+    MATURE(3, 0.75F, ModEffects.SENSES_DEFAULT_DISTANCE * 2),
+    ORIGINAL(999, 0.5F, MATURE.sensesRange);
 
     private final int id;
     private final float bloodUsageMultiplier;
+    public final float sensesRange;
 
-    VampirismLevel(int id, float bloodUsageMultiplier)
+    VampirismLevel(int id, float bloodUsageMultiplier, float sensesRange)
     {
         this.id = id;
         this.bloodUsageMultiplier = bloodUsageMultiplier;
+        this.sensesRange = sensesRange;
     }
 
     @Override

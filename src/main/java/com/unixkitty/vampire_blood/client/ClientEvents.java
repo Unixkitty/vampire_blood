@@ -162,7 +162,7 @@ public final class ClientEvents
             LivingEntity entity = event.getEntity();
             LocalPlayer player = Minecraft.getInstance().player;
 
-            if (entity.level().isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DISTANCE_LIMIT))
+            if (entity.level().isClientSide && player != null && player.isAlive() && entity.tickCount % 5 == 0 && ClientCache.isVampire() && ClientCache.getVampireVars().isEntityCharmed(entity.getId()) && player.isCloseEnough(event.getEntity(), ModEffects.SENSES_DEFAULT_DISTANCE))
             {
                 entity.level().addParticle(ModParticles.CHARMED.get(), entity.getRandomX(entity.getBbWidth()), entity.getRandomY() + 0.5D, entity.getRandomZ(entity.getBbWidth()), 0, 0, 0);
             }

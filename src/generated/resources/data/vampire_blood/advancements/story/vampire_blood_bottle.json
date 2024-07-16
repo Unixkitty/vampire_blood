@@ -1,0 +1,38 @@
+{
+  "parent": "vampire_blood:story/root",
+  "criteria": {
+    "vampire_blood_bottle": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "vampire_blood:vampire_blood_bottle"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.vampire_blood.desc"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "vampire_blood:vampire_blood_bottle"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.vampire_blood"
+    }
+  },
+  "requirements": [
+    [
+      "vampire_blood_bottle"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

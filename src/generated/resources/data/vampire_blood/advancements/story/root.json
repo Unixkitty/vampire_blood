@@ -1,0 +1,30 @@
+{
+  "criteria": {
+    "unlocked_by_default": {
+      "conditions": {},
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/block/black_concrete.png",
+    "description": {
+      "translate": "text.vampire_blood.advancements.root.desc"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "vampire_blood:mod_icon"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "text.vampire_blood.advancements.root"
+    }
+  },
+  "requirements": [
+    [
+      "unlocked_by_default"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

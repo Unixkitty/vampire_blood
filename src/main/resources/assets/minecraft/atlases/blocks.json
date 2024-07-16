@@ -1,0 +1,36 @@
+{
+    "sources": [
+        {
+            "type": "single",
+            "resource": "vampire_blood:custom/mod_icon"
+        },
+        {
+            "type": "single",
+            "resource": "vampire_blood:mob_effect/transitioning"
+        },
+        {
+            "type": "single",
+            "resource": "mob_effect/night_vision"
+        },
+        {
+            "type": "single",
+            "resource": "vampire_blood:mob_effect/blood_vision"
+        },
+        {
+            "type": "single",
+            "resource": "vampire_blood:mob_effect/enhanced_speed"
+        },
+        {
+            "type": "single",
+            "resource": "vampire_blood:mob_effect/enhanced_senses"
+        },
+        {
+            "type": "single",
+            "resource": "vampire_blood:gui/charm"
+        },
+        {
+            "type": "single",
+            "resource": "vampire_blood:mob_effect/vampire_blood"
+        }
+    ]
+}

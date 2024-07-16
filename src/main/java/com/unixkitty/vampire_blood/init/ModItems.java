@@ -16,7 +16,10 @@ public class ModItems
 {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, VampireBlood.MODID);
 
-    public static final RegistryObject<Item> VAMPIRE_DUST = ITEMS.register("vampire_dust", () -> new Item((new Item.Properties())));
+    //This is only used for advancements
+    public static final RegistryObject<Item> MOD_ICON = ITEMS.register("mod_icon", () -> new Item(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> VAMPIRE_DUST = ITEMS.register("vampire_dust", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> BLOODLETTING_KNIFE = ITEMS.register("bloodletting_knife", BloodKnifeItem::new);
 
     public static final RegistryObject<Item> HUMAN_BLOOD_BOTTLE = bloodBottle(BloodType.HUMAN);

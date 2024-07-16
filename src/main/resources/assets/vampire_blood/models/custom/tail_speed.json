@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "vampire_blood:item/tail_speed"
+    "layer0": "vampire_blood:item/model/tail_speed"
   }
 }

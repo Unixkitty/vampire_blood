@@ -4,7 +4,6 @@ import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageTypes;
-import com.unixkitty.vampire_blood.init.ModEffects;
 import com.unixkitty.vampire_blood.init.ModRegistry;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.EntityCharmedStatusS2CPacket;
@@ -135,7 +134,7 @@ public abstract class BloodVessel implements IBloodVessel
                 //Check if player is actually logged on and if they're nearby before sending packet
                 if (player != null
                         && VampireUtil.isVampire(player)
-                        && player.equals(entity.level().getNearestPlayer(TargetingConditions.forNonCombat().range(ModEffects.SENSES_DISTANCE_LIMIT).selector(target -> target.equals(player)), entity)))
+                        && player.equals(entity.level().getNearestPlayer(TargetingConditions.forNonCombat().range(30.0D).selector(target -> target.equals(player)), entity)))
                 {
                     ModNetworkDispatcher.sendToClient(new EntityCharmedStatusS2CPacket(entity.getId(), value != 0), player);
                 }

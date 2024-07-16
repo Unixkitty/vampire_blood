@@ -11,7 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 @SuppressWarnings("DataFlowIssue")
 public class ModEffects
 {
-    public static final float SENSES_DISTANCE_LIMIT = 30F;
+    public static final float SENSES_DEFAULT_DISTANCE = 30F;
 
     public static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, VampireBlood.MODID);
 

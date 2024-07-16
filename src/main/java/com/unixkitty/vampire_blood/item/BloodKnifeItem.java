@@ -1,5 +1,6 @@
 package com.unixkitty.vampire_blood.item;
 
+import com.unixkitty.vampire_blood.advancement.trigger.BloodlettingTrigger;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
@@ -12,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffects;
@@ -108,10 +110,21 @@ public class BloodKnifeItem extends SwordItem
                         }
                     }
 
-                    if (!resultStack.isEmpty())
+                    if (!serverPlayer.isCreative())
                     {
                         stack.hurtAndBreak(1, serverPlayer, (player1) -> player1.broadcastBreakEvent(serverPlayer.getUsedItemHand()));
-                        offhandStack.shrink(1);
+                    }
+
+                    if (!resultStack.isEmpty())
+                    {
+                        serverPlayer.awardStat(Stats.ITEM_USED.get(this));
+
+                        BloodlettingTrigger.trigger(serverPlayer, stack, entityId == serverPlayer.getId());
+
+                        if (!serverPlayer.isCreative())
+                        {
+                            offhandStack.shrink(1);
+                        }
 
                         if (!serverPlayer.getInventory().add(resultStack))
                         {

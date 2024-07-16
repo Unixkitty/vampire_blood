@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "vampire_blood:item/model/wing"
+    "layer0": "vampire_blood:mob_effect/blood_vision"
   }
 }

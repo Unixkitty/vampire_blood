@@ -6,8 +6,8 @@
     32
   ],
   "textures": {
-    "0": "vampire_blood:item/horns",
-    "particle": "vampire_blood:item/horns"
+    "0": "vampire_blood:item/model/horns",
+    "particle": "vampire_blood:item/model/horns"
   },
   "elements": [
     {

@@ -1,0 +1,38 @@
+{
+  "parent": "vampire_blood:story/no_fledgling",
+  "criteria": {
+    "mature": {
+      "conditions": {
+        "level": {
+          "level": 3
+        }
+      },
+      "trigger": "vampire_blood:vampire_level_change"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.mature.desc"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "vampire_blood:mod_icon",
+      "nbt": "{CustomModelData:7.0f}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.mature"
+    }
+  },
+  "requirements": [
+    [
+      "mature"
+    ]
+  ],
+  "rewards": {
+    "experience": 1000
+  },
+  "sends_telemetry_event": true
+}

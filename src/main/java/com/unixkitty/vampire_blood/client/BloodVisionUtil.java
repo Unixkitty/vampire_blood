@@ -30,7 +30,7 @@ public final class BloodVisionUtil
             final Player player = Minecraft.getInstance().player;
             final LivingEntity entity = event.getEntity();
 
-            if (player != null && player.hasEffect(ModEffects.BLOOD_VISION.get()) && entity != player && entity.isAlive() && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ModEffects.SENSES_DISTANCE_LIMIT)
+            if (player != null && player.hasEffect(ModEffects.BLOOD_VISION.get()) && entity != player && entity.isAlive() && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ClientCache.getVampireVars().getVampireLevel().sensesRange)
             {
                 ClientCache.EntityBlood entityBlood = ClientCache.getVampireVars().getEntityBlood(entity.getId());
 
@@ -45,7 +45,7 @@ public final class BloodVisionUtil
 
                     buffer.setColor(color >> 16 & 255, color >> 8 & 255, color & 255, 255);
 
-                    LivingEntityRenderer<LivingEntity, ?> entityrenderer = (LivingEntityRenderer<LivingEntity, ?>) event.getRenderer();
+                    @SuppressWarnings("unchecked") LivingEntityRenderer<LivingEntity, ?> entityrenderer = (LivingEntityRenderer<LivingEntity, ?>) event.getRenderer();
 
                     entityrenderer.render(entity, Mth.lerp(event.getPartialTick(), entity.yRotO, entity.getYRot()), event.getPartialTick(), event.getPoseStack(), buffer, entityrenderer.getPackedLightCoords(entity, event.getPartialTick()));
 

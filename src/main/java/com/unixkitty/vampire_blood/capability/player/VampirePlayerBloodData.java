@@ -1,6 +1,7 @@
 package com.unixkitty.vampire_blood.capability.player;
 
 import com.unixkitty.vampire_blood.VampireBlood;
+import com.unixkitty.vampire_blood.advancement.trigger.DrinkBloodTrigger;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.init.ModDamageTypes;
@@ -127,7 +128,7 @@ public class VampirePlayerBloodData
     {
         if (points == 1)
         {
-            addOneBloodpoint(bloodType);
+            addOneBloodpoint(player, bloodType);
         }
         else if (points > 0)
         {
@@ -142,7 +143,7 @@ public class VampirePlayerBloodData
 
             for (int i = 0; i < points; i++)
             {
-                addOneBloodpoint(bloodType);
+                addOneBloodpoint(player, bloodType);
             }
         }
         else
@@ -155,13 +156,20 @@ public class VampirePlayerBloodData
         updateWithAttributes(player, false);
     }
 
-    private void addOneBloodpoint(BloodType bloodType)
+    private void addOneBloodpoint(ServerPlayer player, BloodType bloodType)
     {
+        int thirstLevelWas = this.thirstLevel;
+
         this.thirstLevel = Math.min(this.thirstLevel + 1, MAX_THIRST);
 
         updateDiet(bloodType);
 
         updateBloodlust(true);
+
+        if (this.thirstLevel > thirstLevelWas)
+        {
+            DrinkBloodTrigger.trigger(player, bloodType, this.bloodPurity);
+        }
     }
 
     void decreaseBlood(int points, boolean natural)

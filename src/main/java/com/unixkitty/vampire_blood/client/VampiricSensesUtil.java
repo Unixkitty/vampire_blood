@@ -25,7 +25,7 @@ public final class VampiricSensesUtil
     {
         Player player = Minecraft.getInstance().player;
 
-        if (player != null && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ModEffects.SENSES_DISTANCE_LIMIT)
+        if (player != null && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ClientCache.getVampireVars().getVampireLevel().sensesRange)
         {
             if (ClientCache.getVampireVars().needsEntityOutlineColor(entity.getId()))
             {

@@ -1,0 +1,39 @@
+{
+  "parent": "vampire_blood:story/root",
+  "criteria": {
+    "blood_knife": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "vampire_blood:bloodletting_knife"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.blood_knife.desc"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "vampire_blood:bloodletting_knife",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.blood_knife"
+    }
+  },
+  "requirements": [
+    [
+      "blood_knife"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

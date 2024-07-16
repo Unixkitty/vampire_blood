@@ -2,6 +2,8 @@ package com.unixkitty.vampire_blood.event;
 
 import com.unixkitty.vampire_blood.VampireBlood;
 import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
+import com.unixkitty.vampire_blood.capability.blood.BloodType;
+import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
 import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
@@ -10,9 +12,19 @@ import com.unixkitty.vampire_blood.config.Config;
 import com.unixkitty.vampire_blood.effect.BasicStatusEffect;
 import com.unixkitty.vampire_blood.entity.ai.CharmedFollowGoal;
 import com.unixkitty.vampire_blood.init.ModEffects;
+import com.unixkitty.vampire_blood.init.ModItems;
+import com.unixkitty.vampire_blood.item.BloodBottleItem;
+import com.unixkitty.vampire_blood.item.BloodKnifeItem;
 import com.unixkitty.vampire_blood.util.VampireUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
@@ -21,15 +33,21 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.gossip.GossipType;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -88,12 +106,12 @@ public class ModEvents
                     {
                         if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
                         {
-                            vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, true);
+                            vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, false);
                         }
                         else
                         {
                             //For some reason this needs to be done to ensure death event respawn sync really happens, any earlier doesn't seem to always sync to client
-                            vampirePlayerData.updateLevel(player, vampirePlayerData.getVampireLevel(), true);
+                            vampirePlayerData.syncLevel(player);
                         }
                     }
                 });
@@ -182,6 +200,109 @@ public class ModEvents
             else if (!livingEntity.getCapability(BloodProvider.BLOOD_STORAGE).isPresent())
             {
                 event.addCapability(new ResourceLocation(VampireBlood.MODID, "blood"), new BloodProvider());
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerInteract(final PlayerInteractEvent.EntityInteract event)
+    {
+        if (event.getHand() == InteractionHand.OFF_HAND)
+        {
+            return;
+        }
+
+        Player player = event.getEntity();
+        ServerPlayer serverPlayer = player instanceof ServerPlayer ? (ServerPlayer) player : null;
+        ItemStack mainHandStack = player.getMainHandItem();
+        ItemStack offhandStack = player.getOffhandItem();
+
+        if (event.getTarget() instanceof LivingEntity targetEntity && targetEntity.isAlive() && VampireUtil.canReachEntity(player, targetEntity))
+        {
+            if (mainHandStack.getItem() == ModItems.BLOODLETTING_KNIFE.get() && (offhandStack.getItem() == Items.GLASS_BOTTLE || offhandStack.getItem() == Items.BUCKET))
+            {
+                if (serverPlayer != null)
+                {
+                    CompoundTag tag = mainHandStack.getOrCreateTag();
+
+                    tag.putInt(BloodKnifeItem.VICTIM_NBT_NAME, targetEntity.getId());
+                    tag.putBoolean(BloodKnifeItem.USING_BUCKET_NBT_NAME, offhandStack.getItem() == Items.BUCKET);
+                    serverPlayer.sendSystemMessage(Component.translatable("text.vampire_blood.knife_usage_entity", targetEntity.getDisplayName()).withStyle(ChatFormatting.DARK_RED), true);
+                }
+
+                event.setCanceled(true);
+            }
+            else if ((mainHandStack.isEdible() || mainHandStack.is(ModItems.VAMPIRE_BLOOD_BOTTLE.get())) && !targetEntity.isSleeping() && !targetEntity.isFullyFrozen())
+            {
+                IBloodVessel bloodVessel = VampireUtil.getEntityBloodVessel(targetEntity);
+                BloodType bloodType = bloodVessel.getBloodType();
+
+                boolean canFeed = false;
+
+                if ((bloodType == BloodType.HUMAN || bloodType == BloodType.PIGLIN) && bloodVessel.hasNoFoodItemCooldown())
+                {
+                    canFeed = targetEntity.getHealth() < targetEntity.getMaxHealth() || (targetEntity instanceof ServerPlayer targetPlayer && targetPlayer.getFoodData().needsFood());
+
+                    if (canFeed && Config.onlyFeedCharmedHumanoids.get())
+                    {
+                        canFeed = serverPlayer == null || bloodVessel.isCharmedBy(serverPlayer);
+                    }
+                }
+
+                if (bloodType == BloodType.HUMAN && mainHandStack.is(ModItems.VAMPIRE_BLOOD_BOTTLE.get()) && targetEntity instanceof Player targetPlayer)
+                {
+                    if (serverPlayer != null && bloodVessel.isCharmedBy(serverPlayer))
+                    {
+                        ((BloodBottleItem) BloodBottleItem.getItem(BloodType.VAMPIRE)).consumeStoredBlood(mainHandStack, targetPlayer);
+                        targetPlayer.playSound(SoundEvents.HONEY_DRINK);
+                    }
+
+                    event.setCanceled(true);
+
+                    return;
+                }
+
+                if (canFeed)
+                {
+                    if (serverPlayer != null)
+                    {
+                        if ((targetEntity instanceof Piglin && mainHandStack.is(ItemTags.PIGLIN_FOOD)) || !(targetEntity instanceof Player))
+                        {
+                            FoodProperties foodProperties = mainHandStack.getFoodProperties(null);
+
+                            if (foodProperties != null)
+                            {
+                                float amount = foodProperties.getNutrition() * foodProperties.getSaturationModifier();
+
+                                if (targetEntity.isInvertedHealAndHarm())
+                                {
+                                    targetEntity.heal(amount);
+                                }
+                                else
+                                {
+                                    VampireUtil.applyEffect(targetEntity, MobEffects.REGENERATION, (int) (amount * 50), 0);
+                                }
+                            }
+                        }
+
+                        //This is called anyway because it only applies food effects to non-players
+                        targetEntity.eat(targetEntity.level(), mainHandStack);
+
+                        bloodVessel.addFoodItemCooldown(targetEntity, mainHandStack);
+
+                        if (targetEntity instanceof Piglin piglin)
+                        {
+                            piglin.getBrain().setMemoryWithExpiry(MemoryModuleType.ATE_RECENTLY, true, bloodVessel.getFoodItemCooldown());
+                        }
+                    }
+
+                    event.setCanceled(true);
+                }
+                else if (serverPlayer != null && targetEntity instanceof Villager villager)
+                {
+                    villager.setUnhappy();
+                    event.setCanceled(true);
+                }
             }
         }
     }

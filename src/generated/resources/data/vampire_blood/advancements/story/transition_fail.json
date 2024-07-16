@@ -1,0 +1,34 @@
+{
+  "parent": "vampire_blood:story/in_transition",
+  "criteria": {
+    "transition_fail": {
+      "conditions": {
+        "level": {
+          "level": -1
+        }
+      },
+      "trigger": "vampire_blood:vampire_level_change"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.transition_fail.desc"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:player_head"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.transition_fail"
+    }
+  },
+  "requirements": [
+    [
+      "transition_fail"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

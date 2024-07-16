@@ -1,0 +1,86 @@
+{
+  "parent": "vampire_blood:story/vampire",
+  "criteria": {
+    "creature": {
+      "conditions": {
+        "blood_type": {
+          "bloodPurity": 1.0,
+          "blood_type": 2
+        }
+      },
+      "trigger": "vampire_blood:drink_blood"
+    },
+    "frail": {
+      "conditions": {
+        "blood_type": {
+          "bloodPurity": 1.0,
+          "blood_type": 1
+        }
+      },
+      "trigger": "vampire_blood:drink_blood"
+    },
+    "human": {
+      "conditions": {
+        "blood_type": {
+          "bloodPurity": 1.0,
+          "blood_type": 3
+        }
+      },
+      "trigger": "vampire_blood:drink_blood"
+    },
+    "piglin": {
+      "conditions": {
+        "blood_type": {
+          "bloodPurity": 1.0,
+          "blood_type": 5
+        }
+      },
+      "trigger": "vampire_blood:drink_blood"
+    },
+    "vampire": {
+      "conditions": {
+        "blood_type": {
+          "bloodPurity": 1.0,
+          "blood_type": 4
+        }
+      },
+      "trigger": "vampire_blood:drink_blood"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.all_blood_types.desc"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "vampire_blood:vampire_blood_bucket"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.all_blood_types"
+    }
+  },
+  "requirements": [
+    [
+      "frail"
+    ],
+    [
+      "creature"
+    ],
+    [
+      "human"
+    ],
+    [
+      "vampire"
+    ],
+    [
+      "piglin"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  },
+  "sends_telemetry_event": true
+}

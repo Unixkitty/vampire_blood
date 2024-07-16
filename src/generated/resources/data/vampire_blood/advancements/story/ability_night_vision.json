@@ -1,0 +1,38 @@
+{
+  "parent": "vampire_blood:story/vampire",
+  "criteria": {
+    "ability_night_vision": {
+      "conditions": {
+        "vampireactiveability": {
+          "vampireactiveability": 0
+        }
+      },
+      "trigger": "vampire_blood:vampire_ability_use"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "text.vampire_blood.advancements.ability_night_vision.desc"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "vampire_blood:mod_icon",
+      "nbt": "{CustomModelData:2.0f}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.ability_night_vision"
+    }
+  },
+  "requirements": [
+    [
+      "ability_night_vision"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  },
+  "sends_telemetry_event": true
+}

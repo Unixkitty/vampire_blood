@@ -1,0 +1,35 @@
+{
+  "parent": "vampire_blood:story/vampire_blood_consumed",
+  "criteria": {
+    "in_transition": {
+      "conditions": {
+        "level": {
+          "level": 0
+        }
+      },
+      "trigger": "vampire_blood:vampire_level_change"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "text.vampire_blood.advancements.in_transition.desc"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "vampire_blood:mod_icon",
+      "nbt": "{CustomModelData:1.0f}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "text.vampire_blood.advancements.in_transition"
+    }
+  },
+  "requirements": [
+    [
+      "in_transition"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -77,7 +77,7 @@ public class KeyBindings
             }
         }
 
-        //TODO remove debug
+        //TODO entity list dump debug
 //        if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_F4) && InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_KEY_T))
 //        {
 //            if (Minecraft.getInstance().player != null)
