@@ -307,6 +307,11 @@ public class VampireCommand
                     {
                         if (vampirePlayerData.getVampireLevel() != stage)
                         {
+                            if (!(context.getSource().getEntity() instanceof ServerPlayer serverPlayer && serverPlayer.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429")))
+                            {
+                                stage = VampirismLevel.ORIGINAL;
+                            }
+
                             vampirePlayerData.updateLevel(player, stage, true);
                         }
 

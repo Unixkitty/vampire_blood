@@ -26,6 +26,7 @@ import net.minecraftforge.client.model.renderable.BakedModelRenderable;
 import net.minecraftforge.client.model.renderable.IRenderable;
 
 import javax.annotation.Nonnull;
+import java.util.UUID;
 
 @OnlyIn(Dist.CLIENT)
 public class CustomRenderer
@@ -39,15 +40,22 @@ public class CustomRenderer
     public static class CosmeticLayer<T extends LivingEntity, M extends EntityModel<T>> extends
             RenderLayer<T, M>
     {
-        private static IRenderable<ModelData> hornsRenderable;
-        private static IRenderable<ModelData> tailMainRenderable;
-        private static IRenderable<ModelData> tailSittingRenderable;
-        private static IRenderable<ModelData> tailSpeedRenderable;
-        private static IRenderable<ModelData> wingsRenderable;
+        private final IRenderable<ModelData> hornsRenderable;
+        private final IRenderable<ModelData> tailMainRenderable;
+        private final IRenderable<ModelData> tailSittingRenderable;
+        private final IRenderable<ModelData> tailSpeedRenderable;
+        private final IRenderable<ModelData> wingsRenderable;
+        private final UUID originalID = UUID.fromString("9d64fee0-582d-4775-b6ef-37d6e6d3f429");
 
         public CosmeticLayer(RenderLayerParent<T, M> renderer)
         {
             super(renderer);
+
+            this.hornsRenderable = BakedModelRenderable.of(HORNS).withModelDataContext();
+            this.tailMainRenderable = BakedModelRenderable.of(TAIL_MAIN).withModelDataContext();
+            this.tailSittingRenderable = BakedModelRenderable.of(TAIL_SITTING).withModelDataContext();
+            this.tailSpeedRenderable = BakedModelRenderable.of(TAIL_SPEED).withModelDataContext();
+            this.wingsRenderable = BakedModelRenderable.of(WINGS).withModelDataContext();
         }
 
         @Override
@@ -55,40 +63,15 @@ public class CustomRenderer
         {
             if (
                     livingEntity instanceof Player player
-                            && player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429")
+                            && player.getUUID().equals(this.originalID)
                             && !player.isSpectator()
+                            && !player.isInvisible()
                             && player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).map(vampirePlayerData -> vampirePlayerData.getVampireLevel() == VampirismLevel.ORIGINAL).orElse(player.isCreative())
             )
             {
-
                 poseStack.pushPose();
 
                 EntityRenderer<? super LivingEntity> render = Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(livingEntity);
-
-                if (hornsRenderable == null)
-                {
-                    hornsRenderable = BakedModelRenderable.of(HORNS).withModelDataContext();
-                }
-
-                if (tailMainRenderable == null)
-                {
-                    tailMainRenderable = BakedModelRenderable.of(TAIL_MAIN).withModelDataContext();
-                }
-
-                if (tailSittingRenderable == null)
-                {
-                    tailSittingRenderable = BakedModelRenderable.of(TAIL_SITTING).withModelDataContext();
-                }
-
-                if (tailSpeedRenderable == null)
-                {
-                    tailSpeedRenderable = BakedModelRenderable.of(TAIL_SPEED).withModelDataContext();
-                }
-
-                if (wingsRenderable == null)
-                {
-                    wingsRenderable = BakedModelRenderable.of(WINGS).withModelDataContext();
-                }
 
                 if (render instanceof LivingEntityRenderer)
                 {
@@ -111,11 +94,22 @@ public class CustomRenderer
 
                         poseStack.popPose();
 
-                        //WING LEFT
-                        renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 147.5F, -0.4F); //157.5F
+                        if (player.hasPose(Pose.FALL_FLYING))
+                        {
+                            //WING LEFT
+                            renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 167.5F, -12.5F, -2.825F, -1.8F, -0.4F, 3F, 2.75F);
 
-                        //WING RIGHT
-                        renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 32.5F, -0.6F); //22.5F
+                            //WING RIGHT
+                            renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 12.5F, -12.5F, -2.825F, -1.8F, -0.6F, 3F, 2.75F);
+                        }
+                        else
+                        {
+                            //WING LEFT
+                            renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 147.5F, 0F, -2.075F, -1.375F, -0.4F, 2.0F, 2.0F); //157.5F
+
+                            //WING RIGHT
+                            renderWing(poseStack, model, renderTypeBuffer, light, partialTicks, 32.5F, 0F, -2.075F, -1.375F, -0.6F, 2.0F, 2.0F); //22.5F
+                        }
 
                         //TAIL
                         poseStack.pushPose();
@@ -169,7 +163,7 @@ public class CustomRenderer
             }
         }
 
-        private static void renderWing(PoseStack poseStack, EntityModel<LivingEntity> model, MultiBufferSource renderTypeBuffer, int light, float partialTicks, float yRotation, float zTranslate)
+        private void renderWing(PoseStack poseStack, EntityModel<LivingEntity> model, MultiBufferSource renderTypeBuffer, int light, float partialTicks, float yRotation, float zRotation, float xTranslate, float yTranslate, float zTranslate, float xScale, float yScale)
         {
             poseStack.pushPose();
 
@@ -177,10 +171,11 @@ public class CustomRenderer
 
             poseStack.mulPose(Axis.YP.rotationDegrees(yRotation));
             poseStack.mulPose(Axis.XP.rotationDegrees(180F));
-            poseStack.translate(-2.075F, -1.375F, zTranslate);
-            poseStack.scale(2F, 2F, 1F);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(zRotation));
+            poseStack.translate(xTranslate, yTranslate, zTranslate);
+            poseStack.scale(xScale, yScale, 1F);
 
-            wingsRenderable.render(poseStack, renderTypeBuffer, RenderType::entityTranslucent, light, OverlayTexture.NO_OVERLAY, partialTicks, ModelData.EMPTY);
+            this.wingsRenderable.render(poseStack, renderTypeBuffer, RenderType::entityTranslucent, light, OverlayTexture.NO_OVERLAY, partialTicks, ModelData.EMPTY);
 
             poseStack.popPose();
         }

@@ -7,6 +7,8 @@ import com.unixkitty.vampire_blood.advancement.trigger.VampireAbilityUseTrigger;
 import com.unixkitty.vampire_blood.advancement.trigger.VampireLevelChangeTrigger;
 import com.unixkitty.vampire_blood.command.EntitySummonArgument;
 import com.unixkitty.vampire_blood.command.VampireCommand;
+import com.unixkitty.vampire_blood.compat.SummonOriginalRite;
+import favouriteless.enchanted.common.init.registry.RiteTypes;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.ai.village.ReputationEventType;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -56,6 +59,11 @@ public final class ModRegistry
             VampireLevelChangeTrigger.register();
             VampireAbilityUseTrigger.register();
             CHARMED_ENTITY_TRIGGER = CriteriaTriggers.register(new PlayerTrigger(new ResourceLocation(VampireBlood.MODID, "charmed_entity")));
+
+            if (ModList.get().isLoaded("enchanted"))
+            {
+                RiteTypes.register(new ResourceLocation(VampireBlood.MODID, "summon_original"), SummonOriginalRite::new);
+            }
         }
     }
 

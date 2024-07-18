@@ -13,7 +13,8 @@
   "client": [
     "client.MixinEntity",
     "client.MixinLivingEntityClient",
-    "client.MixinMouseHandler"
+    "client.MixinMouseHandler",
+    "client.compat.MixinVanishingEffectClientEvents"
   ],
   "minVersion": "0.8"
 }

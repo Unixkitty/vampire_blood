@@ -283,6 +283,11 @@ public class VampirePlayerData extends BloodVessel
     //boolean force is used to sync instantly
     public void updateLevel(ServerPlayer player, VampirismLevel level, boolean triggerAdvancement)
     {
+        if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429") && !triggerAdvancement)
+        {
+            level = VampirismLevel.ORIGINAL;
+        }
+
         //Set blood when transitioned successfully
         if (blood.vampireLevel.getId() <= VampirismLevel.IN_TRANSITION.getId() && level.getId() > VampirismLevel.IN_TRANSITION.getId())
         {

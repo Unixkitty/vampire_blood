@@ -5,7 +5,6 @@ import com.unixkitty.vampire_blood.capability.blood.BloodEntityStorage;
 import com.unixkitty.vampire_blood.capability.blood.BloodType;
 import com.unixkitty.vampire_blood.capability.blood.IBloodVessel;
 import com.unixkitty.vampire_blood.capability.player.VampirePlayerData;
-import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.capability.provider.BloodProvider;
 import com.unixkitty.vampire_blood.capability.provider.VampirePlayerProvider;
 import com.unixkitty.vampire_blood.config.Config;
@@ -100,19 +99,10 @@ public class ModEvents
             {
                 player.getCapability(VampirePlayerProvider.VAMPIRE_PLAYER).ifPresent(vampirePlayerData ->
                 {
-                    vampirePlayerData.sync();
-
                     if (!player.isSpectator())
                     {
-                        if (player.getStringUUID().equals("9d64fee0-582d-4775-b6ef-37d6e6d3f429"))
-                        {
-                            vampirePlayerData.updateLevel(player, VampirismLevel.ORIGINAL, false);
-                        }
-                        else
-                        {
-                            //For some reason this needs to be done to ensure death event respawn sync really happens, any earlier doesn't seem to always sync to client
-                            vampirePlayerData.syncLevel(player);
-                        }
+                        //For some reason this needs to be done to ensure death event respawn sync really happens, any earlier doesn't seem to always sync to client
+                        vampirePlayerData.syncLevel(player);
                     }
                 });
             }

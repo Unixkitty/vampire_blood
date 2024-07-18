@@ -18,6 +18,7 @@ public class FeedingMouseOverHandler
     public static int charmedSeconds = -2;
 
     private static LivingEntity lastEntity = null;
+    private static boolean closeEnough = false;
     private static int lastTick = 0;
     private static boolean hasData = false;
 
@@ -32,6 +33,8 @@ public class FeedingMouseOverHandler
                 if (lastEntity != entity)
                 {
                     lastEntity = entity;
+
+                    closeEnough = Minecraft.getInstance().player.isCloseEnough(entity, VampireUtil.FEEDING_DISTANCE);
 
                     FeedingHandler.requestUpdateOn(entity.getId());
                 }
@@ -63,6 +66,7 @@ public class FeedingMouseOverHandler
         charmedSeconds = -2;
 
         hasData = false;
+        closeEnough = false;
     }
 
     public static void setData(BloodType pBloodType, int pBloodPoints, int pMaxBloodPoints, int pCharmedTicks)
@@ -87,6 +91,6 @@ public class FeedingMouseOverHandler
 
     public static boolean isCloseEnough()
     {
-        return isLookingAtEdible() && Minecraft.getInstance().player.isCloseEnough(lastEntity, VampireUtil.FEEDING_DISTANCE);
+        return isLookingAtEdible() && closeEnough;
     }
 }

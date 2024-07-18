@@ -201,6 +201,10 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:geckolib-388172:5460309") //witchery dep
 
     runtimeOnly fg.deobf("curse.maven:better-advancements-272515:4631253")
+
+    implementation fg.deobf("curse.maven:relics-mod-445274:5435202")
+    runtimeOnly fg.deobf("curse.maven:octo-lib-916747:5115332") //relics dep
+    runtimeOnly fg.deobf("curse.maven:curios-309927:5367944") //relics dep
 }
 
 mixin {
