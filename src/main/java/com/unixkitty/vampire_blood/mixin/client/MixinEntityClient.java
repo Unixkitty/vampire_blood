@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Entity.class)
-public class MixinEntity
+public class MixinEntityClient
 {
     @Inject(at = @At("HEAD"), method = "getTeamColor()I", cancellable = true)
     public void getTeamColor(CallbackInfoReturnable<Integer> cir)

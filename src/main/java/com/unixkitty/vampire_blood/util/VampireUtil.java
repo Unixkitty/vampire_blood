@@ -94,8 +94,7 @@ public class VampireUtil
 
     public static void preventMovement(@Nonnull LivingEntity entity)
     {
-        VampireUtil.applyEffect(entity, MobEffects.MOVEMENT_SLOWDOWN, 20, 9);
-        VampireUtil.applyEffect(entity, MobEffects.DIG_SLOWDOWN, 400, 2);
+        VampireUtil.applyEffect(entity, MobEffects.MOVEMENT_SLOWDOWN, 40, 9);
     }
 
     public static boolean canReachEntity(@Nonnull Player player, @Nonnull LivingEntity target)

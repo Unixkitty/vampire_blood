@@ -109,13 +109,10 @@ public enum KeyAction
                     case FEED_STOP -> ModNetworkDispatcher.sendToServer(new RequestStopFeedingC2SPacket());
                     case CHARM ->
                     {
-                        /*if (player.isShiftKeyDown())
+                        if (FeedingMouseOverHandler.isCloseEnough())
                         {
-
-                        }
-                        else*/
-                        if (FeedingMouseOverHandler.isCloseEnough()) //Default charm/uncharm action
-                        {
+                            //Charm/uncharm, or toggle follow behaviour if crouching.
+                            //Crouch charming an uncharmed entity should charm and set to follow
                             ModNetworkDispatcher.sendToServer(new UseCharmAbilityC2SPacket(FeedingMouseOverHandler.getLastEntity().getId()));
                         }
                     }

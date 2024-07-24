@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,7 +26,7 @@ public final class VampiricSensesUtil
     {
         Player player = Minecraft.getInstance().player;
 
-        if (player != null && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ClientCache.getVampireVars().getVampireLevel().sensesRange)
+        if (player != null && player.hasEffect(ModEffects.ENHANCED_SENSES.get()) && (entity instanceof Player && !entity.isSpectator() || entity instanceof PathfinderMob || entity instanceof AmbientCreature) && !(entity.isInFluidType() && !entity.getEyeInFluidType().isAir()) && entity.distanceTo(player) < ClientCache.getVampireVars().getVampireLevel().sensesRange)
         {
             if (ClientCache.getVampireVars().needsEntityOutlineColor(entity.getId()))
             {
@@ -51,7 +52,7 @@ public final class VampiricSensesUtil
         {
             return Color.HSBtoRGB((entity.tickCount % 100) / 100F, 1.0F, 1.0F);
         }
-        else if (entity instanceof PathfinderMob || entity instanceof Player)
+        else if (entity instanceof PathfinderMob || entity instanceof AmbientCreature || entity instanceof Player)
         {
             return ClientCache.getVampireVars().getEntityOutlineColor(entity.getId());
         }

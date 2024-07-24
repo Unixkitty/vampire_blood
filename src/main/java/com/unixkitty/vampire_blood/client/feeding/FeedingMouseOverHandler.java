@@ -9,6 +9,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 
+import javax.annotation.Nullable;
+
 @OnlyIn(Dist.CLIENT)
 public class FeedingMouseOverHandler
 {
@@ -52,7 +54,7 @@ public class FeedingMouseOverHandler
         }
     }
 
-    public static LivingEntity getLastEntity()
+    public static @Nullable LivingEntity getLastEntity()
     {
         return lastEntity;
     }
@@ -86,7 +88,7 @@ public class FeedingMouseOverHandler
 
     public static boolean isLookingAtEdible()
     {
-        return hasData && maxBloodPoints > 0 && bloodType != BloodType.NONE;
+        return hasData && maxBloodPoints > 0 && bloodType != BloodType.NONE && lastEntity != null && lastEntity.isAlive();
     }
 
     public static boolean isCloseEnough()

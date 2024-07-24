@@ -24,10 +24,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MobType;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.WrappedGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -140,7 +137,7 @@ public class ModEvents
                     }
                 });
 
-                if (Config.shouldUndeadIgnoreVampires.get() && entity instanceof Monster monster && entity.getMobType() == MobType.UNDEAD)
+                if (Config.shouldUndeadIgnoreVampires.get() && !(entity instanceof NeutralMob) && entity instanceof Monster monster && entity.getMobType() == MobType.UNDEAD)
                 {
                     noAttackUndeadPlayer(monster);
                 }

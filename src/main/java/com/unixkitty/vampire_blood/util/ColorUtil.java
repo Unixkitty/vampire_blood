@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ambient.AmbientCreature;
 import net.minecraft.world.entity.animal.Animal;
 
 import javax.annotation.Nonnull;
@@ -51,7 +52,7 @@ public final class ColorUtil
                         default -> SASSY_VIOLET;
                     }).orElse(targetPlayer.isCreative() ? -1 : RED_WINE);
         }
-        else if (entity instanceof PathfinderMob)
+        else if (entity instanceof PathfinderMob || entity instanceof AmbientCreature)
         {
             color = entity.getCapability(BloodProvider.BLOOD_STORAGE).map(bloodEntityStorage ->
             {

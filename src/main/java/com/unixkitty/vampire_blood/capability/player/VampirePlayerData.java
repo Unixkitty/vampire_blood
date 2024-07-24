@@ -694,6 +694,7 @@ public class VampirePlayerData extends BloodVessel
         if ((blood.vampireLevel == VampirismLevel.IN_TRANSITION || blood.vampireLevel == VampirismLevel.ORIGINAL) && this.charmedByMap != null)
         {
             this.charmedByMap.clear();
+            this.charmedByMap.trim();
         }
         else
         {

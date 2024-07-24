@@ -36,6 +36,8 @@ public abstract class BloodVessel implements IBloodVessel
     protected LivingEntity bloodVessel = null;
     @Nullable
     protected Object2IntOpenHashMap<UUID> charmedByMap = null;
+    //    @Nullable
+//    protected Object2ObjectOpenHashMap<UUID, IntList> charmCommandsMap = null;
     @Nullable
     protected ObjectOpenHashSet<UUID> knownVampirePlayers = null;
     @Nullable
@@ -127,6 +129,7 @@ public abstract class BloodVessel implements IBloodVessel
                 if (value == 0)
                 {
                     this.charmedByMap.removeInt(key);
+                    this.charmedByMap.trim();
                 }
 
                 ServerPlayer player = (ServerPlayer) entity.level().getPlayerByUUID(key);
@@ -252,6 +255,7 @@ public abstract class BloodVessel implements IBloodVessel
                 if (this.knownVampirePlayers != null)
                 {
                     this.knownVampirePlayers.remove(player.getUUID());
+                    this.knownVampirePlayers.trim();
 
                     this.lastCharmedPlayer = null;
                 }

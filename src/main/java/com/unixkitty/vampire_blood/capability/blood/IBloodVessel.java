@@ -4,9 +4,12 @@ import com.unixkitty.vampire_blood.capability.player.VampirismLevel;
 import com.unixkitty.vampire_blood.init.ModDamageTypes;
 import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
@@ -41,24 +44,15 @@ public interface IBloodVessel
     {
         if (victim.isAlive())
         {
-            MobEffectInstance effectInstance = new MobEffectInstance(MobEffects.WEAKNESS, 120, 1, false, false, true);
-            MobEffectInstance existingEffectInstance = victim.getEffect(effectInstance.getEffect());
+            if (victim.getMobType() == MobType.UNDEAD && !(victim instanceof Player)) return;
 
-            if (existingEffectInstance == null)
-            {
-                victim.addEffect(effectInstance);
-                existingEffectInstance = effectInstance;
-            }
-            else
-            {
-                effectInstance.duration += existingEffectInstance.duration;
+            MobEffectInstance weaknessEffectInstance = stackEffect(victim, MobEffects.WEAKNESS);
 
-                existingEffectInstance.update(effectInstance);
-            }
+            stackEffect(victim, MobEffects.DIG_SLOWDOWN);
 
-            if (existingEffectInstance.duration >= 1920)
+            if (weaknessEffectInstance.duration >= 1920)
             {
-                int chance = Math.min(existingEffectInstance.duration / 160, 100);
+                int chance = Math.min(weaknessEffectInstance.duration / 160, 100);
 
                 victim.hurt(ModDamageTypes.source(ModDamageTypes.BLOOD_LOSS, victim.level(), attacker), 1F);
 
@@ -72,9 +66,30 @@ public interface IBloodVessel
                     chance /= 2;
                 }
 
+                VampireUtil.chanceEffect(victim, MobEffects.CONFUSION, 120, 1, chance * 2);
                 VampireUtil.runWithChance(chance, victim.getRandom(), () -> this.dieFromBloodLoss(victim, attacker));
             }
         }
+    }
+
+    private MobEffectInstance stackEffect(@Nonnull LivingEntity victim, @Nonnull MobEffect effect)
+    {
+        MobEffectInstance effectInstance = new MobEffectInstance(effect, 120, 1, false, false, true);
+        MobEffectInstance existingEffectInstance = victim.getEffect(effect);
+
+        if (existingEffectInstance == null)
+        {
+            victim.addEffect(effectInstance);
+            existingEffectInstance = effectInstance;
+        }
+        else
+        {
+            effectInstance.duration += existingEffectInstance.duration;
+
+            existingEffectInstance.update(effectInstance);
+        }
+
+        return existingEffectInstance;
     }
 
     boolean tryGetCharmed(@Nonnull ServerPlayer player, VampirismLevel attackerLevel, @Nonnull LivingEntity target);

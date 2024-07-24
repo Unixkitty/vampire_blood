@@ -24,11 +24,11 @@ public class KeyBindings
     private static List<KeyMapping> keyMappings = new ArrayList<>();
 
     public static final KeyMapping FEED_KEY = register("feed", InputConstants.KEY_V);
-    public static final KeyMapping NIGHT_VISION_KEY = register("night_vision", InputConstants.KEY_N);
-    public static final KeyMapping BLOOD_VISION_KEY = register("blood_vision", InputConstants.KEY_B);
-    public static final KeyMapping SPEED_KEY = register("enhanced_speed", InputConstants.KEY_X);
-    public static final KeyMapping SENSES_KEY = register("enhanced_senses", InputConstants.KEY_H);
-    public static final KeyMapping CHARM_KEY = register("charm", InputConstants.KEY_G);
+    public static final KeyMapping NIGHT_VISION_KEY = register("night_vision");
+    public static final KeyMapping BLOOD_VISION_KEY = register("blood_vision");
+    public static final KeyMapping SPEED_KEY = register("enhanced_speed");
+    public static final KeyMapping SENSES_KEY = register("enhanced_senses");
+    public static final KeyMapping CHARM_KEY = register("charm");
     public static final KeyMapping ABILITY_WHEEL_KEY = register("ability_wheel", InputConstants.KEY_C, KeyConflictContext.UNIVERSAL);
 
     public static void init(final RegisterKeyMappingsEvent event)
@@ -51,7 +51,10 @@ public class KeyBindings
             {
                 if (minecraft.mouseHandler.isMouseGrabbed())
                 {
-                    FeedingHandler.handleKeys(event, minecraft);
+                    if (!minecraft.player.isCreative())
+                    {
+                        FeedingHandler.handleKeys(event, minecraft);
+                    }
 
                     KeyAction.handleKeys();
                 }
@@ -87,6 +90,11 @@ public class KeyBindings
 //                Minecraft.getInstance().player.sendSystemMessage(Component.literal("Test list generated."));
 //            }
 //        }
+    }
+
+    private static KeyMapping register(String name)
+    {
+        return register(name, InputConstants.UNKNOWN.getValue());
     }
 
     private static KeyMapping register(String name, int keyCode)

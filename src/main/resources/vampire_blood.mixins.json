@@ -11,7 +11,7 @@
     "compat.MixinComfortsEvents"
   ],
   "client": [
-    "client.MixinEntity",
+    "client.MixinEntityClient",
     "client.MixinLivingEntityClient",
     "client.MixinMouseHandler",
     "client.compat.MixinVanishingEffectClientEvents"
