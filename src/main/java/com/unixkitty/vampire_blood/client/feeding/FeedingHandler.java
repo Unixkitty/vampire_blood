@@ -3,6 +3,7 @@ package com.unixkitty.vampire_blood.client.feeding;
 import com.unixkitty.vampire_blood.client.cache.ClientCache;
 import com.unixkitty.vampire_blood.network.ModNetworkDispatcher;
 import com.unixkitty.vampire_blood.network.packet.RequestEntityBloodC2SPacket;
+import com.unixkitty.vampire_blood.util.VampireUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,6 +35,8 @@ public class FeedingHandler
 
     static void requestUpdateOn(int id)
     {
+        FeedingMouseOverHandler.updateDistance();
+
         ModNetworkDispatcher.sendToServer(new RequestEntityBloodC2SPacket(id, true));
     }
 }

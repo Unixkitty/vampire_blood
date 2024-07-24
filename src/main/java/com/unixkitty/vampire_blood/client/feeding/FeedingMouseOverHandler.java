@@ -36,8 +36,6 @@ public class FeedingMouseOverHandler
                 {
                     lastEntity = entity;
 
-                    closeEnough = Minecraft.getInstance().player.isCloseEnough(entity, VampireUtil.FEEDING_DISTANCE);
-
                     FeedingHandler.requestUpdateOn(entity.getId());
                 }
                 else if (lastTick != currentTick && currentTick % 20 == 0)
@@ -94,5 +92,13 @@ public class FeedingMouseOverHandler
     public static boolean isCloseEnough()
     {
         return isLookingAtEdible() && closeEnough;
+    }
+
+    static void updateDistance()
+    {
+        if (Minecraft.getInstance().player != null)
+        {
+            closeEnough = Minecraft.getInstance().player.isCloseEnough(lastEntity, VampireUtil.FEEDING_DISTANCE);
+        }
     }
 }
